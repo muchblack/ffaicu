@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}轉職神殿{% endblock %}
+{% block content %}
+<h1>轉職神殿</h1>
+<p>目前職業: <b>{{ current_job_name }}</b> (Lv{{ current_job_level }})</p>
+<p>※ 轉職後，能力值會下降10%。但若轉職目標職業的職業等級為20以上，則不會下降。</p>
+
+<h2>可轉職的職業</h2>
+<table>
+<tr><th>職業</th><th>熟練度</th><th>狀態</th><th></th></tr>
+{% for job in jobs %}
+{% if job.id == current_job %}
+<tr>
+<td><b>{{ job.name }}</b></td>
+<td>{{ job.mastery }}/60</td>
+<td>← 目前</td>
+<td></td>
+</tr>
+{% elif job.available %}
+<tr>
+<td>{{ job.name }}</td>
+<td>{{ job.mastery }}/60</td>
+<td>{% if job.mastered %}✔ 精通{% else %}-{% endif %}</td>
+<td>
+<form action="/view/job/change" method="post" style="display:inline">
+<input type="hidden" name="job_class" value="{{ job.id }}">
+<button class="btn" type="submit">轉職</button>
+</form>
+</td>
+</tr>
+{% endif %}
+{% endfor %}
+</table>
+
+<h2>尚未開放的職業</h2>
+<table>
+<tr><th>職業</th><th>熟練度</th><th>條件</th></tr>
+{% for job in jobs %}
+{% if not job.available and job.id != current_job %}
+<tr>
+<td>{{ job.name }}</td>
+<td>{{ job.mastery }}/60</td>
+<td class="msg-warn">{{ job.locked_reason }}</td>
+</tr>
+{% endif %}
+{% endfor %}
+</table>
+
+<a href="/view/status" class="btn">← 返回</a>
+{% endblock %}

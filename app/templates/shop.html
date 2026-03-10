@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ shop_name }}{% endblock %}
+{% block content %}
+<h1>{{ shop_name }}</h1>
+<p>持有金: <span class="gold">{{ "{:,}".format(gold) }}G</span></p>
+
+{% if current_item %}
+<h2>裝備中</h2>
+<p>{{ current_item.name }} ({{ current_item.stat_label }}: {{ current_item.stat_value }})</p>
+<form action="/view/shop/{{ shop_type }}/sell" method="post">
+<button class="btn btn-danger" type="submit">賣出</button>
+</form>
+{% endif %}
+
+<h2>商品列表</h2>
+<table>
+<tr><th>名稱</th><th>{{ stat_label }}</th><th>價格</th><th></th></tr>
+{% for item in items %}
+<tr>
+<td>{{ item.name }}</td>
+<td>{{ item.stat_value }}</td>
+<td class="gold">{{ "{:,}".format(item.price) }}G</td>
+<td>
+<form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
+<input type="hidden" name="item_id" value="{{ item.id }}">
+<button class="btn" type="submit" {% if gold < item.price %}disabled{% endif %}>購買</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</table>
+<a href="/view/status" class="btn">← 返回</a>
+{% endblock %}

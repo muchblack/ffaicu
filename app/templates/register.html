@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block nav %}{% endblock %}
+{% block title %}註冊 - FF ADVENTURE{% endblock %}
+{% block content %}
+<h1>建立角色</h1>
+<form action="/view/register" method="post">
+<table>
+<tr><td>帳號 (4-32字, 英數字):</td><td><input name="id" required minlength="4" maxlength="32" pattern="[a-zA-Z0-9]+"></td></tr>
+<tr><td>密碼 (4-32字):</td><td><input name="password" type="password" required minlength="4" maxlength="32"></td></tr>
+<tr><td>密語:</td><td><input name="password_recovery" required></td></tr>
+<tr><td>角色名:</td><td><input name="name" required maxlength="64"></td></tr>
+<tr><td>性別:</td><td><select name="sex"><option value="1">男</option><option value="0">女</option></select></td></tr>
+<tr><td>初始職業:</td><td>
+<select name="job_class">
+<option value="0">戰士</option>
+<option value="1">黑魔導士</option>
+<option value="2">白魔導士</option>
+<option value="3">盜賊</option>
+</select></td></tr>
+</table>
+<button class="btn" type="submit">註冊</button>
+<a href="/" class="btn">返回</a>
+</form>
+{% endblock %}

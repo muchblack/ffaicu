@@ -1,0 +1,9 @@
+{
+  "0": null,
+  "1": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.1, "message": "防禦魔法護盾！！！" }
+    ]
+  }
+}

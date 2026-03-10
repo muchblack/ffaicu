@@ -1,0 +1,9 @@
+{
+  "0": null,
+  "1": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "heal_attacker", "formula": "karma * rand(10)", "message": "飾品綻放光芒！！{name} 的HP恢復了♪" }
+    ]
+  }
+}

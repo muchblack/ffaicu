@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}銀行{% endblock %}
+{% block content %}
+<h1>銀行</h1>
+<table>
+<tr><th>持有金</th><td class="gold">{{ "{:,}".format(gold) }}G</td></tr>
+<tr><th>存款</th><td class="gold">{{ "{:,}".format(bank) }}G</td></tr>
+</table>
+
+<h2>存入（千G單位）</h2>
+<form action="/view/bank/deposit" method="post">
+<input name="amount" type="number" min="1" value="1"> × 1000G
+<button class="btn" type="submit">存入</button>
+</form>
+
+<h2>提領（千G單位）</h2>
+<form action="/view/bank/withdraw" method="post">
+<input name="amount" type="number" min="1" value="1"> × 1000G
+<button class="btn" type="submit">提領</button>
+</form>
+<a href="/view/status" class="btn">← 返回</a>
+{% endblock %}

@@ -1,0 +1,8 @@
+.venv/
+.DS_Store
+.ccb/
+__pycache__/
+*.pyc
+.env
+*.db
+cgibackup/

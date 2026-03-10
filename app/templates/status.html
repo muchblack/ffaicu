@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ char.name }} - 狀態{% endblock %}
+{% block content %}
+<h1>{{ char.name }} 的狀態</h1>
+
+<table>
+<tr><th>Lv</th><td>{{ char.level }}</td><th>職業</th><td>{{ job_name }} (Lv{{ char.job_level }})</td></tr>
+<tr><th>HP</th><td>{{ char.current_hp }} / {{ char.max_hp }}</td><th>EXP</th><td>{{ char.exp }}</td></tr>
+<tr><th>持有金</th><td class="gold">{{ "{:,}".format(char.gold) }}G</td><th>銀行</th><td class="gold">{{ "{:,}".format(char.bank_savings) }}G</td></tr>
+</table>
+
+<h2>能力值</h2>
+<table>
+<tr><th>STR</th><td>{{ char.str_ }}</td><th>MAG</th><td>{{ char.mag }}</td><th>FAI</th><td>{{ char.fai }}</td></tr>
+<tr><th>VIT</th><td>{{ char.vit }}</td><th>DEX</th><td>{{ char.dex }}</td><th>SPD</th><td>{{ char.spd }}</td></tr>
+<tr><th>CHA</th><td>{{ char.cha }}</td><th>業</th><td>{{ char.karma }}</td><td></td><td></td></tr>
+</table>
+
+<h2>裝備</h2>
+<table>
+{% if equip %}
+<tr><th>武器</th><td>{{ equip.weapon_name }} (攻擊力: {{ equip.weapon_attack }})</td></tr>
+<tr><th>防具</th><td>{{ equip.armor_name }} (防禦力: {{ equip.armor_defense }})</td></tr>
+<tr><th>飾品</th><td>{{ equip.accessory_name }}</td></tr>
+{% else %}
+<tr><td>無裝備</td></tr>
+{% endif %}
+</table>
+
+<h2>戰績</h2>
+<table>
+<tr><th>戰鬥次數</th><td>{{ char.battle_count }}</td><th>勝利</th><td>{{ char.win_count }}</td></tr>
+<tr><th>剩餘戰鬥</th><td>{{ char.available_battles }}</td><th>稱號</th><td>Rank {{ char.title_rank }}</td></tr>
+</table>
+
+<h2>行動</h2>
+<div>
+{% if cooldown <= 0 %}
+{% if champion %}
+<form action="/view/battle/champion" method="post" style="display:inline">
+<button class="btn">⚔ 冠軍戰 (vs {{ champion.character_name }})</button>
+</form>
+{% endif %}
+<a href="/view/battle/select" class="btn">⚔ 指定對戰</a>
+<form action="/view/battle/monster" method="post" style="display:inline">
+<select name="zone">
+<option value="low">四處走走（弱敵）</option>
+<option value="normal">附近的洞窟（強敵）</option>
+<option value="high">暗黑迷宮（相當強的敵人）</option>
+<option value="special">米西迪亞之塔（魔鬼般的敵人）</option>
+</select>
+<button class="btn">⚔ 狩獵魔物</button>
+</form>
+<a href="/view/tournament" class="btn">⚔ 武道會</a>
+{% else %}
+<p class="msg-warn">戰鬥冷卻中: 還需<span id="cd">{{ cooldown }}</span>秒</p>
+{% endif %}
+</div>
+<div style="margin-top: 8px">
+<a href="/view/tactic" class="btn">變更戰術</a>
+</div>
+
+<h2>設施</h2>
+<table>
+<tr>
+<td><form action="/view/inn" method="post"><button class="btn" type="submit">旅館 ({{ inn_cost }}G)</button></form></td>
+<td><a href="/view/shop?type=weapon" class="btn">武器店</a></td>
+<td><a href="/view/shop?type=armor" class="btn">防具店</a></td>
+<td><a href="/view/shop?type=accessory" class="btn">飾品店</a></td>
+</tr>
+<tr>
+<td><a href="/view/bank" class="btn">銀行</a></td>
+<td><a href="/view/warehouse" class="btn">道具倉庫</a></td>
+<td><a href="/view/message" class="btn">郵局</a></td>
+<td><a href="/view/ranking" class="btn">排行榜</a></td>
+</tr>
+<tr>
+<td><a href="/view/job" class="btn">轉職神殿</a></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</table>
+{% if cooldown > 0 %}
+<script>
+(function(){
+  var s=document.getElementById("cd"),t=parseInt(s.textContent,10);
+  var iv=setInterval(function(){
+    t--;s.textContent=t;
+    if(t<=0){clearInterval(iv);location.reload();}
+  },1000);
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}信件{% endblock %}
+{% block content %}
+<h1>信件</h1>
+
+<h2>發送訊息</h2>
+<form action="/view/message/send" method="post">
+<table>
+<tr><td>收件人帳號:</td><td><input name="recipient_id" required></td></tr>
+<tr><td>內容:</td><td><textarea name="content" rows="3" cols="40" required maxlength="500"></textarea></td></tr>
+</table>
+<button class="btn" type="submit">送出</button>
+</form>
+
+<h2>收件匣</h2>
+{% if inbox %}
+<table>
+<tr><th>寄件人</th><th>內容</th></tr>
+{% for m in inbox %}
+<tr><td>{{ m.sender_name }}</td><td>{{ m.content }}</td></tr>
+{% endfor %}
+</table>
+{% else %}
+<p>沒有訊息。</p>
+{% endif %}
+
+<h2>廣播訊息</h2>
+{% if broadcasts %}
+<table>
+<tr><th>寄件人</th><th>內容</th></tr>
+{% for b in broadcasts %}
+<tr><td>{{ b.sender_name }}</td><td>{{ b.content }}</td></tr>
+{% endfor %}
+</table>
+{% else %}
+<p>沒有廣播訊息。</p>
+{% endif %}
+{% endblock %}

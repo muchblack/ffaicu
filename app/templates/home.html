@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block nav %}{% endblock %}
+{% block content %}
+<h1>⚔ FF ADVENTURE いく改 ⚔</h1>
+<p>Final Fantasy 風格瀏覽器 RPG</p>
+
+{% if champion %}
+<h2>★ 現任冠軍 ★</h2>
+<table>
+<tr><th>名稱</th><td>{{ champion.character_name }}</td></tr>
+<tr><th>連勝</th><td>{{ champion.win_streak }}連勝</td></tr>
+</table>
+{% endif %}
+
+<h2>開始冒險</h2>
+{% if user %}
+<p>歡迎，<b>{{ user.name }}</b>！ <a href="/view/status">→ 前往狀態頁</a></p>
+<form action="/auth/logout" method="post"><button class="btn" type="submit">登出</button></form>
+{% else %}
+<h3>登入</h3>
+<form action="/view/login" method="post">
+<table>
+<tr><td>帳號:</td><td><input name="id" required minlength="4" maxlength="32"></td></tr>
+<tr><td>密碼:</td><td><input name="password" type="password" required minlength="4"></td></tr>
+</table>
+<button class="btn" type="submit">登入</button>
+</form>
+
+<h3>新手註冊</h3>
+<a href="/view/register" class="btn">建立角色</a>
+{% endif %}
+
+<h2>線上玩家 ({{ online_count }}人)</h2>
+{% if online_players %}
+<table><tr><th>名稱</th><th>Lv</th></tr>
+{% for p in online_players %}
+<tr><td>{{ p.name }}</td><td>{{ p.level }}</td></tr>
+{% endfor %}
+</table>
+{% else %}
+<p>目前沒有線上玩家。</p>
+{% endif %}
+{% endblock %}

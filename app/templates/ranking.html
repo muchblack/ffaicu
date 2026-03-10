@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}排行榜{% endblock %}
+{% block content %}
+<h1>排行榜</h1>
+<div>
+{% for cat in categories %}
+<a href="/view/ranking?category={{ cat }}" class="btn {% if cat == current %}btn-danger{% endif %}">{{ cat }}</a>
+{% endfor %}
+</div>
+
+<table>
+<tr><th>#</th><th>名稱</th><th>Lv</th><th>{{ current }}</th></tr>
+{% for r in rankings %}
+<tr>
+<td>{{ r.rank }}</td>
+<td>{{ r.name }}</td>
+<td>{{ r.level }}</td>
+<td>{{ r.value }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

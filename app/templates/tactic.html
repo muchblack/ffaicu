@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}作戰會議室{% endblock %}
+{% block content %}
+<h1>作戰會議室</h1>
+<hr>
+
+<form action="/view/tactic/change" method="post">
+<table>
+<tr><th colspan="3">戰技</th></tr>
+<tr>
+<td class="b1">目前戰技</td>
+<td class="b1"><b>{{ current_name }}</b></td>
+<td class="b1">{{ current_desc }}</td>
+</tr>
+{% for t in tactics %}
+<tr>
+<td class="b1"><input type="radio" name="tactic_id" value="{{ t.id }}" {% if t.id == current_tactic %}checked{% endif %}></td>
+<td class="b1">{{ t.name }}</td>
+<td class="b1">{{ t.description }}</td>
+</tr>
+{% endfor %}
+</table>
+<button class="btn" type="submit">變更</button>
+</form>
+
+<a href="/view/status" class="btn">← 返回狀態畫面</a>
+{% endblock %}

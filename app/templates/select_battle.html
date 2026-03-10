@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}指定對戰{% endblock %}
+{% block content %}
+<h1>指定對戰</h1>
+<p>※ 練習對戰，無獎勵。</p>
+
+<form action="/view/battle/select" method="post">
+<table>
+<tr><th>選擇</th><th>名稱</th><th>Lv</th><th>職業</th></tr>
+{% for c in opponents %}
+<tr>
+<td><input type="radio" name="opponent_id" value="{{ c.id }}" {% if loop.first %}checked{% endif %}></td>
+<td>{{ c.name }}</td>
+<td>{{ c.level }}</td>
+<td>{{ c.job_class }}</td>
+</tr>
+{% endfor %}
+</table>
+<button class="btn" type="submit">⚔ 開始對戰</button>
+</form>
+<a href="/view/status" class="btn">← 返回</a>
+{% endblock %}

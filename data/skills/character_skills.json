@@ -1,0 +1,31 @@
+{
+  "0": { "hissatu": null, "atowaza": null },
+  "1": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + job_level) * rand(50)", "message": "必殺技 凶斬擊！！！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "5": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(10) * (rand(15) + 1)", "message": "黑魔法隕石！！！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "10": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 100 },
+      "effects": [
+        { "type": "add_damage", "formula": "(fai + job_level) * rand(30)", "message": "白魔法神聖！！！" }
+      ]
+    },
+    "atowaza": null
+  }
+}

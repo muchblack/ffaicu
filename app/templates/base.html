@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}FF ADVENTURE いく改{% endblock %}</title>
+<style>
+body { background: #1a1a2e; color: #e0e0e0; font-family: monospace; margin: 0; padding: 10px; font-size: 14px; }
+a { color: #4fc3f7; text-decoration: none; }
+a:hover { color: #81d4fa; text-decoration: underline; }
+h1, h2, h3 { color: #ffd54f; margin: 8px 0; }
+h1 { font-size: 18px; border-bottom: 2px solid #ffd54f; padding-bottom: 4px; }
+h2 { font-size: 16px; }
+table { border-collapse: collapse; margin: 8px 0; }
+th, td { border: 1px solid #444; padding: 4px 8px; text-align: left; }
+th { background: #333366; color: #ffd54f; }
+tr:nth-child(even) { background: #1e1e3a; }
+tr:nth-child(odd) { background: #16213e; }
+.btn { display: inline-block; padding: 6px 16px; margin: 4px; background: #333366; color: #ffd54f; border: 1px solid #555; cursor: pointer; font-family: inherit; font-size: 13px; }
+.btn:hover { background: #444488; }
+.btn-danger { background: #662222; }
+.btn-danger:hover { background: #883333; }
+input, select { background: #0f3460; color: #e0e0e0; border: 1px solid #555; padding: 4px 8px; font-family: inherit; }
+.container { max-width: 800px; margin: 0 auto; }
+.nav { background: #0f3460; padding: 8px; margin-bottom: 10px; text-align: center; }
+.nav a { margin: 0 8px; }
+.stat-bar { background: #333; height: 12px; display: inline-block; }
+.stat-fill { background: #4caf50; height: 100%; }
+.hp-fill { background: #f44336; }
+.gold { color: #ffd700; }
+.msg-info { color: #4fc3f7; }
+.msg-warn { color: #ff9800; }
+.msg-success { color: #4caf50; }
+.msg-error { color: #f44336; }
+.battle-log { background: #0a0a1a; border: 1px solid #333; padding: 8px; margin: 8px 0; max-height: 400px; overflow-y: auto; font-size: 12px; line-height: 1.6; }
+.crit { color: #ff5722; font-weight: bold; }
+.flash { padding: 8px; margin: 8px 0; border: 1px solid; }
+.flash-success { background: #1b5e20; border-color: #4caf50; }
+.flash-error { background: #b71c1c; border-color: #f44336; }
+</style>
+</head>
+<body>
+<div class="container">
+{% if flash_message %}
+<div class="flash flash-{{ flash_type|default('info') }}">{{ flash_message }}</div>
+{% endif %}
+{% block content %}{% endblock %}
+</div>
+</body>
+</html>
