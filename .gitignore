@@ -10,3 +10,4 @@ knowledge-graph.*
 data/importData/**/index.html
 logs/
 demo/
+app/config.py
