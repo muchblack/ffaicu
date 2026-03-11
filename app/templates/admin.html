@@ -44,6 +44,12 @@
   <a href="/view/admin/items?p={{ password }}&tab=accessory" class="btn">飾品一覽</a>
 </div>
 
+<h2>魔物與地圖</h2>
+<div style="margin-bottom:12px;">
+  <a href="/view/admin/monsters?p={{ password }}" class="btn">魔物分佈一覽</a>
+  <a href="/view/admin/monsters/add?p={{ password }}" class="btn">新增魔物</a>
+</div>
+
 <h2>危險操作</h2>
 <div style="margin-bottom:12px;">
   <a href="/view/admin/delete-all?p={{ password }}" class="btn btn-danger">刪除所有角色記錄</a>
@@ -56,6 +62,7 @@
 <tr><td>武器種類</td><td>{{ total_weapons }}</td></tr>
 <tr><td>防具種類</td><td>{{ total_armors }}</td></tr>
 <tr><td>飾品種類</td><td>{{ total_accessories }}</td></tr>
+<tr><td>魔物總數</td><td>{{ total_monsters }}</td></tr>
 </table>
 
 <p style="margin-top:20px;"><a href="/view/home" class="btn">返回首頁</a></p>

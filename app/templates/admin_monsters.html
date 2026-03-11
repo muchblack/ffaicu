@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}魔物分佈 - 管理模式{% endblock %}
+{% block content %}
+<h1>魔物分佈</h1>
+
+<div style="margin-bottom:12px;">
+{% for z in zone_order %}
+<a href="/view/admin/monsters?p={{ password }}&zone={{ z }}" class="btn {% if z == current_zone %}btn-danger{% endif %}"
+   style="{% if z in closed_zones %}opacity:0.5;text-decoration:line-through{% endif %}">
+  {{ zone_labels[z] }} ({{ zone_counts[z] }})
+</a>
+{% endfor %}
+</div>
+
+<h2>
+  {{ zone_labels[current_zone] }}
+  {% if current_zone in closed_zones %}
+  <span style="color:red;font-size:0.8em;">（已關閉）</span>
+  {% else %}
+  <span style="color:green;font-size:0.8em;">（開放中）</span>
+  {% endif %}
+</h2>
+
+<div style="margin-bottom:12px;">
+  <a href="/view/admin/monsters/add?p={{ password }}&zone={{ current_zone }}" class="btn">新增魔物到此區域</a>
+  <form action="/view/admin/monsters/toggle-zone" method="post" style="display:inline">
+    <input type="hidden" name="password" value="{{ password }}">
+    <input type="hidden" name="zone" value="{{ current_zone }}">
+    {% if current_zone in closed_zones %}
+    <button class="btn" type="submit">開放此區域</button>
+    {% else %}
+    <button class="btn btn-danger" type="submit">關閉此區域</button>
+    {% endif %}
+  </form>
+</div>
+
+{% if monsters %}
+<table>
+<tr>
+  <th>ID</th><th>名稱</th><th>經驗值</th><th>基礎攻擊</th>
+  <th>HP範圍</th><th>速度</th><th>迴避</th><th>暴擊率</th>
+  <th>技能ID</th><th>掉落金幣</th><th>操作</th>
+</tr>
+{% for m in monsters %}
+<tr>
+  <td>{{ m.id }}</td>
+  <td>{{ m.name }}</td>
+  <td>{{ "{:,}".format(m.exp_reward) }}</td>
+  <td>{{ "{:,}".format(m.base_damage) }}</td>
+  <td>{{ "{:,}".format(m.damage_range) }}</td>
+  <td>{{ m.speed }}</td>
+  <td>{{ m.evasion }}</td>
+  <td>{{ m.critical_rate }}</td>
+  <td>{{ m.skill_id }}</td>
+  <td>{{ "{:,}".format(m.gold_drop) }}</td>
+  <td>
+    <a href="/view/admin/monsters/edit?p={{ password }}&id={{ m.id }}" class="btn">編輯</a>
+    <form action="/view/admin/monsters/delete" method="post" style="display:inline"
+          onsubmit="return confirm('確定刪除 {{ m.name }}？')">
+      <input type="hidden" name="password" value="{{ password }}">
+      <input type="hidden" name="monster_id" value="{{ m.id }}">
+      <input type="hidden" name="zone" value="{{ current_zone }}">
+      <button class="btn btn-danger" type="submit">刪除</button>
+    </form>
+  </td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<p>此區域尚無魔物。</p>
+{% endif %}
+
+<div style="margin-top:12px;">
+  <a href="/view/admin?p={{ password }}" class="btn">← 返回管理首頁</a>
+</div>
+{% endblock %}

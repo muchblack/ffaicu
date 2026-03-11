@@ -10,6 +10,7 @@ from app.models.warehouse import WarehouseItem
 from app.models.login_log import LoginLog
 from app.models.tournament import Tournament, TournamentEntry
 from app.models.online_player import OnlinePlayer
+from app.models.zone_config import ZoneConfig
 
 __all__ = [
     "Character",
@@ -28,4 +29,5 @@ __all__ = [
     "Tournament",
     "TournamentEntry",
     "OnlinePlayer",
+    "ZoneConfig",
 ]

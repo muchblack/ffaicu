@@ -33,16 +33,18 @@ def check_level_up(
         new_level += 1
         level_ups += 1
 
-        # 各能力值依職業定義的成長範圍加算
+        # 各能力值依職業定義的成長範圍加算（50% 機率觸發，比照原版）
         for i, stat_name in enumerate(stat_names):
-            growth = levelup_ranges[i] if i < len(levelup_ranges) else 1
-            new_stats[stat_name] = min(
-                new_stats.get(stat_name, 0) + random.randint(1, max(1, growth)),
-                settings.chara_max_stat,
-            )
+            if random.randint(0, 1) == 0:
+                growth = levelup_ranges[i] if i < len(levelup_ranges) else 1
+                new_stats[stat_name] = min(
+                    new_stats.get(stat_name, 0) + random.randint(0, max(1, growth) - 1) + 1,
+                    settings.chara_max_stat,
+                )
 
-        # HP 成長
-        hp_growth = random.randint(5, 20) + new_stats.get("vit", 0) // 10
+        # HP 成長：rand(VIT) * 3 + VIT（比照原版）
+        vit = new_stats.get("vit", 0)
+        hp_growth = random.randint(0, max(1, vit) - 1) * 3 + vit
         new_max_hp = min(new_max_hp + hp_growth, settings.chara_max_hp)
 
     return new_level, new_exp, new_stats, new_max_hp

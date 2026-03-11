@@ -18,6 +18,8 @@ from app.models.champion import Champion
 from app.models.character import Character
 from app.models.item_catalog import AccessoryCatalog, ArmorCatalog, WeaponCatalog
 from app.models.message import BroadcastMessage, Message
+from app.models.monster import Monster
+from app.models.zone_config import ZoneConfig
 from app.models.online_player import OnlinePlayer
 from app.models.warehouse import WarehouseItem
 from app.services import auth_service, battle_service, character_service, ranking_service, shop_service
@@ -122,10 +124,16 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
     champion = db.query(Champion).first()
     cooldown = battle_service.check_cooldown(user, settings.b_time)
 
+    # 從 DB 查有魔物且已開放的區域，按 _ZONE_ORDER 排序
+    zones_with_monsters = {z for z, in db.query(Monster.zone).distinct()}
+    closed_zones = {zc.zone for zc in db.query(ZoneConfig).filter(ZoneConfig.open == False).all()}
+    hunt_zones = [z for z in _ZONE_ORDER if z in zones_with_monsters and z not in closed_zones]
+
     return templates.TemplateResponse("status.html", {
         "request": request, "char": user, "equip": user.equipment,
         "job_name": job_name, "champion": champion, "cooldown": cooldown,
         "inn_cost": user.level * settings.yado_dai,
+        "hunt_zones": hunt_zones, "zone_labels": _ZONE_LABELS,
     })
 
 
@@ -611,6 +619,7 @@ def _admin_ctx(request: Request, password: str, db: Session) -> dict:
         "total_weapons": db.query(WeaponCatalog).count(),
         "total_armors": db.query(ArmorCatalog).count(),
         "total_accessories": db.query(AccessoryCatalog).count(),
+        "total_monsters": db.query(Monster).count(),
     }
 
 
@@ -1118,3 +1127,136 @@ def view_admin_item_delete(request: Request, db: Session = Depends(get_db),
         db.delete(item)
         db.commit()
     return RedirectResponse(f"/view/admin/items?p={password}&tab={tab}", status_code=303)
+
+
+# === 魔物與地圖 ===
+
+_ZONE_LABELS = {
+    "low": "周邊探索（弱）",
+    "normal": "附近的洞窟（強）",
+    "high": "暗黑迷宮（很強）",
+    "special": "米西迪亞之塔（極強）",
+    "isekai": "異世界（Lv300+）",
+    "genei": "幻影之城（隨機出現）",
+    "boss0": "傳說之地 Lv0 — 傳聞中的祠堂",
+    "boss1": "傳說之地 Lv1 — 古老神殿",
+    "boss2": "傳說之地 Lv2 — 勇者之洞窟",
+    "boss3": "傳說之地 Lv3 — 蓋亞之力",
+}
+_ZONE_ORDER = ["low", "normal", "high", "special", "genei", "isekai", "boss0", "boss1", "boss2", "boss3"]
+
+
+@router.get("/admin/monsters", response_class=HTMLResponse)
+def view_admin_monsters(request: Request, db: Session = Depends(get_db),
+                        p: str = Query(default=""), zone: str = Query(default="low")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+
+    zone_counts = {}
+    for z in _ZONE_ORDER:
+        zone_counts[z] = db.query(Monster).filter(Monster.zone == z).count()
+
+    monsters = db.query(Monster).filter(Monster.zone == zone).order_by(Monster.id).all()
+    closed_zones = {zc.zone for zc in db.query(ZoneConfig).filter(ZoneConfig.open == False).all()}
+    return templates.TemplateResponse("admin_monsters.html", {
+        "request": request, "password": p, "current_zone": zone,
+        "zone_labels": _ZONE_LABELS, "zone_order": _ZONE_ORDER,
+        "zone_counts": zone_counts, "monsters": monsters,
+        "closed_zones": closed_zones,
+    })
+
+
+@router.get("/admin/monsters/edit", response_class=HTMLResponse)
+def view_admin_monster_edit(request: Request, db: Session = Depends(get_db),
+                            p: str = Query(default=""), id: int = Query(default=0)):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    monster = db.query(Monster).get(id) if id else None
+    if not monster:
+        return RedirectResponse(f"/view/admin/monsters?p={p}")
+    return templates.TemplateResponse("admin_monster_edit.html", {
+        "request": request, "password": p, "monster": monster, "is_new": False,
+        "zone_labels": _ZONE_LABELS, "zone_order": _ZONE_ORDER,
+    })
+
+
+@router.post("/admin/monsters/edit", response_class=HTMLResponse)
+def view_admin_monster_save(request: Request, db: Session = Depends(get_db),
+                            password: str = Form(), monster_id: int = Form(),
+                            name: str = Form(), zone: str = Form(),
+                            exp_reward: int = Form(default=0), damage_range: int = Form(default=0),
+                            speed: int = Form(default=0), base_damage: int = Form(default=0),
+                            evasion: int = Form(default=0), skill_id: int = Form(default=0),
+                            critical_rate: int = Form(default=0), gold_drop: int = Form(default=0)):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    monster = db.query(Monster).get(monster_id)
+    if not monster:
+        return RedirectResponse(f"/view/admin/monsters?p={password}")
+    monster.name = name
+    monster.zone = zone
+    monster.exp_reward = exp_reward
+    monster.damage_range = damage_range
+    monster.speed = speed
+    monster.base_damage = base_damage
+    monster.evasion = evasion
+    monster.skill_id = skill_id
+    monster.critical_rate = critical_rate
+    monster.gold_drop = gold_drop
+    db.commit()
+    return RedirectResponse(f"/view/admin/monsters?p={password}&zone={zone}", status_code=303)
+
+
+@router.get("/admin/monsters/add", response_class=HTMLResponse)
+def view_admin_monster_add(request: Request, p: str = Query(default=""), zone: str = Query(default="low")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    return templates.TemplateResponse("admin_monster_edit.html", {
+        "request": request, "password": p, "is_new": True, "default_zone": zone,
+        "monster": None,
+        "zone_labels": _ZONE_LABELS, "zone_order": _ZONE_ORDER,
+    })
+
+
+@router.post("/admin/monsters/add", response_class=HTMLResponse)
+def view_admin_monster_add_save(request: Request, db: Session = Depends(get_db),
+                                password: str = Form(),
+                                name: str = Form(), zone: str = Form(),
+                                exp_reward: int = Form(default=0), damage_range: int = Form(default=0),
+                                speed: int = Form(default=0), base_damage: int = Form(default=0),
+                                evasion: int = Form(default=0), skill_id: int = Form(default=0),
+                                critical_rate: int = Form(default=0), gold_drop: int = Form(default=0)):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    monster = Monster(name=name, zone=zone, exp_reward=exp_reward, damage_range=damage_range,
+                      speed=speed, base_damage=base_damage, evasion=evasion, skill_id=skill_id,
+                      critical_rate=critical_rate, gold_drop=gold_drop)
+    db.add(monster)
+    db.commit()
+    return RedirectResponse(f"/view/admin/monsters?p={password}&zone={zone}", status_code=303)
+
+
+@router.post("/admin/monsters/delete", response_class=HTMLResponse)
+def view_admin_monster_delete(request: Request, db: Session = Depends(get_db),
+                              password: str = Form(), monster_id: int = Form(), zone: str = Form(default="low")):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    monster = db.query(Monster).get(monster_id)
+    if monster:
+        db.delete(monster)
+        db.commit()
+    return RedirectResponse(f"/view/admin/monsters?p={password}&zone={zone}", status_code=303)
+
+
+@router.post("/admin/monsters/toggle-zone", response_class=HTMLResponse)
+def view_admin_toggle_zone(request: Request, db: Session = Depends(get_db),
+                           password: str = Form(), zone: str = Form()):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    cfg = db.query(ZoneConfig).get(zone)
+    if cfg:
+        cfg.open = not cfg.open
+    else:
+        db.add(ZoneConfig(zone=zone, open=False))
+    db.commit()
+    return RedirectResponse(f"/view/admin/monsters?p={password}&zone={zone}", status_code=303)

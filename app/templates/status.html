@@ -44,10 +44,9 @@
 <a href="/view/battle/select" class="btn">⚔ 指定對戰</a>
 <form action="/view/battle/monster" method="post" style="display:inline">
 <select name="zone">
-<option value="low">四處走走（弱敵）</option>
-<option value="normal">附近的洞窟（強敵）</option>
-<option value="high">暗黑迷宮（相當強的敵人）</option>
-<option value="special">米西迪亞之塔（魔鬼般的敵人）</option>
+{% for z in hunt_zones %}
+<option value="{{ z }}">{{ zone_labels[z] }}</option>
+{% endfor %}
 </select>
 <button class="btn">⚔ 狩獵魔物</button>
 </form>
