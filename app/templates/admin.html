@@ -24,6 +24,7 @@
   <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">group</span> 角色管理</h2>
   <div class="flex flex-wrap gap-3 mb-4">
     <a href="/view/admin/characters?p={{ password }}" class="rpg-btn rpg-btn-rich">角色一覽</a>
+    <a href="/view/admin/generate-npc?p={{ password }}" class="rpg-btn rpg-btn-rich">產生模擬角色</a>
   </div>
   <form method="get" action="/view/admin/search" class="flex items-center gap-3 mb-4">
     <input type="hidden" name="p" value="{{ password }}">
@@ -78,6 +79,10 @@
 <!-- 危險操作 -->
 <section class="fantasy-border mb-6" style="border-color:rgba(239,68,68,0.3);">
   <h2 class="section-title" style="color:#f87171;"><span class="material-symbols-outlined text-sm" style="opacity:0.7">warning</span> 危險操作</h2>
+  <form method="post" action="/view/admin/delete-npcs" style="display:inline;">
+    <input type="hidden" name="password" value="{{ password }}">
+    <button type="submit" class="rpg-btn rpg-btn-danger">清除所有 NPC</button>
+  </form>
   <a href="/view/admin/delete-all?p={{ password }}" class="rpg-btn rpg-btn-danger">刪除所有角色記錄</a>
 </section>
 

@@ -26,7 +26,7 @@ from app.models.online_player import OnlinePlayer
 from app.models.warehouse import WarehouseItem
 from app.engine.battle_core import BattleEngine
 from app.engine.battle_state import BattleMode
-from app.services import auth_service, battle_service, character_service, ranking_service, shop_service
+from app.services import auth_service, battle_service, character_service, npc_service, ranking_service, shop_service
 from app.services.battle_service import _char_to_combatant
 from app.services import skill_file_service
 
@@ -1651,3 +1651,65 @@ def view_admin_run_tournament(request: Request, db: Session = Depends(get_db),
         "flash_message": f"武道會開催完畢！優勝者：{champion_char.name}",
         "flash_type": "success",
     })
+
+
+# === NPC 模擬角色產生 ===
+@router.get("/admin/generate-npc", response_class=HTMLResponse)
+def view_admin_generate_npc(
+    request: Request, db: Session = Depends(get_db), p: str = Query(default=""),
+):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    return templates.TemplateResponse("admin_generate_npc.html", {
+        "request": request, "password": p, "jobs": jobs,
+        "generated": None, "flash_message": None, "flash_type": None,
+    })
+
+
+@router.post("/admin/generate-npc", response_class=HTMLResponse)
+def do_admin_generate_npc(
+    request: Request, db: Session = Depends(get_db),
+    password: str = Form(default=""),
+    count: int = Form(default=16),
+    target_level: int = Form(default=50),
+    job_classes: list[int] = Form(default=[]),
+    equip_tier: str = Form(default="auto"),
+    set_as_champion: str = Form(default=""),
+):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    try:
+        results = npc_service.generate_npcs(
+            db, count, target_level,
+            job_classes=job_classes if job_classes else None,
+            equip_tier=equip_tier,
+            set_as_champion=bool(set_as_champion),
+        )
+        flash = f"成功產生 {len(results)} 個 NPC"
+        if set_as_champion and results:
+            flash += f"，{results[0]['name']} 已設為冠軍"
+        return templates.TemplateResponse("admin_generate_npc.html", {
+            "request": request, "password": password, "jobs": jobs,
+            "generated": results, "flash_message": flash, "flash_type": "success",
+        })
+    except Exception as e:
+        return templates.TemplateResponse("admin_generate_npc.html", {
+            "request": request, "password": password, "jobs": jobs,
+            "generated": None, "flash_message": str(e), "flash_type": "error",
+        })
+
+
+@router.post("/admin/delete-npcs", response_class=HTMLResponse)
+def do_admin_delete_npcs(
+    request: Request, db: Session = Depends(get_db),
+    password: str = Form(default=""),
+):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    count = npc_service.delete_all_npcs(db)
+    ctx = _admin_ctx(request, password, db)
+    ctx["flash_message"] = f"已刪除 {count} 個 NPC 角色"
+    ctx["flash_type"] = "success"
+    return templates.TemplateResponse("admin.html", ctx)

@@ -148,15 +148,24 @@ def _apply_battle_rewards(
         # 職業經驗
         char.job_level = min(char.job_level + 1, 60)
     elif result.outcome == "lose" and is_monster_battle:
-        # Perl: 敗北 → 經驗 1，金幣變百分之一
+        # Perl mbattle: 敗北 → 經驗 1，金幣變百分之一
         actual_exp = 1
         gold_before = int(char.gold)
         char.exp += actual_exp
         char.gold = int(char.gold // 100)
         gold_lost = gold_before - int(char.gold)
+    elif result.outcome == "lose" and not is_monster_battle:
+        # Perl wbattle: PvP 敗北 → 經驗 = 對手等級（無乘數），金幣減半
+        actual_exp = exp_gained
+        char.exp += actual_exp
+        char.gold = int(char.gold // 2)
     elif result.outcome == "timeout" and is_monster_battle:
-        # Perl: 逃跑 → 經驗減半
+        # Perl mbattle: 逃跑 → 經驗減半
         actual_exp = exp_gained // 2
+        char.exp += actual_exp
+    elif result.outcome in ("timeout", "draw"):
+        # Perl wbattle: PvP 平手/超時 → 經驗同勝利，金幣 0
+        actual_exp = exp_gained
         char.exp += actual_exp
 
     # 升級判定（所有獲得經驗的路徑都要檢查）

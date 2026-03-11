@@ -1,0 +1,90 @@
+{% extends "base_rpg.html" %}
+{% block title %}產生模擬角色 - 管理模式{% endblock %}
+{% block content %}
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">group_add</span> 產生模擬角色</h1>
+  <p class="rpg-hint">產生 NPC 角色用於測試冠軍戰和武道會</p>
+</header>
+
+{% if flash_message %}
+<div class="fantasy-border mb-4" style="border-color:{% if flash_type == 'error' %}rgba(239,68,68,0.5){% else %}rgba(34,197,94,0.5){% endif %};">
+  <p style="color:{% if flash_type == 'error' %}#f87171{% else %}#4ade80{% endif %};">{{ flash_message }}</p>
+</div>
+{% endif %}
+
+{% if generated %}
+<section class="fantasy-border mb-6">
+  <h2 class="section-title">已產生 {{ generated|length }} 個 NPC</h2>
+  <table class="rpg-table">
+    <thead>
+      <tr><th>ID</th><th>名稱</th><th>LV</th><th>職業</th><th>HP</th><th>武器</th><th>ATK</th><th>防具</th><th>DEF</th></tr>
+    </thead>
+    <tbody>
+      {% for npc in generated %}
+      <tr>
+        <td class="text-xs">{{ npc.id }}</td>
+        <td>{{ npc.name }}</td>
+        <td class="font-bold">{{ npc.level }}</td>
+        <td>{{ npc.job }}</td>
+        <td>{{ npc.hp }}</td>
+        <td>{{ npc.weapon }}</td>
+        <td>{{ npc.atk }}</td>
+        <td>{{ npc.armor }}</td>
+        <td>{{ npc["def"] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<section class="fantasy-border mb-6">
+  <h2 class="section-title">設定</h2>
+  <form method="post" action="/view/admin/generate-npc" class="space-y-4">
+    <input type="hidden" name="password" value="{{ password }}">
+
+    <div class="flex flex-wrap gap-6">
+      <div>
+        <label class="text-xs text-gold font-bold">數量（1-32）</label>
+        <input type="number" name="count" value="16" min="1" max="32" class="rpg-input" style="width:80px;">
+      </div>
+      <div>
+        <label class="text-xs text-gold font-bold">目標等級</label>
+        <input type="number" name="target_level" value="50" min="1" max="99999" class="rpg-input" style="width:100px;">
+      </div>
+    </div>
+
+    <div>
+      <label class="text-xs text-gold font-bold mb-2 block">職業（不選 = 隨機基礎職業 0-13）</label>
+      <div class="flex flex-wrap gap-2">
+        {% for jid, jdata in jobs.items() %}
+        <label class="text-xs" style="min-width:120px;">
+          <input type="checkbox" name="job_classes" value="{{ jid }}"> {{ jdata.name }}（{{ jid }}）
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div>
+      <label class="text-xs text-gold font-bold mb-2 block">裝備方式</label>
+      <div class="flex gap-4">
+        <label class="text-xs"><input type="radio" name="equip_tier" value="auto" checked> 依等級自動配裝</label>
+        <label class="text-xs"><input type="radio" name="equip_tier" value="best"> 最強裝備</label>
+        <label class="text-xs"><input type="radio" name="equip_tier" value="none"> 不配裝備</label>
+      </div>
+    </div>
+
+    <div>
+      <label class="text-xs">
+        <input type="checkbox" name="set_as_champion" value="1"> 將第一個 NPC 設為冠軍
+      </label>
+    </div>
+
+    <button type="submit" class="rpg-btn rpg-btn-rich">產生 NPC</button>
+  </form>
+</section>
+
+<div class="flex gap-3">
+  <a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回管理</a>
+</div>
+{% endblock %}
