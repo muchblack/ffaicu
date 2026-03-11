@@ -8,3 +8,5 @@ __pycache__/
 cgibackup/
 knowledge-graph.*
 data/importData/**/index.html
+logs/
+demo/
