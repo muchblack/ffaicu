@@ -146,7 +146,7 @@ def _apply_battle_rewards(
         if char.gold < 0:
             char.gold = 0
         # 職業經驗
-        char.job_level = min(char.job_level + 1, 60)
+        char.job_level = min(int(char.job_level + settings.job_level_per_win), 60)
     elif result.outcome == "lose" and is_monster_battle:
         # Perl mbattle: 敗北 → 經驗 1，金幣變百分之一（懲罰不受倍數影響）
         actual_exp = 1

@@ -108,7 +108,8 @@ def view_register(
 
 # === 狀態 ===
 @router.get("/status", response_class=HTMLResponse)
-def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str = Cookie(default=None)):
+def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str = Cookie(default=None),
+                msg: str = Query(default=""), inn_paid: int = Query(default=0)):
     user = _get_user(db, ffa_token)
     if not user:
         return RedirectResponse("/view/home")
@@ -136,12 +137,25 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
     closed_zones = {zc.zone for zc in db.query(ZoneConfig).filter(ZoneConfig.open == False).all()}
     hunt_zones = [z for z in _ZONE_ORDER if z in zones_with_monsters and z not in closed_zones]
 
+    # 提示訊息（用 status_msg 避免與 base_rpg.html 的 flash_message 重複）
+    status_msg, status_msg_type = None, None
+    if msg == "inn_ok":
+        status_msg = f"HP 已完全恢復！（支付 {inn_paid:,}G）"
+        status_msg_type = "success"
+    elif msg == "inn_no_gold":
+        status_msg = "金幣不足（持有金+銀行）"
+        status_msg_type = "error"
+    elif msg == "hp_full":
+        status_msg = "HP 已經是滿的了"
+        status_msg_type = "info"
+
     return templates.TemplateResponse("status.html", {
         "request": request, "char": user, "equip": user.equipment,
         "job_name": job_name, "champion": champion, "cooldown": cooldown,
         "inn_cost": user.level * settings.yado_dai,
         "hunt_zones": hunt_zones, "zone_labels": _ZONE_LABELS,
         "lv_up": settings.lv_up, "last_zone": user.last_zone or "",
+        "status_msg": status_msg, "status_msg_type": status_msg_type,
     })
 
 
@@ -152,11 +166,16 @@ def view_inn(request: Request, db: Session = Depends(get_db), ffa_token: str = C
     if not user:
         return RedirectResponse("/view/home")
     cost = user.level * settings.yado_dai
-    if user.gold >= cost and user.current_hp < user.max_hp:
-        user.gold -= cost
-        user.current_hp = user.max_hp
-        db.commit()
-    return RedirectResponse("/view/status", status_code=303)
+    if user.current_hp >= user.max_hp:
+        return RedirectResponse("/view/status?msg=hp_full", status_code=303)
+    # 與商店同步：持有金不足時自動從銀行補差額
+    from app.services.shop_service import _deduct_gold
+    err = _deduct_gold(user, cost)
+    if err:
+        return RedirectResponse("/view/status?msg=inn_no_gold", status_code=303)
+    user.current_hp = user.max_hp
+    db.commit()
+    return RedirectResponse(f"/view/status?msg=inn_ok&inn_paid={cost}", status_code=303)
 
 
 # === 戦闘 ===

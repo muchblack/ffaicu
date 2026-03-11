@@ -90,17 +90,20 @@ def use_inn(
     current_user: Character = Depends(get_current_user),
 ):
     cost = current_user.level * settings.yado_dai
-    if current_user.gold < cost:
-        raise HTTPException(status_code=400, detail="金幣不足")
     if current_user.current_hp >= current_user.max_hp:
         raise HTTPException(status_code=400, detail="HP已滿")
+    # 與商店同步：持有金不足時自動從銀行補差額
+    from app.services.shop_service import _deduct_gold
+    err = _deduct_gold(current_user, cost)
+    if err:
+        raise HTTPException(status_code=400, detail=err)
 
-    current_user.gold -= cost
     current_user.current_hp = current_user.max_hp
     db.commit()
 
     return {
         "message": f"HP已完全恢復（{cost}G）",
         "current_hp": current_user.current_hp,
-        "gold": current_user.gold,
+        "gold": int(current_user.gold),
+        "bank_savings": int(current_user.bank_savings),
     }
