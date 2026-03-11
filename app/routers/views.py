@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import time
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Cookie, Depends, Form, Query, Request
@@ -19,10 +20,14 @@ from app.models.character import Character
 from app.models.item_catalog import AccessoryCatalog, ArmorCatalog, WeaponCatalog
 from app.models.message import BroadcastMessage, Message
 from app.models.monster import Monster
+from app.models.tournament import Tournament, TournamentEntry
 from app.models.zone_config import ZoneConfig
 from app.models.online_player import OnlinePlayer
 from app.models.warehouse import WarehouseItem
+from app.engine.battle_core import BattleEngine
+from app.engine.battle_state import BattleMode
 from app.services import auth_service, battle_service, character_service, ranking_service, shop_service
+from app.services.battle_service import _char_to_combatant
 from app.services import skill_file_service
 
 router = APIRouter(prefix="/view", tags=["頁面"])
@@ -367,6 +372,20 @@ def view_bank_deposit(request: Request, db: Session = Depends(get_db), ffa_token
     if user.gold >= amt:
         user.gold -= amt
         user.bank_savings += amt
+        db.commit()
+    return RedirectResponse("/view/bank", status_code=303)
+
+
+@router.post("/bank/deposit-all")
+def view_bank_deposit_all(request: Request, db: Session = Depends(get_db), ffa_token: str = Cookie(default=None)):
+    user = _get_user(db, ffa_token)
+    if not user:
+        return RedirectResponse("/view/home")
+    from app.config import settings
+    available = min(int(user.gold), settings.bank_max - int(user.bank_savings))
+    if available > 0:
+        user.gold -= available
+        user.bank_savings += available
         db.commit()
     return RedirectResponse("/view/bank", status_code=303)
 
@@ -1517,3 +1536,124 @@ def view_admin_toggle_zone(request: Request, db: Session = Depends(get_db),
         db.add(ZoneConfig(zone=zone, open=False))
     db.commit()
     return RedirectResponse(f"/view/admin/monsters?p={password}&zone={zone}", status_code=303)
+
+
+# === 武道會管理 ===
+
+def _tournament_to_dict(t: Tournament, db: Session) -> dict:
+    entries = (
+        db.query(TournamentEntry)
+        .filter(TournamentEntry.tournament_id == t.id)
+        .order_by(TournamentEntry.round_reached.desc())
+        .all()
+    )
+    return {
+        "id": t.id,
+        "winner_name": t.winner_name,
+        "created_at_fmt": datetime.fromtimestamp(t.created_at).strftime("%Y-%m-%d %H:%M") if t.created_at else "",
+        "entries": [
+            {"name": e.character_name, "level": e.level, "round_reached": e.round_reached}
+            for e in entries
+        ],
+    }
+
+
+@router.get("/admin/tournament", response_class=HTMLResponse)
+def view_admin_tournament(request: Request, db: Session = Depends(get_db),
+                          p: str = Query(default=""), tid: int = Query(default=0),
+                          err: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+
+    target = (
+        db.query(Tournament).filter(Tournament.id == tid).first()
+        if tid
+        else db.query(Tournament).order_by(Tournament.id.desc()).first()
+    )
+    latest = _tournament_to_dict(target, db) if target else None
+
+    history = [
+        {
+            "id": t.id,
+            "winner_name": t.winner_name,
+            "created_at_fmt": datetime.fromtimestamp(t.created_at).strftime("%Y-%m-%d %H:%M") if t.created_at else "",
+        }
+        for t in db.query(Tournament).order_by(Tournament.id.desc()).limit(20).all()
+    ]
+
+    flash_message = "參加者不足（至少需要 2 名角色）" if err == "insufficient" else None
+
+    return templates.TemplateResponse("admin_tournament.html", {
+        "request": request, "password": p,
+        "latest": latest, "history": history,
+        "total_characters": db.query(Character).count(),
+        "results_log": None,
+        "flash_message": flash_message, "flash_type": "error" if flash_message else None,
+    })
+
+
+@router.post("/admin/tournament/run", response_class=HTMLResponse)
+def view_admin_run_tournament(request: Request, db: Session = Depends(get_db),
+                              password: str = Form(default="")):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+
+    characters = db.query(Character).order_by(Character.level.desc()).limit(32).all()
+    if len(characters) < 2:
+        return RedirectResponse(f"/view/admin/tournament?p={password}&err=insufficient", status_code=303)
+
+    now = int(time.time())
+    tournament = Tournament(created_at=now)
+    db.add(tournament)
+    db.flush()
+
+    engine = BattleEngine(max_rounds=50)
+    participants = list(characters)
+    round_num = 1
+    results_log: list[str] = []
+
+    while len(participants) > 1:
+        next_round = []
+        for i in range(0, len(participants) - 1, 2):
+            a, b = participants[i], participants[i + 1]
+            ca = _char_to_combatant(a, a.equipment)
+            cb = _char_to_combatant(b, b.equipment)
+            result = engine.execute(ca, cb, BattleMode.PVP_SELECT)
+            winner = a if result.outcome == "win" else b
+            loser = b if winner is a else a
+            db.add(TournamentEntry(
+                tournament_id=tournament.id, character_id=loser.id,
+                character_name=loser.name, level=loser.level, round_reached=round_num,
+            ))
+            next_round.append(winner)
+            results_log.append(f"R{round_num}: {a.name} vs {b.name} → {winner.name}")
+        if len(participants) % 2 == 1:
+            next_round.append(participants[-1])
+        participants = next_round
+        round_num += 1
+
+    champion_char = participants[0]
+    db.add(TournamentEntry(
+        tournament_id=tournament.id, character_id=champion_char.id,
+        character_name=champion_char.name, level=champion_char.level, round_reached=round_num,
+    ))
+    tournament.winner_name = champion_char.name
+    db.commit()
+
+    latest = _tournament_to_dict(tournament, db)
+    history = [
+        {
+            "id": t.id, "winner_name": t.winner_name,
+            "created_at_fmt": datetime.fromtimestamp(t.created_at).strftime("%Y-%m-%d %H:%M") if t.created_at else "",
+        }
+        for t in db.query(Tournament).order_by(Tournament.id.desc()).limit(20).all()
+    ]
+
+    return templates.TemplateResponse("admin_tournament.html", {
+        "request": request, "password": password,
+        "latest": latest, "history": history,
+        "total_characters": db.query(Character).count(),
+        "results_log": results_log,
+        "flash_message": f"武道會開催完畢！優勝者：{champion_char.name}",
+        "flash_type": "success",
+    })

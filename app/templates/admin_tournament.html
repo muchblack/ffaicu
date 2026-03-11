@@ -1,0 +1,90 @@
+{% extends "base_rpg.html" %}
+{% block title %}武道會管理 - FF ADVENTURE{% endblock %}
+{% block content %}
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">swords</span> 武道會管理</h1>
+</header>
+
+{% if flash_message %}
+<div class="flash flash-{{ flash_type|default('info') }}">{{ flash_message }}</div>
+{% endif %}
+
+<!-- 開催武道會 -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">play_circle</span> 開催武道會</h2>
+  <p class="rpg-hint mb-3">目前角色總數：<b>{{ total_characters }}</b>（取等級最高 32 名參戰，單淘汰制）</p>
+  <form method="post" action="/view/admin/tournament/run">
+    <input type="hidden" name="password" value="{{ password }}">
+    <button type="submit" class="rpg-btn rpg-btn-rich"
+            onclick="return confirm('確定要開催武道會嗎？將自動進行單淘汰錦標賽。')">
+      <span class="material-symbols-outlined">swords</span> 開催武道會
+    </button>
+  </form>
+</section>
+
+<!-- 最近武道會結果 -->
+{% if latest %}
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">emoji_events</span> 武道會結果 #{{ latest.id }}</h2>
+  <p class="mb-3" style="color:var(--gold);">
+    <span class="material-symbols-outlined">trophy</span>
+    優勝者：<b style="font-size:1.2em;">{{ latest.winner_name }}</b>
+    <span class="text-xs" style="color:var(--text-muted);margin-left:1em;">{{ latest.created_at_fmt }}</span>
+  </p>
+
+  {% if results_log %}
+  <details class="mb-4" open>
+    <summary style="cursor:pointer;color:var(--gold);font-weight:bold;">對戰組合表</summary>
+    <ul style="list-style:none;padding:0;margin-top:0.5em;">
+      {% for line in results_log %}
+      <li class="rpg-hint" style="padding:2px 0;">{{ line }}</li>
+      {% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+
+  <table class="rpg-table">
+    <thead>
+      <tr><th>#</th><th>名稱</th><th>等級</th><th>到達回合</th></tr>
+    </thead>
+    <tbody>
+      {% for e in latest.entries %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.level }}</td>
+        <td>{{ e.round_reached }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% else %}
+<section class="fantasy-border mb-6">
+  <p class="rpg-hint">尚無武道會記錄。</p>
+</section>
+{% endif %}
+
+<!-- 歷史記錄 -->
+{% if history %}
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">history</span> 歷史記錄</h2>
+  <table class="rpg-table">
+    <thead>
+      <tr><th>#</th><th>優勝者</th><th>開催日期</th></tr>
+    </thead>
+    <tbody>
+      {% for t in history %}
+      <tr style="cursor:pointer;" onclick="location.href='/view/admin/tournament?p={{ password }}&tid={{ t.id }}'">
+        <td>{{ t.id }}</td>
+        <td>{{ t.winner_name }}</td>
+        <td>{{ t.created_at_fmt }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回管理首頁</a>
+{% endblock %}
