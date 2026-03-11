@@ -4,7 +4,6 @@ from fastapi.staticfiles import StaticFiles
 from app.database import Base, engine
 from app.models import *  # noqa: F401,F403 — 確保所有模型已註冊
 from app.routers import (
-    admin,
     auth,
     bank,
     battle_champion,
@@ -45,7 +44,6 @@ app.include_router(tactic.router)
 app.include_router(character.router)
 app.include_router(message.router)
 app.include_router(ranking.router)
-app.include_router(admin.router)
 
 # 前端視圖路由
 app.include_router(views.router)

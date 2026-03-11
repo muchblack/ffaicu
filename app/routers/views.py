@@ -259,7 +259,7 @@ def view_shop(request: Request, db: Session = Depends(get_db), ffa_token: str = 
     return templates.TemplateResponse("shop.html", {
         "request": request, "shop_name": shop_name, "shop_type": type,
         "stat_label": stat_label, "items": items, "current_item": current,
-        "gold": int(user.gold),
+        "gold": int(user.gold), "bank": int(user.bank_savings),
     })
 
 
@@ -601,11 +601,8 @@ def view_tactic_change(request: Request, db: Session = Depends(get_db), ffa_toke
 
 
 # === 管理後台 ===
-ADMIN_PASSWORD = "1111"  # TODO: 移至環境變數
-
-
 def _check_admin_pw(password: str) -> bool:
-    return password == ADMIN_PASSWORD
+    return password == settings.admin_password
 
 
 def _admin_ctx(request: Request, password: str, db: Session) -> dict:
@@ -995,7 +992,7 @@ def view_admin_delete_all(request: Request, db: Session = Depends(get_db), p: st
 def view_admin_delete_all_confirm(request: Request, db: Session = Depends(get_db),
                                   password: str = Form(), confirm: str = Form(default=""),
                                   confirm_password: str = Form(default="")):
-    if not _check_admin_pw(password) or confirm != "1" or confirm_password != ADMIN_PASSWORD:
+    if not _check_admin_pw(password) or confirm != "1" or confirm_password != settings.admin_password:
         return templates.TemplateResponse("admin_delete_all.html", {
             "request": request, "password": password, "confirmed": False,
             "total_characters": db.query(Character).count(),

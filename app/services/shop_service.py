@@ -10,15 +10,29 @@ from app.models.equipment import CharacterEquipment
 from app.models.item_catalog import AccessoryCatalog, ArmorCatalog, WeaponCatalog
 
 
+def _deduct_gold(char: Character, price: int) -> str | None:
+    """從持有金扣款，不足時自動從銀行補差額。成功回傳 None，失敗回傳錯誤訊息。"""
+    total = char.gold + char.bank_savings
+    if total < price:
+        return "金幣不足（持有金+銀行）"
+    if char.gold >= price:
+        char.gold -= price
+    else:
+        shortfall = price - char.gold
+        char.gold = 0
+        char.bank_savings -= shortfall
+    return None
+
+
 def buy_weapon(db: Session, char: Character, weapon_id: int) -> dict:
     weapon = db.query(WeaponCatalog).filter(WeaponCatalog.id == weapon_id).first()
     if not weapon:
         return {"error": "找不到武器"}
-    if char.gold < weapon.price:
-        return {"error": "金幣不足"}
+    err = _deduct_gold(char, weapon.price)
+    if err:
+        return {"error": err}
 
     equip = char.equipment or CharacterEquipment(character_id=char.id)
-    char.gold -= weapon.price
     equip.weapon_name = weapon.name
     equip.weapon_attack = weapon.attack
     equip.weapon_accuracy = weapon.accuracy_bonus
@@ -32,11 +46,11 @@ def buy_armor(db: Session, char: Character, armor_id: int) -> dict:
     armor = db.query(ArmorCatalog).filter(ArmorCatalog.id == armor_id).first()
     if not armor:
         return {"error": "找不到防具"}
-    if char.gold < armor.price:
-        return {"error": "金幣不足"}
+    err = _deduct_gold(char, armor.price)
+    if err:
+        return {"error": err}
 
     equip = char.equipment or CharacterEquipment(character_id=char.id)
-    char.gold -= armor.price
     equip.armor_name = armor.name
     equip.armor_defense = armor.defense
     equip.armor_evasion = armor.evasion_bonus
@@ -50,11 +64,11 @@ def buy_accessory(db: Session, char: Character, acs_id: int) -> dict:
     acs = db.query(AccessoryCatalog).filter(AccessoryCatalog.id == acs_id).first()
     if not acs:
         return {"error": "找不到飾品"}
-    if char.gold < acs.price:
-        return {"error": "金幣不足"}
+    err = _deduct_gold(char, acs.price)
+    if err:
+        return {"error": err}
 
     equip = char.equipment or CharacterEquipment(character_id=char.id)
-    char.gold -= acs.price
     equip.accessory_name = acs.name
     equip.accessory_skill_id = acs.skill_id
     equip.acs_str = acs.str_bonus

@@ -26,14 +26,17 @@ from app.models.monster import Monster
 
 def _char_to_combatant(char: Character, equip: CharacterEquipment | None) -> Combatant:
     eq = equip or CharacterEquipment()
+    # 飾品加成合算到能力值（比照原版 battle.pl L335-342）
     return Combatant(
         name=char.name,
         level=char.level,
         max_hp=char.max_hp,
         current_hp=char.current_hp,
         stats=Stats(
-            str_=char.str_, mag=char.mag, fai=char.fai, vit=char.vit,
-            dex=char.dex, spd=char.spd, cha=char.cha, karma=char.karma,
+            str_=char.str_ + eq.acs_str, mag=char.mag + eq.acs_mag,
+            fai=char.fai + eq.acs_fai, vit=char.vit + eq.acs_vit,
+            dex=char.dex + eq.acs_dex, spd=char.spd + eq.acs_spd,
+            cha=char.cha + eq.acs_cha, karma=char.karma + eq.acs_karma,
         ),
         job_class=char.job_class,
         job_level=char.job_level,

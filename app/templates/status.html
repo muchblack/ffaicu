@@ -11,9 +11,16 @@
 
 <h2>能力值</h2>
 <table>
+{% if equip %}
+{% set ab = equip %}
+<tr><th>STR</th><td>{{ char.str_ }}{% if ab.acs_str %} + {{ ab.acs_str }}{% endif %}</td><th>MAG</th><td>{{ char.mag }}{% if ab.acs_mag %} + {{ ab.acs_mag }}{% endif %}</td><th>FAI</th><td>{{ char.fai }}{% if ab.acs_fai %} + {{ ab.acs_fai }}{% endif %}</td></tr>
+<tr><th>VIT</th><td>{{ char.vit }}{% if ab.acs_vit %} + {{ ab.acs_vit }}{% endif %}</td><th>DEX</th><td>{{ char.dex }}{% if ab.acs_dex %} + {{ ab.acs_dex }}{% endif %}</td><th>SPD</th><td>{{ char.spd }}{% if ab.acs_spd %} + {{ ab.acs_spd }}{% endif %}</td></tr>
+<tr><th>CHA</th><td>{{ char.cha }}{% if ab.acs_cha %} + {{ ab.acs_cha }}{% endif %}</td><th>業</th><td>{{ char.karma }}{% if ab.acs_karma %} + {{ ab.acs_karma }}{% endif %}</td><td></td><td></td></tr>
+{% else %}
 <tr><th>STR</th><td>{{ char.str_ }}</td><th>MAG</th><td>{{ char.mag }}</td><th>FAI</th><td>{{ char.fai }}</td></tr>
 <tr><th>VIT</th><td>{{ char.vit }}</td><th>DEX</th><td>{{ char.dex }}</td><th>SPD</th><td>{{ char.spd }}</td></tr>
 <tr><th>CHA</th><td>{{ char.cha }}</td><th>業</th><td>{{ char.karma }}</td><td></td><td></td></tr>
+{% endif %}
 </table>
 
 <h2>裝備</h2>

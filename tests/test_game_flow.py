@@ -2,8 +2,10 @@
 
 from fastapi.testclient import TestClient
 
-from app.database import Base, engine
+from app.database import Base, engine, SessionLocal
 from app.main import app
+from app.models.character import Character
+from app.models.item_catalog import WeaponCatalog
 
 client = TestClient(app)
 
@@ -110,41 +112,40 @@ def test_full_game_flow():
 
 
 def test_admin_flow():
-    admin = TestClient(app)
+    """透過 HTML 管理介面測試管理功能。"""
+    c = TestClient(app)
 
-    # 列出角色
-    resp = admin.post("/admin/list-characters", json={"admin_password": "1111"})
+    # 管理首頁（未認證）
+    resp = c.get("/view/admin")
     assert resp.status_code == 200
-    assert len(resp.json()) >= 2
+    assert "管理密碼" in resp.text
+
+    # 登入管理介面
+    resp = c.post("/view/admin", data={"password": "1111"}, follow_redirects=False)
+    assert resp.status_code == 200
+    assert "角色管理" in resp.text
 
     # 搜尋角色
-    resp = admin.post("/admin/search", json={"admin_password": "1111", "query": "player1"})
+    resp = c.get("/view/admin/search", params={"p": "1111", "q": "player1"})
     assert resp.status_code == 200
-    assert resp.json()["name"] == "勇者雷恩"
+    assert "勇者雷恩" in resp.text
 
-    # 保護角色
-    resp = admin.post("/admin/protect", json={"admin_password": "1111", "character_id": "player1"})
-    assert resp.status_code == 200
+    # 錯誤密碼應重導向
+    resp = c.get("/view/admin/characters", params={"p": "wrong"}, follow_redirects=False)
+    assert resp.status_code in (302, 307)
 
-    # 新增武器
-    resp = admin.post("/admin/add-weapon", json={
-        "admin_password": "1111",
-        "id": 1001, "name": "鐵劍", "attack": 100, "price": 2500,
-    })
-    assert resp.status_code == 200
-
-    # 錯誤密碼
-    resp = admin.post("/admin/list-characters", json={"admin_password": "wrong"})
-    assert resp.status_code == 403
+    # 確認 JSON API 已移除
+    resp = c.post("/admin/list-characters", json={"admin_password": "1111"})
+    assert resp.status_code in (404, 405)
 
 
 def test_shop_buy_weapon():
-    # 先通過 admin 添加武器
-    admin = TestClient(app)
-    admin.post("/admin/add-weapon", json={
-        "admin_password": "1111",
-        "id": 2001, "name": "木棒", "attack": 5, "price": 10,
-    })
+    """測試商店購買（含銀行扣款）。"""
+    # 直接用 DB 新增武器
+    db = SessionLocal()
+    if not db.query(WeaponCatalog).filter(WeaponCatalog.id == 2001).first():
+        db.add(WeaponCatalog(id=2001, name="木棒", attack=5, price=10))
+        db.commit()
 
     # 玩家沒有錢，買不起
     player = _register_and_login("shoptest", "商人測試")
@@ -152,7 +153,22 @@ def test_shop_buy_weapon():
     assert resp.status_code == 200
     assert "error" in resp.json()  # 金幣不足
 
+    # 給玩家銀行存款，測試銀行扣款
+    char = db.query(Character).filter(Character.id == "shoptest").first()
+    char.bank_savings = 100
+    db.commit()
+
+    resp = player.post("/shop/weapon/buy", json={"item_id": 2001})
+    assert resp.status_code == 200
+    assert "error" not in resp.json()  # 從銀行扣款成功
+
+    db.refresh(char)
+    assert char.bank_savings == 90  # 100 - 10 = 90
+    assert char.gold == 0
+
     # 查看武器列表
     resp = player.get("/shop/weapon")
     assert resp.status_code == 200
     assert any(w["name"] == "木棒" for w in resp.json())
+
+    db.close()

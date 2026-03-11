@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     secret_key: str = "change-me"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 43200  # 30 days
+    admin_password: str = "1111"
 
     # 遊戲常數（原 ffadventure.ini）
     lv_up: int = 300             # 升級所需經驗值係數（exp >= level * lv_up 時升級）

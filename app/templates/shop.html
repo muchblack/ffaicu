@@ -2,7 +2,7 @@
 {% block title %}{{ shop_name }}{% endblock %}
 {% block content %}
 <h1>{{ shop_name }}</h1>
-<p>持有金: <span class="gold">{{ "{:,}".format(gold) }}G</span></p>
+<p>持有金: <span class="gold">{{ "{:,}".format(gold) }}G</span>　銀行: <span class="gold">{{ "{:,}".format(bank) }}G</span></p>
 
 {% if current_item %}
 <h2>裝備中</h2>
@@ -25,7 +25,7 @@
 <td>
 <form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
 <input type="hidden" name="item_id" value="{{ item.id }}">
-<button class="btn" type="submit" {% if gold < item.price %}disabled{% endif %}>購買</button>
+<button class="btn" type="submit" {% if gold + bank < item.price %}disabled{% endif %}>購買</button>
 </form>
 </td>
 </tr>
@@ -42,7 +42,7 @@
 <td>
 <form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
 <input type="hidden" name="item_id" value="{{ item.id }}">
-<button class="btn" type="submit" {% if gold < item.price %}disabled{% endif %}>購買</button>
+<button class="btn" type="submit" {% if gold + bank < item.price %}disabled{% endif %}>購買</button>
 </form>
 </td>
 </tr>
