@@ -140,17 +140,17 @@ def fight_tournament(db: Session, char: Character) -> dict:
     if is_win:
         char.win_count += 1
         # Perl tenka.cgi: EXP = 對手等級 × kiso_exp
-        exp_gained = opponent.level * settings.kiso_exp
+        exp_gained = int(opponent.level * settings.kiso_exp * settings.exp_multiplier)
         # Perl tenka.cgi: 金幣 = rand(syoukin)+1 × 對手等級
-        gold_gained = (random.randint(0, settings.syoukin) + 1) * opponent.level
+        gold_gained = int((random.randint(0, settings.syoukin) + 1) * opponent.level * settings.gold_multiplier)
         char.exp += exp_gained
         char.gold = min(char.gold + gold_gained, settings.gold_max)
         # Perl tenka.cgi L390: $chara[28]--
         char.tenka_counter -= 1
     else:
-        # 敗北
-        # Perl wbattle.pl: EXP = 對手等級（無乘數）
-        exp_gained = opponent.level
+        # 敗北（懲罰不受倍數影響）
+        # Perl wbattle.pl: EXP = 對手等級
+        exp_gained = int(opponent.level * settings.exp_multiplier)
         gold_before = int(char.gold)
         char.exp += exp_gained
         # Perl wbattle.pl L592-594: 金幣減半 + 進度歸零

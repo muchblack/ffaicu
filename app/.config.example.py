@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     sentou_limit: int = 9999     # 每日可戰鬥次數上限
     yado_dai: int = 10           # 旅店費用係數（費用 = level * yado_dai）
 
+    # 獎勵倍數
+    exp_multiplier: float = 1.0  # 經驗值倍數（戰鬥獎勵）
+    gold_multiplier: float = 1.0 # 金錢倍數（戰鬥獎勵）
+
     # 武道會（原 tenka.cgi）
     tenka_su: int = 3            # 武道會參賽人數
     kiso_exp: int = 30           # 武道會經驗值乘數（對手等級 × 此值）
