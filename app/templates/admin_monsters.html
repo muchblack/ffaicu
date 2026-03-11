@@ -1,76 +1,80 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}魔物分佈 - 管理模式{% endblock %}
 {% block content %}
-<h1>魔物分佈</h1>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">bug_report</span> 魔物分佈</h1>
+  <div class="flex flex-wrap gap-2 mt-4">
+    {% for z in zone_order %}
+    <a href="/view/admin/monsters?p={{ password }}&zone={{ z }}"
+       class="rpg-btn {% if z == current_zone %}rpg-btn-rich{% endif %}"
+       style="{% if z in closed_zones %}opacity:0.5; text-decoration:line-through;{% endif %}">
+      {{ zone_labels[z] }} ({{ zone_counts[z] }})
+    </a>
+    {% endfor %}
+  </div>
+</header>
 
-<div style="margin-bottom:12px;">
-{% for z in zone_order %}
-<a href="/view/admin/monsters?p={{ password }}&zone={{ z }}" class="btn {% if z == current_zone %}btn-danger{% endif %}"
-   style="{% if z in closed_zones %}opacity:0.5;text-decoration:line-through{% endif %}">
-  {{ zone_labels[z] }} ({{ zone_counts[z] }})
-</a>
-{% endfor %}
-</div>
+<section class="fantasy-border mb-6">
+  <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+    <h2 class="section-title mb-0">
+      {{ zone_labels[current_zone] }}
+      {% if current_zone in closed_zones %}
+      <span class="msg-error text-sm">（已關閉）</span>
+      {% else %}
+      <span class="msg-success text-sm">（開放中）</span>
+      {% endif %}
+    </h2>
+    <div class="flex gap-2">
+      <a href="/view/admin/monsters/add?p={{ password }}&zone={{ current_zone }}" class="rpg-btn rpg-btn-rich">新增魔物</a>
+      <form action="/view/admin/monsters/toggle-zone" method="post" style="display:inline">
+        <input type="hidden" name="password" value="{{ password }}">
+        <input type="hidden" name="zone" value="{{ current_zone }}">
+        {% if current_zone in closed_zones %}
+        <button class="rpg-btn rpg-btn-rich" type="submit">開放此區域</button>
+        {% else %}
+        <button class="rpg-btn rpg-btn-danger" type="submit">關閉此區域</button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
 
-<h2>
-  {{ zone_labels[current_zone] }}
-  {% if current_zone in closed_zones %}
-  <span style="color:red;font-size:0.8em;">（已關閉）</span>
+  {% if monsters %}
+  <div style="overflow-x:auto;">
+    <table class="rpg-table">
+      <thead>
+        <tr><th>ID</th><th>名稱</th><th>經驗值</th><th>基礎攻擊</th><th>HP範圍</th><th>速度</th><th>迴避</th><th>暴擊率</th><th>技能ID</th><th>掉落金幣</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+      {% for m in monsters %}
+      <tr>
+        <td>{{ m.id }}</td>
+        <td class="font-bold">{{ m.name }}</td>
+        <td>{{ "{:,}".format(m.exp_reward) }}</td>
+        <td>{{ "{:,}".format(m.base_damage) }}</td>
+        <td>{{ "{:,}".format(m.damage_range) }}</td>
+        <td>{{ m.speed }}</td>
+        <td>{{ m.evasion }}</td>
+        <td>{{ m.critical_rate }}</td>
+        <td>{{ m.skill_id }}</td>
+        <td class="text-gold">{{ "{:,}".format(m.gold_drop) }}</td>
+        <td style="white-space:nowrap;">
+          <a href="/view/admin/monsters/edit?p={{ password }}&id={{ m.id }}" class="rpg-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;">編輯</a>
+          <form action="/view/admin/monsters/delete" method="post" style="display:inline" onsubmit="return confirm('確定刪除 {{ m.name }}？')">
+            <input type="hidden" name="password" value="{{ password }}">
+            <input type="hidden" name="monster_id" value="{{ m.id }}">
+            <input type="hidden" name="zone" value="{{ current_zone }}">
+            <button class="rpg-btn rpg-btn-danger" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">刪除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% else %}
-  <span style="color:green;font-size:0.8em;">（開放中）</span>
+  <p style="color:var(--text-muted);">此區域尚無魔物。</p>
   {% endif %}
-</h2>
+</section>
 
-<div style="margin-bottom:12px;">
-  <a href="/view/admin/monsters/add?p={{ password }}&zone={{ current_zone }}" class="btn">新增魔物到此區域</a>
-  <form action="/view/admin/monsters/toggle-zone" method="post" style="display:inline">
-    <input type="hidden" name="password" value="{{ password }}">
-    <input type="hidden" name="zone" value="{{ current_zone }}">
-    {% if current_zone in closed_zones %}
-    <button class="btn" type="submit">開放此區域</button>
-    {% else %}
-    <button class="btn btn-danger" type="submit">關閉此區域</button>
-    {% endif %}
-  </form>
-</div>
-
-{% if monsters %}
-<table>
-<tr>
-  <th>ID</th><th>名稱</th><th>經驗值</th><th>基礎攻擊</th>
-  <th>HP範圍</th><th>速度</th><th>迴避</th><th>暴擊率</th>
-  <th>技能ID</th><th>掉落金幣</th><th>操作</th>
-</tr>
-{% for m in monsters %}
-<tr>
-  <td>{{ m.id }}</td>
-  <td>{{ m.name }}</td>
-  <td>{{ "{:,}".format(m.exp_reward) }}</td>
-  <td>{{ "{:,}".format(m.base_damage) }}</td>
-  <td>{{ "{:,}".format(m.damage_range) }}</td>
-  <td>{{ m.speed }}</td>
-  <td>{{ m.evasion }}</td>
-  <td>{{ m.critical_rate }}</td>
-  <td>{{ m.skill_id }}</td>
-  <td>{{ "{:,}".format(m.gold_drop) }}</td>
-  <td>
-    <a href="/view/admin/monsters/edit?p={{ password }}&id={{ m.id }}" class="btn">編輯</a>
-    <form action="/view/admin/monsters/delete" method="post" style="display:inline"
-          onsubmit="return confirm('確定刪除 {{ m.name }}？')">
-      <input type="hidden" name="password" value="{{ password }}">
-      <input type="hidden" name="monster_id" value="{{ m.id }}">
-      <input type="hidden" name="zone" value="{{ current_zone }}">
-      <button class="btn btn-danger" type="submit">刪除</button>
-    </form>
-  </td>
-</tr>
-{% endfor %}
-</table>
-{% else %}
-<p>此區域尚無魔物。</p>
-{% endif %}
-
-<div style="margin-top:12px;">
-  <a href="/view/admin?p={{ password }}" class="btn">← 返回管理首頁</a>
-</div>
+<a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回管理首頁</a>
 {% endblock %}

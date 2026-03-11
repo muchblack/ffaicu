@@ -1,22 +1,31 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}指定對戰{% endblock %}
 {% block content %}
-<h1>指定對戰</h1>
-<p>※ 練習對戰，無獎勵。</p>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">swords</span> 指定對戰</h1>
+  <p class="rpg-hint">※ 練習對戰，無獎勵。</p>
+</header>
 
-<form action="/view/battle/select" method="post">
-<table>
-<tr><th>選擇</th><th>名稱</th><th>Lv</th><th>職業</th></tr>
-{% for c in opponents %}
-<tr>
-<td><input type="radio" name="opponent_id" value="{{ c.id }}" {% if loop.first %}checked{% endif %}></td>
-<td>{{ c.name }}</td>
-<td>{{ c.level }}</td>
-<td>{{ c.job_class }}</td>
-</tr>
-{% endfor %}
-</table>
-<button class="btn" type="submit">⚔ 開始對戰</button>
-</form>
-<a href="/view/status" class="btn">← 返回</a>
+<section class="fantasy-border mb-6">
+  <form action="/view/battle/select" method="post">
+    <table class="rpg-table">
+      <thead><tr><th style="width:3rem;"></th><th>名稱</th><th>Lv</th><th>職業</th></tr></thead>
+      <tbody>
+      {% for c in opponents %}
+      <tr>
+        <td><input type="radio" name="opponent_id" value="{{ c.id }}" {% if loop.first %}checked{% endif %}></td>
+        <td class="font-bold">{{ c.name }}</td>
+        <td>{{ c.level }}</td>
+        <td>{{ c.job_class }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="mt-4">
+      <button class="rpg-btn rpg-btn-rich" type="submit">&#9876; 開始對戰</button>
+    </div>
+  </form>
+</section>
+
+<a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回</a>
 {% endblock %}

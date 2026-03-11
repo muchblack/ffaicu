@@ -1,70 +1,92 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}管理模式 - FF ADVENTURE{% endblock %}
 {% block content %}
-<h1>管理模式</h1>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">admin_panel_settings</span> 管理模式</h1>
+</header>
 
 {% if not authed %}
-{# 登入表單 #}
-<form method="post" action="/view/admin">
-  <label>管理密碼：</label>
-  <input type="password" name="password" size="20">
-  <button type="submit" class="btn">登入</button>
-</form>
+<section class="fantasy-border" style="max-width:400px;">
+  <form method="post" action="/view/admin" class="space-y-3">
+    <div>
+      <label class="text-xs text-gold font-bold">管理密碼</label>
+      <input type="password" name="password" class="rpg-input w-full">
+    </div>
+    <button type="submit" class="rpg-btn rpg-btn-rich">登入</button>
+  </form>
+</section>
 {% else %}
 
-{# 操作選單 #}
-<p>※一旦<b>刪除</b>就無法復原，請務必先<b>備份</b>再執行。</p>
+<p class="rpg-hint mb-6">※一旦<b>刪除</b>就無法復原，請務必先<b>備份</b>再執行。</p>
 
-<h2>角色管理</h2>
-<div style="margin-bottom:12px;">
-  <a href="/view/admin/characters?p={{ password }}" class="btn">角色一覽</a>
-</div>
-<form method="get" action="/view/admin/search" style="margin-bottom:12px;">
-  <input type="hidden" name="p" value="{{ password }}">
-  <input type="text" name="q" size="20" placeholder="輸入 ID 或名稱">
-  <button type="submit" class="btn">搜尋角色</button>
-</form>
-<form method="post" action="/view/admin/delete-inactive" style="margin-bottom:12px;">
-  <input type="hidden" name="password" value="{{ password }}">
-  <button type="submit" class="btn btn-danger">刪除超過{{ limit_days }}天未戰鬥的角色</button>
-  <span style="color:#999;">（受保護角色不受影響）</span>
-</form>
+<!-- 角色管理 -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">group</span> 角色管理</h2>
+  <div class="flex flex-wrap gap-3 mb-4">
+    <a href="/view/admin/characters?p={{ password }}" class="rpg-btn rpg-btn-rich">角色一覽</a>
+  </div>
+  <form method="get" action="/view/admin/search" class="flex items-center gap-3 mb-4">
+    <input type="hidden" name="p" value="{{ password }}">
+    <input type="text" name="q" placeholder="輸入 ID 或名稱" class="rpg-input">
+    <button type="submit" class="rpg-btn rpg-btn-rich">搜尋角色</button>
+  </form>
+  <form method="post" action="/view/admin/delete-inactive" class="flex items-center gap-3">
+    <input type="hidden" name="password" value="{{ password }}">
+    <button type="submit" class="rpg-btn rpg-btn-danger">刪除超過{{ limit_days }}天未戰鬥的角色</button>
+    <span class="text-xs" style="color:var(--text-muted);">（受保護角色不受影響）</span>
+  </form>
+</section>
 
-<h2>職業與技能</h2>
-<div style="margin-bottom:12px;">
-  <a href="/view/admin/jobs?p={{ password }}" class="btn">職業一覽 / 編輯</a>
-  <a href="/view/admin/jobs/add?p={{ password }}" class="btn">新增職業</a>
-  <a href="/view/admin/skills?p={{ password }}" class="btn">必殺技一覽</a>
-</div>
+<!-- 職業與技能 -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">auto_fix_high</span> 職業與技能</h2>
+  <div class="flex flex-wrap gap-3">
+    <a href="/view/admin/jobs?p={{ password }}" class="rpg-btn rpg-btn-rich">職業一覽 / 編輯</a>
+    <a href="/view/admin/jobs/add?p={{ password }}" class="rpg-btn rpg-btn-rich">新增職業</a>
+    <a href="/view/admin/skills?p={{ password }}" class="rpg-btn rpg-btn-rich">必殺技一覽</a>
+  </div>
+</section>
 
-<h2>道具</h2>
-<div style="margin-bottom:12px;">
-  <a href="/view/admin/items?p={{ password }}&tab=weapon" class="btn">武器一覽</a>
-  <a href="/view/admin/items?p={{ password }}&tab=armor" class="btn">防具一覽</a>
-  <a href="/view/admin/items?p={{ password }}&tab=accessory" class="btn">飾品一覽</a>
-</div>
+<!-- 道具 -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">inventory_2</span> 道具</h2>
+  <div class="flex flex-wrap gap-3">
+    <a href="/view/admin/items?p={{ password }}&tab=weapon" class="rpg-btn rpg-btn-rich">武器一覽</a>
+    <a href="/view/admin/items?p={{ password }}&tab=armor" class="rpg-btn rpg-btn-rich">防具一覽</a>
+    <a href="/view/admin/items?p={{ password }}&tab=accessory" class="rpg-btn rpg-btn-rich">飾品一覽</a>
+  </div>
+</section>
 
-<h2>魔物與地圖</h2>
-<div style="margin-bottom:12px;">
-  <a href="/view/admin/monsters?p={{ password }}" class="btn">魔物分佈一覽</a>
-  <a href="/view/admin/monsters/add?p={{ password }}" class="btn">新增魔物</a>
-</div>
+<!-- 魔物與地圖 -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">bug_report</span> 魔物與地圖</h2>
+  <div class="flex flex-wrap gap-3">
+    <a href="/view/admin/monsters?p={{ password }}" class="rpg-btn rpg-btn-rich">魔物分佈一覽</a>
+    <a href="/view/admin/monsters/add?p={{ password }}" class="rpg-btn rpg-btn-rich">新增魔物</a>
+  </div>
+</section>
 
-<h2>危險操作</h2>
-<div style="margin-bottom:12px;">
-  <a href="/view/admin/delete-all?p={{ password }}" class="btn btn-danger">刪除所有角色記錄</a>
-</div>
+<!-- 危險操作 -->
+<section class="fantasy-border mb-6" style="border-color:rgba(239,68,68,0.3);">
+  <h2 class="section-title" style="color:#f87171;"><span class="material-symbols-outlined text-sm" style="opacity:0.7">warning</span> 危險操作</h2>
+  <a href="/view/admin/delete-all?p={{ password }}" class="rpg-btn rpg-btn-danger">刪除所有角色記錄</a>
+</section>
 
-<h2>資料總覽</h2>
-<table>
-<tr><th>項目</th><th>數量</th></tr>
-<tr><td>角色總數</td><td>{{ total_characters }}</td></tr>
-<tr><td>武器種類</td><td>{{ total_weapons }}</td></tr>
-<tr><td>防具種類</td><td>{{ total_armors }}</td></tr>
-<tr><td>飾品種類</td><td>{{ total_accessories }}</td></tr>
-<tr><td>魔物總數</td><td>{{ total_monsters }}</td></tr>
-</table>
+<!-- 資料總覽 -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">analytics</span> 資料總覽</h2>
+  <table class="rpg-table">
+    <thead><tr><th>項目</th><th>數量</th></tr></thead>
+    <tbody>
+      <tr><td>角色總數</td><td class="font-bold">{{ total_characters }}</td></tr>
+      <tr><td>武器種類</td><td class="font-bold">{{ total_weapons }}</td></tr>
+      <tr><td>防具種類</td><td class="font-bold">{{ total_armors }}</td></tr>
+      <tr><td>飾品種類</td><td class="font-bold">{{ total_accessories }}</td></tr>
+      <tr><td>魔物總數</td><td class="font-bold">{{ total_monsters }}</td></tr>
+    </tbody>
+  </table>
+</section>
 
-<p style="margin-top:20px;"><a href="/view/home" class="btn">返回首頁</a></p>
+<a href="/view/home" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回首頁</a>
 {% endif %}
 {% endblock %}

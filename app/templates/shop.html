@@ -1,53 +1,146 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}{{ shop_name }}{% endblock %}
+{% block body_class %}rpg-body-shop{% endblock %}
 {% block content %}
-<h1>{{ shop_name }}</h1>
-<p>持有金: <span class="gold">{{ "{:,}".format(gold) }}G</span>　銀行: <span class="gold">{{ "{:,}".format(bank) }}G</span></p>
+<!-- === Header === -->
+<header class="flex items-center justify-between mb-6" style="border-bottom:2px solid rgba(236,91,19,0.4); padding-bottom:1rem;">
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined text-gold" style="font-size:2rem;">
+      {% if shop_type == "weapon" %}swords{% elif shop_type == "armor" %}shield{% else %}diamond{% endif %}
+    </span>
+    <h1 class="text-3xl font-bold" style="color:var(--rpg-gold); letter-spacing:0.05em;">
+      {{ shop_name }}
+      <span class="text-sm" style="font-weight:400; color:var(--text-muted); margin-left:0.5rem;">{{ shop_type_en }}</span>
+    </h1>
+  </div>
+</header>
 
+<!-- === Currency Panels === -->
+<div class="currency-panel mb-6">
+  <div class="glass-panel neon-border-cyan rounded-xl p-5" style="position:relative; overflow:hidden;">
+    <p class="text-xs font-bold" style="color:var(--text-muted); text-transform:uppercase; letter-spacing:0.2em;">持有金 (Wallet)</p>
+    <p class="text-3xl font-bold text-neon">{{ "{:,}".format(gold) }} <span class="text-lg">G</span></p>
+  </div>
+  <div class="glass-panel neon-border-primary rounded-xl p-5" style="position:relative; overflow:hidden;">
+    <p class="text-xs font-bold" style="color:var(--text-muted); text-transform:uppercase; letter-spacing:0.2em;">銀行 (Bank)</p>
+    <p class="text-3xl font-bold" style="color:#f1f5f9;">{{ "{:,}".format(bank) }} <span class="text-lg">G</span></p>
+  </div>
+</div>
+
+<!-- === Equipped Item === -->
 {% if current_item %}
-<h2>裝備中</h2>
-<p>{{ current_item.name }} ({{ current_item.stat_label }}: {{ current_item.stat_value }})</p>
-<form action="/view/shop/{{ shop_type }}/sell" method="post">
-<button class="btn btn-danger" type="submit">賣出</button>
-</form>
+<div class="divider-flourish"></div>
+<section class="mb-6">
+  <h2 class="section-title" style="color:var(--rpg-gold);">
+    <span class="material-symbols-outlined text-neon">shield_person</span> 裝備中
+  </h2>
+  <div class="glass-panel rounded-xl p-5 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div style="width:3.5rem; height:3.5rem; display:flex; align-items:center; justify-content:center; border-radius:0.5rem; background:rgba(236,91,19,0.2); border:1px solid rgba(236,91,19,0.4); color:var(--shop-primary);">
+        <span class="material-symbols-outlined" style="font-size:1.75rem;">
+          {% if shop_type == "weapon" %}sword_rose{% elif shop_type == "armor" %}shield{% else %}diamond{% endif %}
+        </span>
+      </div>
+      <div>
+        <p class="font-bold text-lg" style="color:#f1f5f9;">{{ current_item.name }}</p>
+        <p class="text-sm text-neon">{{ current_item.stat_label }}: +{{ current_item.stat_value }}</p>
+      </div>
+    </div>
+    <form action="/view/shop/{{ shop_type }}/sell" method="post">
+      <button class="rpg-btn rpg-btn-danger" type="submit" style="text-transform:uppercase; letter-spacing:0.1em;">賣出</button>
+    </form>
+  </div>
+</section>
 {% endif %}
 
-<h2>商品列表</h2>
-{% if shop_type == "accessory" %}
-<table>
-<tr><th>名稱</th><th>能力加成</th><th>戰鬥技能</th><th>價格</th><th></th></tr>
-{% for item in items %}
-<tr>
-<td>{{ item.name }}{% if item.description %}<br><small>{{ item.description }}</small>{% endif %}</td>
-<td><small>{{ item.bonuses }}</small></td>
-<td>{{ item.skill_name }}</td>
-<td class="gold">{{ "{:,}".format(item.price) }}G</td>
-<td>
-<form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
-<input type="hidden" name="item_id" value="{{ item.id }}">
-<button class="btn" type="submit" {% if gold + bank < item.price %}disabled{% endif %}>購買</button>
-</form>
-</td>
-</tr>
-{% endfor %}
-</table>
-{% else %}
-<table>
-<tr><th>名稱</th><th>{{ stat_label }}</th><th>價格</th><th></th></tr>
-{% for item in items %}
-<tr>
-<td>{{ item.name }}</td>
-<td>{{ item.stat_value }}</td>
-<td class="gold">{{ "{:,}".format(item.price) }}G</td>
-<td>
-<form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
-<input type="hidden" name="item_id" value="{{ item.id }}">
-<button class="btn" type="submit" {% if gold + bank < item.price %}disabled{% endif %}>購買</button>
-</form>
-</td>
-</tr>
-{% endfor %}
-</table>
-{% endif %}
-<a href="/view/status" class="btn">← 返回</a>
+<!-- === Product List === -->
+<div class="divider-flourish"></div>
+<section>
+  <h2 class="section-title" style="color:var(--rpg-gold);">
+    <span class="material-symbols-outlined text-neon">shopping_cart</span> 商品列表
+  </h2>
+  <div class="glass-panel rounded-xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.1);">
+    {% if shop_type == "accessory" %}
+    <table class="shop-table">
+      <thead>
+        <tr>
+          <th>名稱</th>
+          <th>能力加成</th>
+          <th>戰鬥技能</th>
+          <th class="text-right">價格</th>
+          <th class="text-center">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="td-name">
+            {{ item.name }}
+            {% if current_item and current_item.name == item.name %}<span class="owned-tag">OWNED</span>{% endif %}
+            {% if item.description %}<br><small style="color:var(--text-muted);">{{ item.description }}</small>{% endif %}
+          </td>
+          <td class="text-sm" style="color:var(--text-muted);">{{ item.bonuses }}</td>
+          <td class="text-sm">{{ item.skill_name }}</td>
+          <td class="td-price">{{ "{:,}".format(item.price) }}G</td>
+          <td class="td-action">
+            {% if current_item and current_item.name == item.name %}
+            <button class="rpg-btn rpg-btn-disabled" disabled>已持有</button>
+            {% elif gold + bank < item.price %}
+            <button class="rpg-btn rpg-btn-disabled" disabled>不足</button>
+            {% else %}
+            <form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
+              <input type="hidden" name="item_id" value="{{ item.id }}">
+              <button class="rpg-btn rpg-btn-primary" type="submit">購買</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <table class="shop-table">
+      <thead>
+        <tr>
+          <th>名稱</th>
+          <th class="text-center">{{ stat_label }}</th>
+          <th class="text-right">價格</th>
+          <th class="text-center">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="td-name">
+            {{ item.name }}
+            {% if current_item and current_item.name == item.name %}<span class="owned-tag">OWNED</span>{% endif %}
+          </td>
+          <td class="td-stat text-neon">{{ item.stat_value }}</td>
+          <td class="td-price">{{ "{:,}".format(item.price) }}G</td>
+          <td class="td-action">
+            {% if current_item and current_item.name == item.name %}
+            <button class="rpg-btn rpg-btn-disabled" disabled>已持有</button>
+            {% elif gold + bank < item.price %}
+            <button class="rpg-btn rpg-btn-disabled" disabled>不足</button>
+            {% else %}
+            <form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
+              <input type="hidden" name="item_id" value="{{ item.id }}">
+              <button class="rpg-btn rpg-btn-primary" type="submit">購買</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+</section>
+
+<!-- === Back Button === -->
+<footer class="mt-8">
+  <a href="/view/status" class="rpg-btn glass-panel" style="border:1px solid rgba(255,255,255,0.1); text-transform:uppercase; letter-spacing:0.2em; font-size:0.75rem;">
+    <span class="material-symbols-outlined">arrow_back</span> 返回主選單
+  </a>
+</footer>
 {% endblock %}

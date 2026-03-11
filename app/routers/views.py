@@ -256,8 +256,10 @@ def view_shop(request: Request, db: Session = Depends(get_db), ffa_token: str = 
     if not user:
         return RedirectResponse("/view/home")
     shop_name, stat_label, items, current = _shop_view(request, db, user, type)
+    type_en_map = {"weapon": "WEAPON SHOP", "armor": "ARMOR SHOP", "accessory": "ACCESSORY SHOP"}
     return templates.TemplateResponse("shop.html", {
         "request": request, "shop_name": shop_name, "shop_type": type,
+        "shop_type_en": type_en_map.get(type, ""),
         "stat_label": stat_label, "items": items, "current_item": current,
         "gold": int(user.gold), "bank": int(user.bank_savings),
     })

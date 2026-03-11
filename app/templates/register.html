@@ -1,24 +1,48 @@
-{% extends "base.html" %}
-{% block nav %}{% endblock %}
+{% extends "base_rpg.html" %}
 {% block title %}註冊 - FF ADVENTURE{% endblock %}
 {% block content %}
-<h1>建立角色</h1>
-<form action="/view/register" method="post">
-<table>
-<tr><td>帳號 (4-32字, 英數字):</td><td><input name="id" required minlength="4" maxlength="32" pattern="[a-zA-Z0-9]+"></td></tr>
-<tr><td>密碼 (4-32字):</td><td><input name="password" type="password" required minlength="4" maxlength="32"></td></tr>
-<tr><td>密語:</td><td><input name="password_recovery" required></td></tr>
-<tr><td>角色名:</td><td><input name="name" required maxlength="64"></td></tr>
-<tr><td>性別:</td><td><select name="sex"><option value="1">男</option><option value="0">女</option></select></td></tr>
-<tr><td>初始職業:</td><td>
-<select name="job_class">
-<option value="0">戰士</option>
-<option value="1">黑魔導士</option>
-<option value="2">白魔導士</option>
-<option value="3">盜賊</option>
-</select></td></tr>
-</table>
-<button class="btn" type="submit">註冊</button>
-<a href="/" class="btn">返回</a>
-</form>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">person_add</span> 建立角色</h1>
+</header>
+
+<section class="fantasy-border">
+  <form action="/view/register" method="post" class="space-y-4" style="max-width:480px;">
+    <div>
+      <label class="text-xs text-gold font-bold">帳號 (4-32字, 英數字)</label>
+      <input name="id" required minlength="4" maxlength="32" pattern="[a-zA-Z0-9]+" class="rpg-input w-full">
+    </div>
+    <div>
+      <label class="text-xs text-gold font-bold">密碼 (4-32字)</label>
+      <input name="password" type="password" required minlength="4" maxlength="32" class="rpg-input w-full">
+    </div>
+    <div>
+      <label class="text-xs text-gold font-bold">密語</label>
+      <input name="password_recovery" required class="rpg-input w-full">
+    </div>
+    <div>
+      <label class="text-xs text-gold font-bold">角色名</label>
+      <input name="name" required maxlength="64" class="rpg-input w-full">
+    </div>
+    <div>
+      <label class="text-xs text-gold font-bold">性別</label>
+      <select name="sex" class="rpg-select w-full">
+        <option value="1">男</option>
+        <option value="0">女</option>
+      </select>
+    </div>
+    <div>
+      <label class="text-xs text-gold font-bold">初始職業</label>
+      <select name="job_class" class="rpg-select w-full">
+        <option value="0">戰士</option>
+        <option value="1">黑魔導士</option>
+        <option value="2">白魔導士</option>
+        <option value="3">盜賊</option>
+      </select>
+    </div>
+    <div class="flex gap-3 mt-4">
+      <button class="rpg-btn rpg-btn-rich" type="submit">註冊</button>
+      <a href="/" class="rpg-btn">返回</a>
+    </div>
+  </form>
+</section>
 {% endblock %}

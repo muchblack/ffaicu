@@ -1,42 +1,65 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}信件{% endblock %}
 {% block content %}
-<h1>信件</h1>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">mail</span> 信件</h1>
+</header>
 
-<h2>發送訊息</h2>
-<form action="/view/message/send" method="post">
-<table>
-<tr><td>收件人帳號:</td><td><input name="recipient_id" required></td></tr>
-<tr><td>內容:</td><td><textarea name="content" rows="3" cols="40" required maxlength="500"></textarea></td></tr>
-</table>
-<button class="btn" type="submit">送出</button>
-</form>
+<!-- Send Message -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">send</span> 發送訊息</h2>
+  <form action="/view/message/send" method="post" class="space-y-3" style="max-width:480px;">
+    <div>
+      <label class="text-xs text-gold font-bold">收件人帳號</label>
+      <input name="recipient_id" required class="rpg-input w-full">
+    </div>
+    <div>
+      <label class="text-xs text-gold font-bold">內容</label>
+      <textarea name="content" rows="3" required maxlength="500" class="rpg-textarea w-full"></textarea>
+    </div>
+    <button class="rpg-btn rpg-btn-rich" type="submit">送出</button>
+  </form>
+</section>
 
-<h2>收件匣</h2>
-{% if inbox %}
-<table>
-<tr><th>寄件人</th><th>內容</th></tr>
-{% for m in inbox %}
-<tr><td>{{ m.sender_name }}</td><td>{{ m.content }}</td></tr>
-{% endfor %}
-</table>
-{% else %}
-<p>沒有訊息。</p>
-{% endif %}
+<!-- Inbox -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">inbox</span> 收件匣</h2>
+  {% if inbox %}
+  <table class="rpg-table">
+    <thead><tr><th>寄件人</th><th>內容</th></tr></thead>
+    <tbody>
+    {% for m in inbox %}
+    <tr>
+      <td class="text-gold font-bold" style="white-space:nowrap;">{{ m.sender_name }}</td>
+      <td>{{ m.content }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--text-muted);">沒有訊息。</p>
+  {% endif %}
+</section>
 
-<h2>廣播訊息</h2>
-{% if broadcasts %}
-<table>
-<tr><th>寄件人</th><th>內容</th></tr>
-{% for b in broadcasts %}
-<tr><td>{{ b.sender_name }}</td><td>{{ b.content }}</td></tr>
-{% endfor %}
-</table>
-{% else %}
-<p>沒有廣播訊息。</p>
-{% endif %}
+<!-- Broadcasts -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">campaign</span> 廣播訊息</h2>
+  {% if broadcasts %}
+  <table class="rpg-table">
+    <thead><tr><th>寄件人</th><th>內容</th></tr></thead>
+    <tbody>
+    {% for b in broadcasts %}
+    <tr>
+      <td class="text-gold font-bold" style="white-space:nowrap;">{{ b.sender_name }}</td>
+      <td>{{ b.content }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--text-muted);">沒有廣播訊息。</p>
+  {% endif %}
+</section>
 
-<div style="margin-top:12px;">
-  <a href="/view/status" class="btn">← 返回</a>
-</div>
+<a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回</a>
 {% endblock %}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}FF ADVENTURE{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/rpg.css">
+{% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}rpg-body-status{% endblock %}">
+<div class="rpg-container">
+{% if flash_message %}
+<div class="flash flash-{{ flash_type|default('info') }}">{{ flash_message }}</div>
+{% endif %}
+{% block content %}{% endblock %}
+</div>
+</body>
+</html>

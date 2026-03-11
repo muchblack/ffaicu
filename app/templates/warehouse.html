@@ -1,135 +1,115 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}道具倉庫{% endblock %}
 {% block content %}
-<h1>道具倉庫</h1>
-<p>倉庫管理員「為{{ char.name }}保管的道具如下所示」</p>
-<hr>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">warehouse</span> 道具倉庫</h1>
+  <p class="rpg-hint">倉庫管理員「為{{ char.name }}保管的道具如下所示」</p>
+</header>
 
-<h2>目前的裝備</h2>
-<table>
-<tr>
-<td><b>武器</b></td><td>{{ equip.weapon_name }}</td><td>攻擊力 {{ equip.weapon_attack }}</td>
-<td>
-{% if equip.weapon_name != "徒手" %}
-<form action="/view/warehouse/unequip" method="post" style="display:inline">
-<input type="hidden" name="item_type" value="weapon">
-<button class="btn" type="submit">卸下</button>
-</form>
-{% endif %}
-</td>
-</tr>
-<tr>
-<td><b>防具</b></td><td>{{ equip.armor_name }}</td><td>防禦力 {{ equip.armor_defense }}</td>
-<td>
-{% if equip.armor_name != "布衣" %}
-<form action="/view/warehouse/unequip" method="post" style="display:inline">
-<input type="hidden" name="item_type" value="armor">
-<button class="btn" type="submit">卸下</button>
-</form>
-{% endif %}
-</td>
-</tr>
-<tr>
-<td><b>飾品</b></td><td>{{ equip.accessory_name }}</td><td>{{ equip.accessory_name if equip.accessory_name != "無" else "-" }}</td>
-<td>
-{% if equip.accessory_name != "無" %}
-<form action="/view/warehouse/unequip" method="post" style="display:inline">
-<input type="hidden" name="item_type" value="accessory">
-<button class="btn" type="submit">卸下</button>
-</form>
-{% endif %}
-</td>
-</tr>
-</table>
+<!-- Current Equipment -->
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">shield_person</span> 目前的裝備</h2>
+  <div class="space-y-3">
+    <div class="glass-card equip-card equip-weapon flex justify-between items-center">
+      <div><span class="text-gold text-xs font-bold">武器</span> <b>{{ equip.weapon_name }}</b> <span class="text-sm" style="color:var(--text-muted);">攻擊力 {{ equip.weapon_attack }}</span></div>
+      {% if equip.weapon_name != "徒手" %}
+      <form action="/view/warehouse/unequip" method="post" style="display:inline"><input type="hidden" name="item_type" value="weapon"><button class="rpg-btn" type="submit">卸下</button></form>
+      {% endif %}
+    </div>
+    <div class="glass-card equip-card equip-armor flex justify-between items-center">
+      <div><span class="text-gold text-xs font-bold">防具</span> <b>{{ equip.armor_name }}</b> <span class="text-sm" style="color:var(--text-muted);">防禦力 {{ equip.armor_defense }}</span></div>
+      {% if equip.armor_name != "布衣" %}
+      <form action="/view/warehouse/unequip" method="post" style="display:inline"><input type="hidden" name="item_type" value="armor"><button class="rpg-btn" type="submit">卸下</button></form>
+      {% endif %}
+    </div>
+    <div class="glass-card equip-card equip-accessory flex justify-between items-center">
+      <div><span class="text-gold text-xs font-bold">飾品</span> <b>{{ equip.accessory_name }}</b></div>
+      {% if equip.accessory_name != "無" %}
+      <form action="/view/warehouse/unequip" method="post" style="display:inline"><input type="hidden" name="item_type" value="accessory"><button class="rpg-btn" type="submit">卸下</button></form>
+      {% endif %}
+    </div>
+  </div>
+</section>
 
-<hr>
-<table width="100%">
-<tr>
-<td width="30%" valign="top" style="text-align:center">
-<h3>武器倉庫</h3>
-<table width="98%">
-<tr><th>名稱</th><th>攻擊力</th><th>價格</th><th></th><th></th></tr>
-{% for item in weapons %}
-<tr>
-<td>{{ item.name }}</td>
-<td>{{ item.attack }}</td>
-<td>{{ "{:,}".format(item.price) }}G</td>
-<td>
-<form action="/view/warehouse/equip" method="post" style="display:inline">
-<input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}">
-<button class="btn" type="submit">裝備</button>
-</form>
-</td>
-<td>
-<form action="/view/warehouse/discard" method="post" style="display:inline">
-<input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}">
-<button class="btn btn-danger" type="submit">丟棄</button>
-</form>
-</td>
-</tr>
-{% else %}
-<tr><td colspan="5">空</td></tr>
-{% endfor %}
-</table>
-</td>
+<!-- Storage -->
+<div class="warehouse-grid">
+  <!-- Weapons -->
+  <section class="fantasy-border">
+    <h2 class="section-title text-sm"><span class="material-symbols-outlined text-sm" style="opacity:0.7; color:#ef4444;">swords</span> 武器倉庫</h2>
+    {% if weapons %}
+    <table class="rpg-table">
+      <thead><tr><th>名稱</th><th>攻擊</th><th>價格</th><th></th></tr></thead>
+      <tbody>
+      {% for item in weapons %}
+      <tr>
+        <td class="font-bold">{{ item.name }}</td>
+        <td>{{ item.attack }}</td>
+        <td class="text-gold">{{ "{:,}".format(item.price) }}G</td>
+        <td style="white-space:nowrap;">
+          <form action="/view/warehouse/equip" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">裝備</button></form>
+          <form action="/view/warehouse/discard" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn rpg-btn-danger" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">丟棄</button></form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--text-muted); text-align:center;">空</p>
+    {% endif %}
+  </section>
 
-<td width="30%" valign="top" style="text-align:center">
-<h3>防具倉庫</h3>
-<table width="98%">
-<tr><th>名稱</th><th>防禦力</th><th>價格</th><th></th><th></th></tr>
-{% for item in armors %}
-<tr>
-<td>{{ item.name }}</td>
-<td>{{ item.defense }}</td>
-<td>{{ "{:,}".format(item.price) }}G</td>
-<td>
-<form action="/view/warehouse/equip" method="post" style="display:inline">
-<input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}">
-<button class="btn" type="submit">裝備</button>
-</form>
-</td>
-<td>
-<form action="/view/warehouse/discard" method="post" style="display:inline">
-<input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}">
-<button class="btn btn-danger" type="submit">丟棄</button>
-</form>
-</td>
-</tr>
-{% else %}
-<tr><td colspan="5">空</td></tr>
-{% endfor %}
-</table>
-</td>
+  <!-- Armors -->
+  <section class="fantasy-border">
+    <h2 class="section-title text-sm"><span class="material-symbols-outlined text-sm" style="opacity:0.7; color:#3b82f6;">shield</span> 防具倉庫</h2>
+    {% if armors %}
+    <table class="rpg-table">
+      <thead><tr><th>名稱</th><th>防禦</th><th>價格</th><th></th></tr></thead>
+      <tbody>
+      {% for item in armors %}
+      <tr>
+        <td class="font-bold">{{ item.name }}</td>
+        <td>{{ item.defense }}</td>
+        <td class="text-gold">{{ "{:,}".format(item.price) }}G</td>
+        <td style="white-space:nowrap;">
+          <form action="/view/warehouse/equip" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">裝備</button></form>
+          <form action="/view/warehouse/discard" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn rpg-btn-danger" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">丟棄</button></form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--text-muted); text-align:center;">空</p>
+    {% endif %}
+  </section>
 
-<td width="40%" valign="top" style="text-align:center">
-<h3>飾品倉庫</h3>
-<table width="98%">
-<tr><th>名稱</th><th>說明</th><th>價格</th><th></th><th></th></tr>
-{% for item in accessories %}
-<tr>
-<td>{{ item.name }}</td>
-<td>{{ item.description }}</td>
-<td>{{ "{:,}".format(item.price) }}G</td>
-<td>
-<form action="/view/warehouse/equip" method="post" style="display:inline">
-<input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}">
-<button class="btn" type="submit">裝備</button>
-</form>
-</td>
-<td>
-<form action="/view/warehouse/discard" method="post" style="display:inline">
-<input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}">
-<button class="btn btn-danger" type="submit">丟棄</button>
-</form>
-</td>
-</tr>
-{% else %}
-<tr><td colspan="5">空</td></tr>
-{% endfor %}
-</table>
-</td>
-</tr>
-</table>
+  <!-- Accessories -->
+  <section class="fantasy-border">
+    <h2 class="section-title text-sm"><span class="material-symbols-outlined text-sm" style="opacity:0.7; color:#eab308;">diamond</span> 飾品倉庫</h2>
+    {% if accessories %}
+    <table class="rpg-table">
+      <thead><tr><th>名稱</th><th>說明</th><th>價格</th><th></th></tr></thead>
+      <tbody>
+      {% for item in accessories %}
+      <tr>
+        <td class="font-bold">{{ item.name }}</td>
+        <td class="text-sm" style="color:var(--text-muted);">{{ item.description }}</td>
+        <td class="text-gold">{{ "{:,}".format(item.price) }}G</td>
+        <td style="white-space:nowrap;">
+          <form action="/view/warehouse/equip" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">裝備</button></form>
+          <form action="/view/warehouse/discard" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn rpg-btn-danger" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">丟棄</button></form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--text-muted); text-align:center;">空</p>
+    {% endif %}
+  </section>
+</div>
 
-<a href="/view/status" class="btn">← 返回</a>
+<div class="mt-8">
+  <a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回</a>
+</div>
 {% endblock %}

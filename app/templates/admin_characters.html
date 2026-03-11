@@ -1,50 +1,52 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}角色一覽 - 管理模式{% endblock %}
 {% block content %}
-<h1>角色一覽</h1>
-<p>共 {{ characters|length }} 名角色</p>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">group</span> 角色一覽</h1>
+  <p class="rpg-hint">共 {{ characters|length }} 名角色</p>
+  <div class="flex flex-wrap gap-2 mt-4">
+    <a href="/view/admin/characters?p={{ password }}&sort=level" class="rpg-btn">依等級排序</a>
+    <a href="/view/admin/characters?p={{ password }}&sort=battles" class="rpg-btn">依戰鬥次數排序</a>
+    <a href="/view/admin/characters?p={{ password }}&sort=last" class="rpg-btn">依最後戰鬥排序</a>
+  </div>
+</header>
 
-<div style="margin-bottom:10px;">
-  <a href="/view/admin/characters?p={{ password }}&sort=level" class="btn">依等級排序</a>
-  <a href="/view/admin/characters?p={{ password }}&sort=battles" class="btn">依戰鬥次數排序</a>
-  <a href="/view/admin/characters?p={{ password }}&sort=last" class="btn">依最後戰鬥排序</a>
-</div>
+<section class="fantasy-border mb-6" style="overflow-x:auto;">
+  <table class="rpg-table">
+    <thead>
+      <tr><th>NO</th><th>角色名</th><th>ID</th><th>等級</th><th>職業</th><th>戰鬥次數</th><th>距刪除(天)</th><th>保護</th><th>操作</th></tr>
+    </thead>
+    <tbody>
+    {% for c in characters %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td class="font-bold">{{ c.name }}</td>
+      <td class="font-mono text-sm">{{ c.id }}</td>
+      <td>{{ c.level }}</td>
+      <td>{{ c.job_name }}</td>
+      <td>{{ c.battle_count }}</td>
+      <td>{% if c.days_left is none %}<span class="msg-error">無日期</span>{% elif c.days_left < 7 %}<span class="msg-error">{{ c.days_left }}</span>{% else %}<span class="text-gold">{{ c.days_left }}</span>{% endif %}</td>
+      <td>{% if c.protected %}<span class="msg-success">已保護</span>{% else %}-{% endif %}</td>
+      <td style="white-space:nowrap;">
+        <a href="/view/admin/search?p={{ password }}&q={{ c.id }}" class="rpg-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;">詳細</a>
+        {% if not c.protected %}
+        <form method="post" action="/view/admin/protect" style="display:inline;">
+          <input type="hidden" name="password" value="{{ password }}">
+          <input type="hidden" name="character_id" value="{{ c.id }}">
+          <button type="submit" class="rpg-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;">保護</button>
+        </form>
+        <form method="post" action="/view/admin/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ c.name }}？');">
+          <input type="hidden" name="password" value="{{ password }}">
+          <input type="hidden" name="character_id" value="{{ c.id }}">
+          <button type="submit" class="rpg-btn rpg-btn-danger" style="padding:0.25rem 0.5rem; font-size:0.75rem;">刪除</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 
-<table>
-<tr>
-  <th>NO</th><th>角色名</th><th>ID</th><th>等級</th><th>職業</th>
-  <th>戰鬥次數</th><th>距刪除(天)</th><th>保護</th><th>操作</th>
-</tr>
-{% for c in characters %}
-<tr>
-  <td>{{ loop.index }}</td>
-  <td>{{ c.name }}</td>
-  <td>{{ c.id }}</td>
-  <td>{{ c.level }}</td>
-  <td>{{ c.job_name }}</td>
-  <td>{{ c.battle_count }}</td>
-  <td>{% if c.days_left is none %}<span class="msg-error">無日期</span>{% elif c.days_left < 7 %}<span class="msg-error">{{ c.days_left }}</span>{% else %}<span class="gold">{{ c.days_left }}</span>{% endif %}</td>
-  <td>{% if c.protected %}<span class="msg-success">已保護</span>{% else %}-{% endif %}</td>
-  <td>
-    <a href="/view/admin/search?p={{ password }}&q={{ c.id }}" class="btn">詳細</a>
-    {% if not c.protected %}
-    <form method="post" action="/view/admin/protect" style="display:inline;">
-      <input type="hidden" name="password" value="{{ password }}">
-      <input type="hidden" name="character_id" value="{{ c.id }}">
-      <button type="submit" class="btn">保護</button>
-    </form>
-    <form method="post" action="/view/admin/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ c.name }}？');">
-      <input type="hidden" name="password" value="{{ password }}">
-      <input type="hidden" name="character_id" value="{{ c.id }}">
-      <button type="submit" class="btn btn-danger">刪除</button>
-    </form>
-    {% endif %}
-  </td>
-</tr>
-{% endfor %}
-</table>
-
-<p style="margin-top:12px;">
-  <a href="/view/admin?p={{ password }}" class="btn">返回管理首頁</a>
-</p>
+<a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回管理首頁</a>
 {% endblock %}

@@ -1,91 +1,102 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}道具一覽 - 管理模式{% endblock %}
 {% block content %}
-<h1>道具一覽</h1>
-
-<div style="margin-bottom:12px;">
-  <a href="/view/admin/items?p={{ password }}&tab=weapon" class="btn" {% if tab == 'weapon' %}style="background:#444488;"{% endif %}>武器 ({{ weapon_count }})</a>
-  <a href="/view/admin/items?p={{ password }}&tab=armor" class="btn" {% if tab == 'armor' %}style="background:#444488;"{% endif %}>防具 ({{ armor_count }})</a>
-  <a href="/view/admin/items?p={{ password }}&tab=accessory" class="btn" {% if tab == 'accessory' %}style="background:#444488;"{% endif %}>飾品 ({{ accessory_count }})</a>
-</div>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">inventory_2</span> 道具一覽</h1>
+  <div class="flex flex-wrap gap-2 mt-4">
+    <a href="/view/admin/items?p={{ password }}&tab=weapon" class="rpg-btn {% if tab == 'weapon' %}rpg-btn-rich{% endif %}">武器 ({{ weapon_count }})</a>
+    <a href="/view/admin/items?p={{ password }}&tab=armor" class="rpg-btn {% if tab == 'armor' %}rpg-btn-rich{% endif %}">防具 ({{ armor_count }})</a>
+    <a href="/view/admin/items?p={{ password }}&tab=accessory" class="rpg-btn {% if tab == 'accessory' %}rpg-btn-rich{% endif %}">飾品 ({{ accessory_count }})</a>
+  </div>
+</header>
 
 {% if tab == 'weapon' %}
-<h2>武器一覽</h2>
-<div style="margin-bottom:8px;">
-  <a href="/view/admin/items/edit?p={{ password }}&tab=weapon&item_id=new" class="btn">新增武器</a>
-</div>
-<table>
-<tr><th>ID</th><th>名稱</th><th>攻擊力</th><th>命中補正</th><th>價格</th><th>商店階級</th><th>操作</th></tr>
-{% for w in items %}
-<tr>
-  <td>{{ w.id }}</td><td>{{ w.name }}</td><td>{{ w.attack }}</td>
-  <td>{{ w.accuracy_bonus }}</td><td class="gold">{{ w.price }}</td><td>{{ w.shop_tier }}</td>
-  <td>
-    <a href="/view/admin/items/edit?p={{ password }}&tab=weapon&item_id={{ w.id }}" class="btn">編輯</a>
-    <form method="post" action="/view/admin/items/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ w.name }}？');">
-      <input type="hidden" name="password" value="{{ password }}">
-      <input type="hidden" name="tab" value="weapon">
-      <input type="hidden" name="item_id" value="{{ w.id }}">
-      <button type="submit" class="btn btn-danger">刪除</button>
-    </form>
-  </td>
-</tr>
-{% endfor %}
-</table>
+<section class="fantasy-border mb-6" style="overflow-x:auto;">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="section-title mb-0"><span class="material-symbols-outlined text-sm" style="opacity:0.7">swords</span> 武器一覽</h2>
+    <a href="/view/admin/items/edit?p={{ password }}&tab=weapon&item_id=new" class="rpg-btn rpg-btn-rich">新增武器</a>
+  </div>
+  <table class="rpg-table">
+    <thead><tr><th>ID</th><th>名稱</th><th>攻擊力</th><th>命中補正</th><th>價格</th><th>商店階級</th><th>操作</th></tr></thead>
+    <tbody>
+    {% for w in items %}
+    <tr>
+      <td>{{ w.id }}</td><td class="font-bold">{{ w.name }}</td><td>{{ w.attack }}</td>
+      <td>{{ w.accuracy_bonus }}</td><td class="text-gold">{{ w.price }}</td><td>{{ w.shop_tier }}</td>
+      <td style="white-space:nowrap;">
+        <a href="/view/admin/items/edit?p={{ password }}&tab=weapon&item_id={{ w.id }}" class="rpg-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;">編輯</a>
+        <form method="post" action="/view/admin/items/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ w.name }}？');">
+          <input type="hidden" name="password" value="{{ password }}">
+          <input type="hidden" name="tab" value="weapon">
+          <input type="hidden" name="item_id" value="{{ w.id }}">
+          <button type="submit" class="rpg-btn rpg-btn-danger" style="padding:0.25rem 0.5rem; font-size:0.75rem;">刪除</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 
 {% elif tab == 'armor' %}
-<h2>防具一覽</h2>
-<div style="margin-bottom:8px;">
-  <a href="/view/admin/items/edit?p={{ password }}&tab=armor&item_id=new" class="btn">新增防具</a>
-</div>
-<table>
-<tr><th>ID</th><th>名稱</th><th>防禦力</th><th>迴避補正</th><th>價格</th><th>商店階級</th><th>操作</th></tr>
-{% for a in items %}
-<tr>
-  <td>{{ a.id }}</td><td>{{ a.name }}</td><td>{{ a.defense }}</td>
-  <td>{{ a.evasion_bonus }}</td><td class="gold">{{ a.price }}</td><td>{{ a.shop_tier }}</td>
-  <td>
-    <a href="/view/admin/items/edit?p={{ password }}&tab=armor&item_id={{ a.id }}" class="btn">編輯</a>
-    <form method="post" action="/view/admin/items/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ a.name }}？');">
-      <input type="hidden" name="password" value="{{ password }}">
-      <input type="hidden" name="tab" value="armor">
-      <input type="hidden" name="item_id" value="{{ a.id }}">
-      <button type="submit" class="btn btn-danger">刪除</button>
-    </form>
-  </td>
-</tr>
-{% endfor %}
-</table>
+<section class="fantasy-border mb-6" style="overflow-x:auto;">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="section-title mb-0"><span class="material-symbols-outlined text-sm" style="opacity:0.7">shield</span> 防具一覽</h2>
+    <a href="/view/admin/items/edit?p={{ password }}&tab=armor&item_id=new" class="rpg-btn rpg-btn-rich">新增防具</a>
+  </div>
+  <table class="rpg-table">
+    <thead><tr><th>ID</th><th>名稱</th><th>防禦力</th><th>迴避補正</th><th>價格</th><th>商店階級</th><th>操作</th></tr></thead>
+    <tbody>
+    {% for a in items %}
+    <tr>
+      <td>{{ a.id }}</td><td class="font-bold">{{ a.name }}</td><td>{{ a.defense }}</td>
+      <td>{{ a.evasion_bonus }}</td><td class="text-gold">{{ a.price }}</td><td>{{ a.shop_tier }}</td>
+      <td style="white-space:nowrap;">
+        <a href="/view/admin/items/edit?p={{ password }}&tab=armor&item_id={{ a.id }}" class="rpg-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;">編輯</a>
+        <form method="post" action="/view/admin/items/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ a.name }}？');">
+          <input type="hidden" name="password" value="{{ password }}">
+          <input type="hidden" name="tab" value="armor">
+          <input type="hidden" name="item_id" value="{{ a.id }}">
+          <button type="submit" class="rpg-btn rpg-btn-danger" style="padding:0.25rem 0.5rem; font-size:0.75rem;">刪除</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 
 {% elif tab == 'accessory' %}
-<h2>飾品一覽</h2>
-<div style="margin-bottom:8px;">
-  <a href="/view/admin/items/edit?p={{ password }}&tab=accessory&item_id=new" class="btn">新增飾品</a>
-</div>
-<table style="font-size:12px;">
-<tr><th>ID</th><th>名稱</th><th>價格</th><th>技能</th><th>STR</th><th>MAG</th><th>FAI</th><th>VIT</th><th>DEX</th><th>SPD</th><th>CHA</th><th>業</th><th>命中</th><th>迴避</th><th>必殺</th><th>說明</th><th>階級</th><th>操作</th></tr>
-{% for a in items %}
-<tr>
-  <td>{{ a.id }}</td><td>{{ a.name }}</td><td class="gold">{{ a.price }}</td><td>{{ a.skill_id }}</td>
-  <td>{{ a.str_bonus }}</td><td>{{ a.mag_bonus }}</td><td>{{ a.fai_bonus }}</td><td>{{ a.vit_bonus }}</td>
-  <td>{{ a.dex_bonus }}</td><td>{{ a.spd_bonus }}</td><td>{{ a.cha_bonus }}</td><td>{{ a.karma_bonus }}</td>
-  <td>{{ a.accuracy_bonus }}</td><td>{{ a.evasion_bonus }}</td><td>{{ a.critical_bonus }}</td>
-  <td>{{ a.description }}</td><td>{{ a.shop_tier }}</td>
-  <td style="white-space:nowrap;">
-    <a href="/view/admin/items/edit?p={{ password }}&tab=accessory&item_id={{ a.id }}" class="btn">編輯</a>
-    <form method="post" action="/view/admin/items/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ a.name }}？');">
-      <input type="hidden" name="password" value="{{ password }}">
-      <input type="hidden" name="tab" value="accessory">
-      <input type="hidden" name="item_id" value="{{ a.id }}">
-      <button type="submit" class="btn btn-danger">刪除</button>
-    </form>
-  </td>
-</tr>
-{% endfor %}
-</table>
+<section class="fantasy-border mb-6" style="overflow-x:auto;">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="section-title mb-0"><span class="material-symbols-outlined text-sm" style="opacity:0.7">diamond</span> 飾品一覽</h2>
+    <a href="/view/admin/items/edit?p={{ password }}&tab=accessory&item_id=new" class="rpg-btn rpg-btn-rich">新增飾品</a>
+  </div>
+  <table class="rpg-table" style="font-size:0.75rem;">
+    <thead><tr><th>ID</th><th>名稱</th><th>價格</th><th>技能</th><th>STR</th><th>MAG</th><th>FAI</th><th>VIT</th><th>DEX</th><th>SPD</th><th>CHA</th><th>業</th><th>命中</th><th>迴避</th><th>必殺</th><th>說明</th><th>階級</th><th>操作</th></tr></thead>
+    <tbody>
+    {% for a in items %}
+    <tr>
+      <td>{{ a.id }}</td><td class="font-bold">{{ a.name }}</td><td class="text-gold">{{ a.price }}</td><td>{{ a.skill_id }}</td>
+      <td>{{ a.str_bonus }}</td><td>{{ a.mag_bonus }}</td><td>{{ a.fai_bonus }}</td><td>{{ a.vit_bonus }}</td>
+      <td>{{ a.dex_bonus }}</td><td>{{ a.spd_bonus }}</td><td>{{ a.cha_bonus }}</td><td>{{ a.karma_bonus }}</td>
+      <td>{{ a.accuracy_bonus }}</td><td>{{ a.evasion_bonus }}</td><td>{{ a.critical_bonus }}</td>
+      <td>{{ a.description }}</td><td>{{ a.shop_tier }}</td>
+      <td style="white-space:nowrap;">
+        <a href="/view/admin/items/edit?p={{ password }}&tab=accessory&item_id={{ a.id }}" class="rpg-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;">編輯</a>
+        <form method="post" action="/view/admin/items/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ a.name }}？');">
+          <input type="hidden" name="password" value="{{ password }}">
+          <input type="hidden" name="tab" value="accessory">
+          <input type="hidden" name="item_id" value="{{ a.id }}">
+          <button type="submit" class="rpg-btn rpg-btn-danger" style="padding:0.25rem 0.5rem; font-size:0.75rem;">刪除</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endif %}
 
-<div style="margin-top:12px;">
-  <a href="/view/admin?p={{ password }}" class="btn">返回管理首頁</a>
-</div>
+<a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回管理首頁</a>
 {% endblock %}

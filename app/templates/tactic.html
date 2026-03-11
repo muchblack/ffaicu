@@ -1,27 +1,36 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}作戰會議室{% endblock %}
 {% block content %}
-<h1>作戰會議室</h1>
-<hr>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">strategy</span> 作戰會議室</h1>
+</header>
 
-<form action="/view/tactic/change" method="post">
-<table>
-<tr><th colspan="3">戰技</th></tr>
-<tr>
-<td class="b1">目前戰技</td>
-<td class="b1"><b>{{ current_name }}</b></td>
-<td class="b1">{{ current_desc }}</td>
-</tr>
-{% for t in tactics %}
-<tr>
-<td class="b1"><input type="radio" name="tactic_id" value="{{ t.id }}" {% if t.id == current_tactic %}checked{% endif %}></td>
-<td class="b1">{{ t.name }}</td>
-<td class="b1">{{ t.description }}</td>
-</tr>
-{% endfor %}
-</table>
-<button class="btn" type="submit">變更</button>
-</form>
+<section class="fantasy-border mb-6">
+  <form action="/view/tactic/change" method="post">
+    <div class="glass-card p-4 mb-4">
+      <p class="text-xs text-gold font-bold mb-1">目前戰技</p>
+      <p class="font-bold text-lg">{{ current_name }}</p>
+      <p class="text-sm" style="color:var(--text-muted);">{{ current_desc }}</p>
+    </div>
 
-<a href="/view/status" class="btn">← 返回狀態畫面</a>
+    <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">deployed_code</span> 變更戰技</h2>
+    <table class="rpg-table">
+      <thead><tr><th style="width:3rem;"></th><th>名稱</th><th>說明</th></tr></thead>
+      <tbody>
+      {% for t in tactics %}
+      <tr{% if t.id == current_tactic %} class="current-row"{% endif %}>
+        <td><input type="radio" name="tactic_id" value="{{ t.id }}" {% if t.id == current_tactic %}checked{% endif %}></td>
+        <td class="font-bold">{{ t.name }}</td>
+        <td class="text-sm" style="color:var(--text-muted);">{{ t.description }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="mt-4">
+      <button class="rpg-btn rpg-btn-rich" type="submit">變更</button>
+    </div>
+  </form>
+</section>
+
+<a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回狀態畫面</a>
 {% endblock %}

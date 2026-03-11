@@ -1,50 +1,64 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}轉職神殿{% endblock %}
 {% block content %}
-<h1>轉職神殿</h1>
-<p>目前職業: <b>{{ current_job_name }}</b> (Lv{{ current_job_level }})</p>
-<p>※ 轉職後，能力值會下降10%。但若轉職目標職業的職業等級為20以上，則不會下降。</p>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">temple_buddhist</span> 轉職神殿</h1>
+  <div class="glass-card p-3 mt-4 flex items-center gap-3">
+    <span class="text-gold font-bold">目前職業:</span>
+    <span class="font-bold text-lg">{{ current_job_name }}</span>
+    <span class="badge">Lv{{ current_job_level }}</span>
+  </div>
+  <p class="rpg-hint mt-2">※ 轉職後，能力值會下降10%。但若轉職目標職業的職業等級為20以上，則不會下降。</p>
+</header>
 
-<h2>可轉職的職業</h2>
-<table>
-<tr><th>職業</th><th>熟練度</th><th>狀態</th><th></th></tr>
-{% for job in jobs %}
-{% if job.id == current_job %}
-<tr>
-<td><b>{{ job.name }}</b></td>
-<td>{{ job.mastery }}/60</td>
-<td>← 目前</td>
-<td></td>
-</tr>
-{% elif job.available %}
-<tr>
-<td>{{ job.name }}</td>
-<td>{{ job.mastery }}/60</td>
-<td>{% if job.mastered %}✔ 精通{% else %}-{% endif %}</td>
-<td>
-<form action="/view/job/change" method="post" style="display:inline">
-<input type="hidden" name="job_class" value="{{ job.id }}">
-<button class="btn" type="submit">轉職</button>
-</form>
-</td>
-</tr>
-{% endif %}
-{% endfor %}
-</table>
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">check_circle</span> 可轉職的職業</h2>
+  <table class="rpg-table">
+    <thead><tr><th>職業</th><th>熟練度</th><th>狀態</th><th></th></tr></thead>
+    <tbody>
+    {% for job in jobs %}
+    {% if job.id == current_job %}
+    <tr class="current-row">
+      <td class="font-bold text-gold">{{ job.name }}</td>
+      <td>{{ job.mastery }}/60</td>
+      <td class="text-gold">&larr; 目前</td>
+      <td></td>
+    </tr>
+    {% elif job.available %}
+    <tr>
+      <td class="font-bold">{{ job.name }}</td>
+      <td>{{ job.mastery }}/60</td>
+      <td>{% if job.mastered %}<span class="msg-success">&#10004; 精通</span>{% else %}-{% endif %}</td>
+      <td>
+        <form action="/view/job/change" method="post" style="display:inline">
+          <input type="hidden" name="job_class" value="{{ job.id }}">
+          <button class="rpg-btn rpg-btn-rich" type="submit">轉職</button>
+        </form>
+      </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 
-<h2>尚未開放的職業</h2>
-<table>
-<tr><th>職業</th><th>熟練度</th><th>條件</th></tr>
-{% for job in jobs %}
-{% if not job.available and job.id != current_job %}
-<tr>
-<td>{{ job.name }}</td>
-<td>{{ job.mastery }}/60</td>
-<td class="msg-warn">{{ job.locked_reason }}</td>
-</tr>
-{% endif %}
-{% endfor %}
-</table>
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">lock</span> 尚未開放的職業</h2>
+  <table class="rpg-table">
+    <thead><tr><th>職業</th><th>熟練度</th><th>條件</th></tr></thead>
+    <tbody>
+    {% for job in jobs %}
+    {% if not job.available and job.id != current_job %}
+    <tr>
+      <td>{{ job.name }}</td>
+      <td>{{ job.mastery }}/60</td>
+      <td class="msg-warn">{{ job.locked_reason }}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 
-<a href="/view/status" class="btn">← 返回</a>
+<a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回</a>
 {% endblock %}

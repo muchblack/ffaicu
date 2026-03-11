@@ -1,69 +1,42 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}{% if is_new %}新增魔物{% else %}編輯魔物{% endif %} - 管理模式{% endblock %}
 {% block content %}
-<h1>{% if is_new %}新增魔物{% else %}編輯魔物 #{{ monster.id }}{% endif %}</h1>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">edit</span> {% if is_new %}新增魔物{% else %}編輯魔物 #{{ monster.id }}{% endif %}</h1>
+</header>
 
-<form action="/view/admin/monsters/{% if is_new %}add{% else %}edit{% endif %}" method="post">
-<input type="hidden" name="password" value="{{ password }}">
-{% if not is_new %}
-<input type="hidden" name="monster_id" value="{{ monster.id }}">
-{% endif %}
+<section class="fantasy-border mb-6">
+  <form action="/view/admin/monsters/{% if is_new %}add{% else %}edit{% endif %}" method="post" class="space-y-4" style="max-width:600px;">
+    <input type="hidden" name="password" value="{{ password }}">
+    {% if not is_new %}<input type="hidden" name="monster_id" value="{{ monster.id }}">{% endif %}
 
-<table>
-<tr>
-  <td>名稱</td>
-  <td><input type="text" name="name" value="{{ monster.name if monster else '' }}" required size="30"></td>
-</tr>
-<tr>
-  <td>區域</td>
-  <td>
-    <select name="zone">
-    {% for z in zone_order %}
-      <option value="{{ z }}" {% if (monster and monster.zone == z) or (is_new and default_zone == z) %}selected{% endif %}>
-        {{ zone_labels[z] }}
-      </option>
-    {% endfor %}
-    </select>
-  </td>
-</tr>
-<tr>
-  <td>經驗值</td>
-  <td><input type="number" name="exp_reward" value="{{ monster.exp_reward if monster else 0 }}" min="0"></td>
-</tr>
-<tr>
-  <td>基礎攻擊力</td>
-  <td><input type="number" name="base_damage" value="{{ monster.base_damage if monster else 0 }}" min="0"></td>
-</tr>
-<tr>
-  <td>HP 範圍</td>
-  <td><input type="number" name="damage_range" value="{{ monster.damage_range if monster else 0 }}" min="0"></td>
-</tr>
-<tr>
-  <td>速度</td>
-  <td><input type="number" name="speed" value="{{ monster.speed if monster else 0 }}" min="0"></td>
-</tr>
-<tr>
-  <td>迴避</td>
-  <td><input type="number" name="evasion" value="{{ monster.evasion if monster else 0 }}" min="0"></td>
-</tr>
-<tr>
-  <td>暴擊率</td>
-  <td><input type="number" name="critical_rate" value="{{ monster.critical_rate if monster else 0 }}" min="0"></td>
-</tr>
-<tr>
-  <td>技能 ID</td>
-  <td><input type="number" name="skill_id" value="{{ monster.skill_id if monster else 0 }}" min="0"></td>
-</tr>
-<tr>
-  <td>掉落金幣</td>
-  <td><input type="number" name="gold_drop" value="{{ monster.gold_drop if monster else 0 }}" min="0"></td>
-</tr>
-</table>
+    <table class="rpg-table">
+      <thead><tr><th>項目</th><th>數值</th></tr></thead>
+      <tbody>
+        <tr><td>名稱</td><td><input type="text" name="name" value="{{ monster.name if monster else '' }}" required class="rpg-input"></td></tr>
+        <tr><td>區域</td><td>
+          <select name="zone" class="rpg-select">
+            {% for z in zone_order %}
+            <option value="{{ z }}" {% if (monster and monster.zone == z) or (is_new and default_zone == z) %}selected{% endif %}>{{ zone_labels[z] }}</option>
+            {% endfor %}
+          </select>
+        </td></tr>
+        <tr><td>經驗值</td><td><input type="number" name="exp_reward" value="{{ monster.exp_reward if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+        <tr><td>基礎攻擊力</td><td><input type="number" name="base_damage" value="{{ monster.base_damage if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+        <tr><td>HP 範圍</td><td><input type="number" name="damage_range" value="{{ monster.damage_range if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+        <tr><td>速度</td><td><input type="number" name="speed" value="{{ monster.speed if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+        <tr><td>迴避</td><td><input type="number" name="evasion" value="{{ monster.evasion if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+        <tr><td>暴擊率</td><td><input type="number" name="critical_rate" value="{{ monster.critical_rate if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+        <tr><td>技能 ID</td><td><input type="number" name="skill_id" value="{{ monster.skill_id if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+        <tr><td>掉落金幣</td><td><input type="number" name="gold_drop" value="{{ monster.gold_drop if monster else 0 }}" min="0" class="rpg-input"></td></tr>
+      </tbody>
+    </table>
 
-<div style="margin-top:12px;">
-  <button class="btn" type="submit">{% if is_new %}新增{% else %}儲存{% endif %}</button>
-  {% set back_zone = monster.zone if monster else default_zone %}
-  <a href="/view/admin/monsters?p={{ password }}&zone={{ back_zone }}" class="btn">取消</a>
-</div>
-</form>
+    <div class="flex gap-3">
+      <button class="rpg-btn rpg-btn-rich" type="submit">{% if is_new %}新增{% else %}儲存{% endif %}</button>
+      {% set back_zone = monster.zone if monster else default_zone %}
+      <a href="/view/admin/monsters?p={{ password }}&zone={{ back_zone }}" class="rpg-btn">取消</a>
+    </div>
+  </form>
+</section>
 {% endblock %}

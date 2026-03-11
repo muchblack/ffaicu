@@ -1,92 +1,182 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}{{ char.name }} - 狀態{% endblock %}
+{% block body_class %}rpg-body-status{% endblock %}
 {% block content %}
-<h1>{{ char.name }} 的狀態</h1>
+<!-- === Header === -->
+<header class="fantasy-border mb-6">
+  <div class="flex flex-col gap-4">
+    <div class="flex items-center gap-4 flex-wrap">
+      <h1 class="text-3xl font-bold text-gold-shine" style="text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);">{{ char.name }} 的狀態</h1>
+      <div class="flex gap-2">
+        <span class="badge"><span class="text-gold font-bold">LV</span> <span class="font-mono">{{ char.level }}</span></span>
+        <span class="badge"><span class="text-gold font-bold">職業</span> {{ job_name }} (Lv{{ char.job_level }})</span>
+      </div>
+    </div>
 
-<table>
-<tr><th>Lv</th><td>{{ char.level }}</td><th>職業</th><td>{{ job_name }} (Lv{{ char.job_level }})</td></tr>
-<tr><th>HP</th><td>{{ char.current_hp }} / {{ char.max_hp }}</td><th>EXP</th><td>{{ char.exp }}</td></tr>
-<tr><th>持有金</th><td class="gold">{{ "{:,}".format(char.gold) }}G</td><th>銀行</th><td class="gold">{{ "{:,}".format(char.bank_savings) }}G</td></tr>
-</table>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start;">
+      <!-- HP / EXP -->
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs font-bold mb-1"><span>HP</span><span>{{ char.current_hp }} / {{ char.max_hp }}</span></div>
+          <div class="progress-bar"><div class="progress-fill progress-hp" style="width:{{ (char.current_hp / char.max_hp * 100)|round }}%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs font-bold mb-1"><span>EXP</span><span>{{ char.exp }}</span></div>
+          <div class="progress-bar"><div class="progress-fill progress-exp" style="width:65%"></div></div>
+        </div>
+      </div>
+      <!-- Currency -->
+      <div class="currency-panel">
+        <div class="glass-card p-3 text-center">
+          <p class="text-xs" style="color:var(--text-muted);">持有金</p>
+          <p class="text-lg font-bold text-gold-shine">{{ "{:,}".format(char.gold) }}G</p>
+        </div>
+        <div class="glass-card p-3 text-center">
+          <p class="text-xs" style="color:var(--text-muted);">銀行</p>
+          <p class="text-lg font-bold text-gold-shine">{{ "{:,}".format(char.bank_savings) }}G</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
 
-<h2>能力值</h2>
-<table>
-{% if equip %}
-{% set ab = equip %}
-<tr><th>STR</th><td>{{ char.str_ }}{% if ab.acs_str %} + {{ ab.acs_str }}{% endif %}</td><th>MAG</th><td>{{ char.mag }}{% if ab.acs_mag %} + {{ ab.acs_mag }}{% endif %}</td><th>FAI</th><td>{{ char.fai }}{% if ab.acs_fai %} + {{ ab.acs_fai }}{% endif %}</td></tr>
-<tr><th>VIT</th><td>{{ char.vit }}{% if ab.acs_vit %} + {{ ab.acs_vit }}{% endif %}</td><th>DEX</th><td>{{ char.dex }}{% if ab.acs_dex %} + {{ ab.acs_dex }}{% endif %}</td><th>SPD</th><td>{{ char.spd }}{% if ab.acs_spd %} + {{ ab.acs_spd }}{% endif %}</td></tr>
-<tr><th>CHA</th><td>{{ char.cha }}{% if ab.acs_cha %} + {{ ab.acs_cha }}{% endif %}</td><th>業</th><td>{{ char.karma }}{% if ab.acs_karma %} + {{ ab.acs_karma }}{% endif %}</td><td></td><td></td></tr>
-{% else %}
-<tr><th>STR</th><td>{{ char.str_ }}</td><th>MAG</th><td>{{ char.mag }}</td><th>FAI</th><td>{{ char.fai }}</td></tr>
-<tr><th>VIT</th><td>{{ char.vit }}</td><th>DEX</th><td>{{ char.dex }}</td><th>SPD</th><td>{{ char.spd }}</td></tr>
-<tr><th>CHA</th><td>{{ char.cha }}</td><th>業</th><td>{{ char.karma }}</td><td></td><td></td></tr>
-{% endif %}
-</table>
+<!-- === Main Layout: Stats + Equipment sidebar === -->
+<div class="main-layout">
+  <!-- Left: Attributes + Records -->
+  <div class="space-y-8">
+    <!-- Attributes -->
+    <section>
+      <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">deployed_code</span> 能力值</h2>
+      <div class="stat-grid">
+        {% if equip %}
+        {% set ab = equip %}
+        {% for stat_name, stat_label, stat_val, acs_val in [
+          ('str_', 'STR', char.str_, ab.acs_str),
+          ('vit', 'VIT', char.vit, ab.acs_vit),
+          ('mag', 'MAG', char.mag, ab.acs_mag),
+          ('dex', 'DEX', char.dex, ab.acs_dex),
+          ('fai', 'FAI', char.fai, ab.acs_fai),
+          ('spd', 'SPD', char.spd, ab.acs_spd),
+          ('cha', 'CHA', char.cha, ab.acs_cha),
+          ('karma', '業', char.karma, ab.acs_karma),
+        ] %}
+        <div class="glass-card stat-card">
+          <span class="text-gold font-bold text-sm">{{ stat_label }}</span>
+          <span class="font-mono">{{ stat_val }}{% if acs_val %} + {{ acs_val }}{% endif %}</span>
+        </div>
+        {% endfor %}
+        {% else %}
+        {% for stat_label, stat_val in [
+          ('STR', char.str_), ('VIT', char.vit), ('MAG', char.mag), ('DEX', char.dex),
+          ('FAI', char.fai), ('SPD', char.spd), ('CHA', char.cha), ('業', char.karma),
+        ] %}
+        <div class="glass-card stat-card">
+          <span class="text-gold font-bold text-sm">{{ stat_label }}</span>
+          <span class="font-mono">{{ stat_val }}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+    </section>
 
-<h2>裝備</h2>
-<table>
-{% if equip %}
-<tr><th>武器</th><td>{{ equip.weapon_name }} (攻擊力: {{ equip.weapon_attack }})</td></tr>
-<tr><th>防具</th><td>{{ equip.armor_name }} (防禦力: {{ equip.armor_defense }})</td></tr>
-<tr><th>飾品</th><td>{{ equip.accessory_name }}</td></tr>
-{% else %}
-<tr><td>無裝備</td></tr>
-{% endif %}
-</table>
+    <!-- Battle Records -->
+    <section class="fantasy-border">
+      <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">deployed_code</span> 戰績</h2>
+      <div class="glass-card overflow-hidden">
+        <div class="record-grid" style="border:1px solid var(--rpg-border); border-radius:0.5rem;">
+          <div class="p-4">
+            <p class="text-xs mb-1" style="color:var(--text-muted);">戰鬥次數</p>
+            <p class="text-xl font-bold">{{ char.battle_count }}</p>
+          </div>
+          <div class="p-4" style="border-left:1px solid var(--rpg-border);">
+            <p class="text-xs mb-1" style="color:var(--text-muted);">勝利</p>
+            <p class="text-xl font-bold" style="color:#4ade80;">{{ char.win_count }}</p>
+          </div>
+          <div class="p-4" style="border-left:1px solid var(--rpg-border);">
+            <p class="text-xs mb-1" style="color:var(--text-muted);">剩餘戰鬥</p>
+            <p class="text-xl font-bold">{{ char.available_battles }}</p>
+          </div>
+          <div class="p-4" style="border-left:1px solid var(--rpg-border);">
+            <p class="text-xs mb-1" style="color:var(--text-muted);">稱號</p>
+            <p class="text-lg font-bold">Rank {{ char.title_rank }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 
-<h2>戰績</h2>
-<table>
-<tr><th>戰鬥次數</th><td>{{ char.battle_count }}</td><th>勝利</th><td>{{ char.win_count }}</td></tr>
-<tr><th>剩餘戰鬥</th><td>{{ char.available_battles }}</td><th>稱號</th><td>Rank {{ char.title_rank }}</td></tr>
-</table>
-
-<h2>行動</h2>
-<div>
-{% if cooldown <= 0 %}
-{% if champion %}
-<form action="/view/battle/champion" method="post" style="display:inline">
-<button class="btn">⚔ 冠軍戰 (vs {{ champion.character_name }})</button>
-</form>
-{% endif %}
-<a href="/view/battle/select" class="btn">⚔ 指定對戰</a>
-<form action="/view/battle/monster" method="post" style="display:inline">
-<select name="zone">
-{% for z in hunt_zones %}
-<option value="{{ z }}">{{ zone_labels[z] }}</option>
-{% endfor %}
-</select>
-<button class="btn">⚔ 狩獵魔物</button>
-</form>
-<a href="/view/tournament" class="btn">⚔ 武道會</a>
-{% else %}
-<p class="msg-warn">戰鬥冷卻中: 還需<span id="cd">{{ cooldown }}</span>秒</p>
-{% endif %}
+  <!-- Right: Equipment Sidebar -->
+  <aside class="fantasy-border" style="height:fit-content;">
+    <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">deployed_code</span> 裝備</h2>
+    <div class="space-y-3">
+      {% if equip %}
+      <div class="glass-card equip-card equip-weapon">
+        <p class="text-gold text-xs font-bold mb-1">武器</p>
+        <p class="font-bold">{{ equip.weapon_name }}</p>
+        <p class="text-xs" style="color:var(--text-muted);">（攻擊力：{{ equip.weapon_attack }}）</p>
+      </div>
+      <div class="glass-card equip-card equip-armor">
+        <p class="text-gold text-xs font-bold mb-1">防具</p>
+        <p class="font-bold">{{ equip.armor_name }}</p>
+        <p class="text-xs" style="color:var(--text-muted);">（防禦力：{{ equip.armor_defense }}）</p>
+      </div>
+      <div class="glass-card equip-card equip-accessory">
+        <p class="text-gold text-xs font-bold mb-1">飾品</p>
+        <p class="font-bold">{{ equip.accessory_name }}</p>
+        <p class="text-xs" style="color:var(--text-muted);">裝備中</p>
+      </div>
+      {% else %}
+      <div class="glass-card p-4"><p style="color:var(--text-muted);">無裝備</p></div>
+      {% endif %}
+    </div>
+  </aside>
 </div>
-<div style="margin-top: 8px">
-<a href="/view/tactic" class="btn">變更戰術</a>
-</div>
 
-<h2>設施</h2>
-<table>
-<tr>
-<td><form action="/view/inn" method="post"><button class="btn" type="submit">旅館 ({{ inn_cost }}G)</button></form></td>
-<td><a href="/view/shop?type=weapon" class="btn">武器店</a></td>
-<td><a href="/view/shop?type=armor" class="btn">防具店</a></td>
-<td><a href="/view/shop?type=accessory" class="btn">飾品店</a></td>
-</tr>
-<tr>
-<td><a href="/view/bank" class="btn">銀行</a></td>
-<td><a href="/view/warehouse" class="btn">道具倉庫</a></td>
-<td><a href="/view/message" class="btn">郵局</a></td>
-<td><a href="/view/ranking" class="btn">排行榜</a></td>
-</tr>
-<tr>
-<td><a href="/view/job" class="btn">轉職神殿</a></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</table>
+<!-- === Actions === -->
+<section class="fantasy-border mt-8">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">deployed_code</span> 行動</h2>
+  {% if cooldown <= 0 %}
+  <div class="flex flex-wrap gap-3">
+    {% if champion %}
+    <form action="/view/battle/champion" method="post" style="display:inline">
+      <button class="rpg-btn rpg-btn-rich" type="submit">&#9876; 冠軍戰 (vs {{ champion.character_name }})</button>
+    </form>
+    {% endif %}
+    <a href="/view/battle/select" class="rpg-btn rpg-btn-rich">&#9876; 指定對戰</a>
+    <form action="/view/battle/monster" method="post" style="display:inline" class="flex items-center gap-2">
+      <select name="zone" class="rpg-select">
+        {% for z in hunt_zones %}
+        <option value="{{ z }}">{{ zone_labels[z] }}</option>
+        {% endfor %}
+      </select>
+      <button class="rpg-btn rpg-btn-rich" type="submit">&#9876; 狩獵魔物</button>
+    </form>
+    <a href="/view/tournament" class="rpg-btn rpg-btn-rich">&#9876; 武道會</a>
+  </div>
+  {% else %}
+  <div class="cooldown-warn">&#9200; 戰鬥冷卻中: 還需 <span id="cd">{{ cooldown }}</span> 秒</div>
+  {% endif %}
+  <div class="mt-4">
+    <a href="/view/tactic" class="rpg-btn" style="color:#60a5fa;">&#9881; 變更戰術</a>
+  </div>
+</section>
+
+<!-- === Facilities === -->
+<section class="fantasy-border mt-8">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">deployed_code</span> 設施</h2>
+  <div class="facility-grid">
+    <form action="/view/inn" method="post"><button class="rpg-btn rpg-btn-rich w-full flex-col p-4" type="submit"><span>&#127978;</span><span>旅館 ({{ inn_cost }}G)</span></button></form>
+    <a href="/view/shop?type=weapon" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#9876;</span><span>武器店</span></a>
+    <a href="/view/shop?type=armor" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#128737;</span><span>防具店</span></a>
+    <a href="/view/shop?type=accessory" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#128142;</span><span>飾品店</span></a>
+    <a href="/view/bank" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#127974;</span><span>銀行</span></a>
+    <a href="/view/warehouse" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#128230;</span><span>道具倉庫</span></a>
+    <a href="/view/message" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#128236;</span><span>郵局</span></a>
+    <a href="/view/ranking" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#127942;</span><span>排行榜</span></a>
+    <a href="/view/job" class="rpg-btn rpg-btn-rich flex-col p-4"><span>&#9962;</span><span>轉職神殿</span></a>
+  </div>
+</section>
+
 {% if cooldown > 0 %}
 <script>
 (function(){

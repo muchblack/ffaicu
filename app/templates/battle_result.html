@@ -1,63 +1,67 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}戰鬥結果{% endblock %}
 {% block content %}
-<h1>戰鬥結果</h1>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">swords</span> 戰鬥結果</h1>
+</header>
 
 {% if result.get("error") %}
-<p class="msg-error">{{ result.error }}</p>
+<div class="flash flash-error">{{ result.error }}</div>
 {% else %}
-<h2>
-{% if result.outcome == "win" %}
-<span class="msg-success">★ 勝利！！！ ★</span>
-{% elif result.outcome == "lose" %}
-<span class="msg-error">✕ 敗北… ✕</span>
-{% elif result.outcome == "draw" %}
-<span class="msg-warn">△ 平手 △</span>
-{% else %}
-<span class="msg-warn">— 時間到 —</span>
-{% endif %}
-</h2>
+
+<!-- Outcome Banner -->
+<div class="outcome-banner mb-6 {% if result.outcome == 'win' %}outcome-win{% elif result.outcome == 'lose' %}outcome-lose{% elif result.outcome == 'draw' %}outcome-draw{% else %}outcome-timeout{% endif %}">
+  {% if result.outcome == "win" %}&#9733; 勝利！！！ &#9733;
+  {% elif result.outcome == "lose" %}&#10007; 敗北… &#10007;
+  {% elif result.outcome == "draw" %}&#9651; 平手 &#9651;
+  {% else %}&#8212; 時間到 &#8212;{% endif %}
+</div>
 
 {% if result.get("monster_name") %}
-<p>vs <b>{{ result.monster_name }}</b></p>
+<p class="text-center mb-4 text-lg">vs <b>{{ result.monster_name }}</b></p>
 {% elif result.get("champion_name") %}
-<p>vs 冠軍 <b>{{ result.champion_name }}</b></p>
+<p class="text-center mb-4 text-lg">vs 冠軍 <b class="text-gold">{{ result.champion_name }}</b></p>
 {% elif result.get("opponent_name") %}
-<p>vs <b>{{ result.opponent_name }}</b></p>
+<p class="text-center mb-4 text-lg">vs <b>{{ result.opponent_name }}</b></p>
 {% endif %}
 
-<table>
-<tr><th>回合數</th><td>{{ result.rounds }}</td></tr>
-<tr><th>剩餘HP</th><td>{{ result.attacker_hp }}</td></tr>
-{% if result.get("exp_gained") is not none %}
-<tr><th>獲得EXP</th><td>{{ result.exp_gained }}</td></tr>
-{% endif %}
-{% if result.get("gold_gained") is not none %}
-<tr><th>獲得Gold</th><td class="gold">{{ "{:,}".format(result.gold_gained) }}G</td></tr>
-{% endif %}
-{% if result.get("gold_lost") %}
-<tr><th>失去Gold</th><td class="msg-error">{{ "{:,}".format(result.gold_lost) }}G</td></tr>
-{% endif %}
-{% if result.get("level_ups") and result.level_ups > 0 %}
-<tr><th>升級！</th><td class="msg-success">提升了{{ result.level_ups }}級！</td></tr>
-{% endif %}
-{% if result.get("became_champion") %}
-<tr><th colspan="2" class="msg-success">★★★ 成為冠軍了！！！ ★★★</th></tr>
-{% endif %}
-{% if result.get("title_rank_up") %}
-<tr><th colspan="2" class="msg-success">稱號等級提升了！</th></tr>
-{% endif %}
-</table>
+<!-- Stats -->
+<section class="fantasy-border mb-6">
+  <table class="rpg-table">
+    <tr><th>回合數</th><td>{{ result.rounds }}</td></tr>
+    <tr><th>剩餘HP</th><td>{{ result.attacker_hp }}</td></tr>
+    {% if result.get("exp_gained") is not none %}
+    <tr><th>獲得EXP</th><td>{{ result.exp_gained }}</td></tr>
+    {% endif %}
+    {% if result.get("gold_gained") is not none %}
+    <tr><th>獲得Gold</th><td class="text-gold font-bold">{{ "{:,}".format(result.gold_gained) }}G</td></tr>
+    {% endif %}
+    {% if result.get("gold_lost") %}
+    <tr><th>失去Gold</th><td class="msg-error font-bold">{{ "{:,}".format(result.gold_lost) }}G</td></tr>
+    {% endif %}
+    {% if result.get("level_ups") and result.level_ups > 0 %}
+    <tr><th>升級！</th><td class="msg-success font-bold">提升了{{ result.level_ups }}級！</td></tr>
+    {% endif %}
+    {% if result.get("became_champion") %}
+    <tr><td colspan="2" class="msg-success font-bold text-center text-lg">&#9733;&#9733;&#9733; 成為冠軍了！！！ &#9733;&#9733;&#9733;</td></tr>
+    {% endif %}
+    {% if result.get("title_rank_up") %}
+    <tr><td colspan="2" class="msg-success font-bold text-center">稱號等級提升了！</td></tr>
+    {% endif %}
+  </table>
+</section>
 
 {% if result.get("battle_log") %}
-<h2>戰鬥紀錄</h2>
-<div class="battle-log">
-{% for line in result.battle_log %}
-<div>{{ line }}</div>
-{% endfor %}
-</div>
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">description</span> 戰鬥紀錄</h2>
+  <div class="battle-log">
+    {% for line in result.battle_log %}
+    <div>{{ line }}</div>
+    {% endfor %}
+  </div>
+</section>
 {% endif %}
 {% endif %}
 
-<a href="/view/status" class="btn">← 返回狀態頁</a>
+<a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回狀態頁</a>
 {% endblock %}

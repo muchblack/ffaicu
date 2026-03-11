@@ -1,58 +1,72 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}{{ "新增職業" if is_new else "編輯職業: " + job.name }} - 管理模式{% endblock %}
 {% block content %}
-<h1>{{ "新增職業" if is_new else "編輯職業: " + job.name }}</h1>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">edit</span> {{ "新增職業" if is_new else "編輯職業: " + job.name }}</h1>
+</header>
 
-<form method="post" action="/view/admin/jobs/{{ 'add' if is_new else 'edit' }}">
-  <input type="hidden" name="password" value="{{ password }}">
-  {% if not is_new %}
-  <input type="hidden" name="job_id" value="{{ job.id }}">
-  {% endif %}
+<section class="fantasy-border mb-6">
+  <form method="post" action="/view/admin/jobs/{{ 'add' if is_new else 'edit' }}" class="space-y-6">
+    <input type="hidden" name="password" value="{{ password }}">
+    {% if not is_new %}<input type="hidden" name="job_id" value="{{ job.id }}">{% endif %}
 
-  <h2>基本設定</h2>
-  <table>
-    <tr><th>項目</th><th>數值</th></tr>
-    {% if is_new %}
-    <tr><td>職業 ID</td><td><input type="number" name="job_id" value="{{ next_id }}" required></td></tr>
-    {% else %}
-    <tr><td>職業 ID</td><td>{{ job.id }}</td></tr>
-    {% endif %}
-    <tr><td>名稱</td><td><input type="text" name="name" value="{{ job.name if not is_new else '' }}" required size="20"></td></tr>
-    <tr><td>攻擊倍率</td><td><input type="number" name="multiplier" value="{{ job.multiplier if not is_new else 1 }}" min="1" required></td></tr>
-  </table>
+    <div>
+      <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">settings</span> 基本設定</h2>
+      <table class="rpg-table">
+        <thead><tr><th>項目</th><th>數值</th></tr></thead>
+        <tbody>
+          {% if is_new %}
+          <tr><td>職業 ID</td><td><input type="number" name="job_id" value="{{ next_id }}" required class="rpg-input"></td></tr>
+          {% else %}
+          <tr><td>職業 ID</td><td class="font-mono">{{ job.id }}</td></tr>
+          {% endif %}
+          <tr><td>名稱</td><td><input type="text" name="name" value="{{ job.name if not is_new else '' }}" required class="rpg-input"></td></tr>
+          <tr><td>攻擊倍率</td><td><input type="number" name="multiplier" value="{{ job.multiplier if not is_new else 1 }}" min="1" required class="rpg-input"></td></tr>
+        </tbody>
+      </table>
+    </div>
 
-  <h2>升級成長幅度</h2>
-  <table>
-    <tr><th>STR</th><th>MAG</th><th>FAI</th><th>VIT</th><th>DEX</th><th>SPD</th><th>CHA</th><th>業</th></tr>
-    <tr>
-      {% set ranges = job.levelup_ranges if not is_new else [2,2,2,2,2,2,2,1] %}
-      {% for i in range(8) %}
-      <td><input type="number" name="lr_{{ i }}" value="{{ ranges[i] if i < ranges|length else 1 }}" min="1" size="4" required></td>
-      {% endfor %}
-    </tr>
-  </table>
+    <div>
+      <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">trending_up</span> 升級成長幅度</h2>
+      <div class="stat-grid">
+        {% set ranges = job.levelup_ranges if not is_new else [2,2,2,2,2,2,2,1] %}
+        {% for label, i in [('STR',0),('MAG',1),('FAI',2),('VIT',3),('DEX',4),('SPD',5),('CHA',6),('業',7)] %}
+        <div class="glass-card p-3 flex justify-between items-center">
+          <span class="text-gold font-bold text-sm">{{ label }}</span>
+          <input type="number" name="lr_{{ i }}" value="{{ ranges[i] if i < ranges|length else 1 }}" min="1" required class="rpg-input" style="width:60px;">
+        </div>
+        {% endfor %}
+      </div>
+    </div>
 
-  <h2>攻擊公式（能力值）</h2>
-  <p style="color:#999;font-size:12px;">格式：每行一組 "類型,能力值"。類型：rand=隨機、flat=固定值。能力值：str/mag/fai/vit/dex/spd/cha/karma</p>
-  <textarea name="attack_stats" rows="6" cols="40" style="background:#0f3460;color:#e0e0e0;border:1px solid #555;font-family:monospace;">{% if not is_new %}{% for pair in job.attack_stats %}{{ pair[0] }},{{ pair[1] }}
+    <div>
+      <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">calculate</span> 攻擊公式（能力值）</h2>
+      <p class="rpg-hint">格式：每行一組 "類型,能力值"。類型：rand=隨機、flat=固定值。能力值：str/mag/fai/vit/dex/spd/cha/karma</p>
+      <textarea name="attack_stats" rows="6" cols="40" class="rpg-textarea w-full">{% if not is_new %}{% for pair in job.attack_stats %}{{ pair[0] }},{{ pair[1] }}
 {% endfor %}{% else %}rand,str
 {% endif %}</textarea>
+    </div>
 
-  <h2>轉職能力需求</h2>
-  <p style="color:#999;font-size:12px;">格式：每行一組 "能力值:數值"。例如 str:100</p>
-  <textarea name="stat_requirements" rows="6" cols="30" style="background:#0f3460;color:#e0e0e0;border:1px solid #555;font-family:monospace;">{% if not is_new %}{% for k,v in job.stat_requirements.items() %}{{ k }}:{{ v }}
+    <div>
+      <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">lock_open</span> 轉職能力需求</h2>
+      <p class="rpg-hint">格式：每行一組 "能力值:數值"。例如 str:100</p>
+      <textarea name="stat_requirements" rows="6" cols="30" class="rpg-textarea w-full">{% if not is_new %}{% for k,v in job.stat_requirements.items() %}{{ k }}:{{ v }}
 {% endfor %}{% else %}str:10
 karma:10
 {% endif %}</textarea>
+    </div>
 
-  <h2>前置精通需求</h2>
-  <p style="color:#999;font-size:12px;">格式：每行一組 "職業ID:精通等級"。例如 0:60。留空表示無需求。</p>
-  <textarea name="prerequisite_masteries" rows="4" cols="30" style="background:#0f3460;color:#e0e0e0;border:1px solid #555;font-family:monospace;">{% if not is_new and job.prerequisite_masteries %}{% for k,v in job.prerequisite_masteries.items() %}{{ k }}:{{ v }}
+    <div>
+      <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">verified</span> 前置精通需求</h2>
+      <p class="rpg-hint">格式：每行一組 "職業ID:精通等級"。例如 0:60。留空表示無需求。</p>
+      <textarea name="prerequisite_masteries" rows="4" cols="30" class="rpg-textarea w-full">{% if not is_new and job.prerequisite_masteries %}{% for k,v in job.prerequisite_masteries.items() %}{{ k }}:{{ v }}
 {% endfor %}{% endif %}</textarea>
+    </div>
 
-  <div style="margin-top:12px;">
-    <button type="submit" class="btn">{{ "新增" if is_new else "儲存" }}</button>
-    <a href="/view/admin/jobs?p={{ password }}" class="btn">取消</a>
-  </div>
-</form>
+    <div class="flex gap-3">
+      <button type="submit" class="rpg-btn rpg-btn-rich">{{ "新增" if is_new else "儲存" }}</button>
+      <a href="/view/admin/jobs?p={{ password }}" class="rpg-btn">取消</a>
+    </div>
+  </form>
+</section>
 {% endblock %}

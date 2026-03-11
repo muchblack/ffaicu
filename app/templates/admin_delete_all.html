@@ -1,28 +1,35 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}刪除所有記錄 - 管理模式{% endblock %}
 {% block content %}
-<h1 style="color:#f44336;">刪除所有角色記錄</h1>
+<header class="fantasy-border mb-6" style="border-color:rgba(239,68,68,0.3);">
+  <h1 class="section-title text-3xl" style="color:#f87171;"><span class="material-symbols-outlined">delete_forever</span> 刪除所有角色記錄</h1>
+</header>
 
 {% if confirmed %}
-<p class="msg-success">已刪除 {{ deleted_count }} 個角色的所有資料。</p>
-<a href="/view/admin?p={{ password }}" class="btn">返回管理首頁</a>
+<section class="fantasy-border mb-6">
+  <p class="msg-success font-bold text-lg">已刪除 {{ deleted_count }} 個角色的所有資料。</p>
+</section>
+<a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回管理首頁</a>
 {% else %}
-<div style="background:#3a1111;border:2px solid #f44336;padding:16px;margin:12px 0;">
-  <p style="color:#f44336;font-size:16px;"><b>警告：此操作不可逆！</b></p>
-  <p>將刪除遊戲內所有角色資料（含裝備、職業精通、倉庫、訊息等）。</p>
-  <p>目前共有 <b style="color:#ffd54f;">{{ total_characters }}</b> 個角色。</p>
+<section class="fantasy-border mb-6" style="border-color:rgba(239,68,68,0.4); background:rgba(127,29,29,0.2);">
+  <p class="msg-error font-bold text-lg mb-2">警告：此操作不可逆！</p>
+  <p class="mb-1">將刪除遊戲內所有角色資料（含裝備、職業精通、倉庫、訊息等）。</p>
+  <p class="mb-1">目前共有 <b class="text-gold">{{ total_characters }}</b> 個角色。</p>
   <p>受保護角色也將被刪除。</p>
-</div>
+</section>
 
-<form method="post" action="/view/admin/delete-all">
-  <input type="hidden" name="password" value="{{ password }}">
-  <input type="hidden" name="confirm" value="1">
-  <p>請輸入管理密碼以確認：</p>
-  <input type="password" name="confirm_password" size="20">
-  <button type="submit" class="btn btn-danger">確認刪除所有記錄</button>
-</form>
-<div style="margin-top:12px;">
-  <a href="/view/admin?p={{ password }}" class="btn">取消，返回管理首頁</a>
-</div>
+<section class="fantasy-border mb-6">
+  <form method="post" action="/view/admin/delete-all" class="space-y-3">
+    <input type="hidden" name="password" value="{{ password }}">
+    <input type="hidden" name="confirm" value="1">
+    <div>
+      <label class="text-xs text-gold font-bold">請輸入管理密碼以確認</label>
+      <input type="password" name="confirm_password" class="rpg-input w-full" style="max-width:300px;">
+    </div>
+    <button type="submit" class="rpg-btn rpg-btn-danger">確認刪除所有記錄</button>
+  </form>
+</section>
+
+<a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 取消，返回管理首頁</a>
 {% endif %}
 {% endblock %}

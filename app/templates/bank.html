@@ -1,22 +1,38 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}銀行{% endblock %}
 {% block content %}
-<h1>銀行</h1>
-<table>
-<tr><th>持有金</th><td class="gold">{{ "{:,}".format(gold) }}G</td></tr>
-<tr><th>存款</th><td class="gold">{{ "{:,}".format(bank) }}G</td></tr>
-</table>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">account_balance</span> 銀行</h1>
+  <div class="currency-panel mt-4">
+    <div class="glass-card p-4 text-center">
+      <p class="text-xs" style="color:var(--text-muted);">持有金</p>
+      <p class="text-2xl font-bold text-gold-shine">{{ "{:,}".format(gold) }}G</p>
+    </div>
+    <div class="glass-card p-4 text-center">
+      <p class="text-xs" style="color:var(--text-muted);">銀行存款</p>
+      <p class="text-2xl font-bold text-gold-shine">{{ "{:,}".format(bank) }}G</p>
+    </div>
+  </div>
+</header>
 
-<h2>存入（千G單位）</h2>
-<form action="/view/bank/deposit" method="post">
-<input name="amount" type="number" min="1" value="1"> × 1000G
-<button class="btn" type="submit">存入</button>
-</form>
+<div class="currency-panel">
+  <section class="fantasy-border">
+    <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">savings</span> 存入（千G單位）</h2>
+    <form action="/view/bank/deposit" method="post" class="flex items-center gap-3">
+      <input name="amount" type="number" min="1" value="1" class="rpg-input"> <span>&times; 1000G</span>
+      <button class="rpg-btn rpg-btn-rich" type="submit">存入</button>
+    </form>
+  </section>
+  <section class="fantasy-border">
+    <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">payments</span> 提領（千G單位）</h2>
+    <form action="/view/bank/withdraw" method="post" class="flex items-center gap-3">
+      <input name="amount" type="number" min="1" value="1" class="rpg-input"> <span>&times; 1000G</span>
+      <button class="rpg-btn rpg-btn-rich" type="submit">提領</button>
+    </form>
+  </section>
+</div>
 
-<h2>提領（千G單位）</h2>
-<form action="/view/bank/withdraw" method="post">
-<input name="amount" type="number" min="1" value="1"> × 1000G
-<button class="btn" type="submit">提領</button>
-</form>
-<a href="/view/status" class="btn">← 返回</a>
+<div class="mt-8">
+  <a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回</a>
+</div>
 {% endblock %}

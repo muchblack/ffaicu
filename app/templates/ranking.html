@@ -1,26 +1,30 @@
-{% extends "base.html" %}
+{% extends "base_rpg.html" %}
 {% block title %}排行榜{% endblock %}
 {% block content %}
-<h1>排行榜</h1>
-<div>
-{% for cat in categories %}
-<a href="/view/ranking?category={{ cat }}" class="btn {% if cat == current %}btn-danger{% endif %}">{{ cat }}</a>
-{% endfor %}
-</div>
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">leaderboard</span> 排行榜</h1>
+  <div class="flex flex-wrap gap-2 mt-4">
+    {% for cat in categories %}
+    <a href="/view/ranking?category={{ cat }}" class="rpg-btn {% if cat == current %}rpg-btn-rich{% endif %}">{{ cat }}</a>
+    {% endfor %}
+  </div>
+</header>
 
-<table>
-<tr><th>#</th><th>名稱</th><th>Lv</th><th>{{ current }}</th></tr>
-{% for r in rankings %}
-<tr>
-<td>{{ r.rank }}</td>
-<td>{{ r.name }}</td>
-<td>{{ r.level }}</td>
-<td>{{ r.value }}</td>
-</tr>
-{% endfor %}
-</table>
+<section class="fantasy-border mb-6">
+  <table class="rpg-table">
+    <thead><tr><th style="width:3rem;">#</th><th>名稱</th><th>Lv</th><th>{{ current }}</th></tr></thead>
+    <tbody>
+    {% for r in rankings %}
+    <tr>
+      <td class="text-gold font-bold">{{ r.rank }}</td>
+      <td class="font-bold">{{ r.name }}</td>
+      <td>{{ r.level }}</td>
+      <td class="font-mono">{{ r.value }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 
-<div style="margin-top:12px;">
-  <a href="/view/status" class="btn">← 返回</a>
-</div>
+<a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回</a>
 {% endblock %}
