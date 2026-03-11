@@ -145,27 +145,6 @@ def _apply_battle_rewards(
         char.gold = min(char.gold + actual_gold, settings.gold_max)
         if char.gold < 0:
             char.gold = 0
-
-        # 升級判定
-        new_lv, new_exp, new_stats, new_hp = check_level_up(
-            char.level, int(char.exp), char.job_class,
-            {"str": char.str_, "mag": char.mag, "fai": char.fai, "vit": char.vit,
-             "dex": char.dex, "spd": char.spd, "cha": char.cha, "karma": char.karma},
-            char.max_hp,
-        )
-        level_ups = new_lv - char.level
-        char.level = new_lv
-        char.exp = new_exp
-        char.max_hp = new_hp
-        char.str_ = new_stats["str"]
-        char.mag = new_stats["mag"]
-        char.fai = new_stats["fai"]
-        char.vit = new_stats["vit"]
-        char.dex = new_stats["dex"]
-        char.spd = new_stats["spd"]
-        char.cha = new_stats["cha"]
-        char.karma = new_stats["karma"]
-
         # 職業經驗
         char.job_level = min(char.job_level + 1, 60)
     elif result.outcome == "lose" and is_monster_battle:
@@ -175,14 +154,30 @@ def _apply_battle_rewards(
         char.exp += actual_exp
         char.gold = int(char.gold // 100)
         gold_lost = gold_before - int(char.gold)
-        level_ups = 0
     elif result.outcome == "timeout" and is_monster_battle:
         # Perl: 逃跑 → 經驗減半
         actual_exp = exp_gained // 2
         char.exp += actual_exp
-        level_ups = 0
-    else:
-        level_ups = 0
+
+    # 升級判定（所有獲得經驗的路徑都要檢查）
+    new_lv, new_exp, new_stats, new_hp = check_level_up(
+        char.level, int(char.exp), char.job_class,
+        {"str": char.str_, "mag": char.mag, "fai": char.fai, "vit": char.vit,
+         "dex": char.dex, "spd": char.spd, "cha": char.cha, "karma": char.karma},
+        char.max_hp,
+    )
+    level_ups = new_lv - char.level
+    char.level = new_lv
+    char.exp = new_exp
+    char.max_hp = new_hp
+    char.str_ = new_stats["str"]
+    char.mag = new_stats["mag"]
+    char.fai = new_stats["fai"]
+    char.vit = new_stats["vit"]
+    char.dex = new_stats["dex"]
+    char.spd = new_stats["spd"]
+    char.cha = new_stats["cha"]
+    char.karma = new_stats["karma"]
 
     # HP 結算
     if is_monster_battle:
@@ -290,6 +285,7 @@ def fight_monster(db: Session, char: Character, zone: str) -> dict:
     result = engine.execute(attacker, defender, BattleMode.MONSTER, monster_skill_id=mon.skill_id)
 
     char.available_battles -= 1
+    char.last_zone = zone
 
     resp = _apply_battle_rewards(db, char, result, mon.exp_reward, int(mon.gold_drop), is_monster_battle=True)
     resp["monster_name"] = mon.name

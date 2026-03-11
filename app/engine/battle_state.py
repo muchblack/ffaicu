@@ -94,6 +94,8 @@ class RoundState:
     battle_escaped: bool = False
     gold_stolen: int = 0
     log_lines: list[str] = field(default_factory=list)
+    attacker_log_lines: list[str] = field(default_factory=list)
+    defender_log_lines: list[str] = field(default_factory=list)
 
 
 @dataclass

@@ -144,6 +144,7 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
         "job_name": job_name, "champion": champion, "cooldown": cooldown,
         "inn_cost": user.level * settings.yado_dai,
         "hunt_zones": hunt_zones, "zone_labels": _ZONE_LABELS,
+        "lv_up": settings.lv_up, "last_zone": user.last_zone or "",
     })
 
 

@@ -46,23 +46,22 @@ def apply_critical(state: RoundState, combatant: Combatant, current_hp: int,
         rate = 999
 
     if rate > random.randint(0, 99):
+        log = state.attacker_log_lines if is_attacker else state.defender_log_lines
         if is_attacker:
             state.attacker_crit = True
             state.attacker_dmg *= 2
-            state.log_lines.append(f"★{combatant.name}的暴擊命中！！！")
         else:
             state.defender_crit = True
             state.defender_dmg *= 2
-            state.log_lines.append(f"★{combatant.name}的暴擊命中！！！")
+        log.append(f"★{combatant.name}的暴擊命中！！！")
 
         # Limit Break 10x
         if rate >= 999:
             if is_attacker:
                 state.attacker_dmg *= 5  # 已經 2x，再 5x = 10x
-                state.log_lines.append(f"☆{combatant.name}的極限技發動！！！！！")
             else:
                 state.defender_dmg *= 5
-                state.log_lines.append(f"☆{combatant.name}的極限技發動！！！！！")
+            log.append(f"☆{combatant.name}的極限技發動！！！！！")
 
 
 def apply_monster_critical(state: RoundState, attacker: Combatant, defender: Combatant,
@@ -79,8 +78,8 @@ def apply_monster_critical(state: RoundState, attacker: Combatant, defender: Com
         if player_rate > random.randint(0, 99):
             state.attacker_crit = True
             state.attacker_dmg *= 3
-            state.log_lines.append(f"暴擊！！「{attacker.battle_cry}」" if attacker.battle_cry
-                                   else f"★{attacker.name}的暴擊命中！！！")
+            state.attacker_log_lines.append(f"暴擊！！「{attacker.battle_cry}」" if attacker.battle_cry
+                                            else f"★{attacker.name}的暴擊命中！！！")
 
     # 魔物暴擊（防守方）
     if defender.max_hp > 0:
@@ -89,4 +88,4 @@ def apply_monster_critical(state: RoundState, attacker: Combatant, defender: Com
             state.defender_crit = True
             # Perl: $dmg2 = $dmg2 + $item[4]（穿透：加上對方防禦力）
             state.defender_dmg += state.attacker_armor_defense
-            state.log_lines.append(f"★{defender.name}的暴擊命中！！")
+            state.defender_log_lines.append(f"★{defender.name}的暴擊命中！！")

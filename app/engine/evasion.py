@@ -32,14 +32,14 @@ def _check_pvp_evasion(state: RoundState, attacker: Combatant, defender: Combata
     if defender_evade > 0 and random.randint(0, 999) < defender_evade:
         state.attacker_dmg = 0
         state.defender_evaded = True
-        state.log_lines.append(f"{defender.name}閃避了攻擊！")
+        state.attacker_log_lines.append(f"{defender.name}閃避了攻擊！")
 
     # 攻擊方迴避防守方的傷害
     attacker_evade = attacker.armor_evasion + attacker.accessory.evasion
     if attacker_evade > 0 and random.randint(0, 999) < attacker_evade:
         state.defender_dmg = 0
         state.attacker_evaded = True
-        state.log_lines.append(f"{attacker.name}閃避了攻擊！")
+        state.defender_log_lines.append(f"{attacker.name}閃避了攻擊！")
 
 
 def _check_monster_evasion(state: RoundState, attacker: Combatant, defender: Combatant) -> None:
@@ -57,7 +57,7 @@ def _check_monster_evasion(state: RoundState, attacker: Combatant, defender: Com
     if player_evade > random.randint(0, 299):
         state.defender_dmg = 0
         state.attacker_evaded = True
-        state.log_lines.append(f"{attacker.name}閃開了攻擊！")
+        state.defender_log_lines.append(f"{attacker.name}閃開了攻擊！")
 
     # 魔物迴避玩家攻擊：mon.evasion - hit_rate vs rand(100)
     hit_rate = attacker.stats.get("dex") // 10 + 51 + attacker.weapon_accuracy + attacker.accessory.accuracy
@@ -65,4 +65,4 @@ def _check_monster_evasion(state: RoundState, attacker: Combatant, defender: Com
     if monster_evade > random.randint(0, 99):
         state.attacker_dmg = 0
         state.defender_evaded = True
-        state.log_lines.append(f"{defender.name}閃開了攻擊！")
+        state.attacker_log_lines.append(f"{defender.name}閃開了攻擊！")

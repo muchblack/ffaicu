@@ -161,7 +161,8 @@ def _apply_effect(effect: dict, state: RoundState, combatant: Combatant, is_atta
         else:
             fail_msg = effect.get("fail_message", "")
             if fail_msg:
-                state.log_lines.append(fail_msg.format(name=combatant.name))
+                log = state.attacker_log_lines if is_attacker else state.defender_log_lines
+                log.append(fail_msg.format(name=combatant.name))
             return
 
     elif effect_type == "conditional":
@@ -235,7 +236,8 @@ def _apply_effect(effect: dict, state: RoundState, combatant: Combatant, is_atta
         if cards:
             card = random.choice(cards)
             card_name = card.get("name", "")
-            state.log_lines.append(f"{card_name}！！！！")
+            log = state.attacker_log_lines if is_attacker else state.defender_log_lines
+            log.append(f"{card_name}！！！！")
             for sub_effect in card.get("effects", []):
                 _apply_effect(sub_effect, state, combatant, is_attacker)
         return
@@ -271,7 +273,8 @@ def _apply_effect(effect: dict, state: RoundState, combatant: Combatant, is_atta
             accessory_name="",
             amount=state.attacker_hp_heal if is_attacker else state.defender_hp_heal,
         )
-        state.log_lines.append(f"【{combatant.name}】{formatted}")
+        log = state.attacker_log_lines if is_attacker else state.defender_log_lines
+        log.append(f"【{combatant.name}】{formatted}")
 
 
 def execute_character_skill(

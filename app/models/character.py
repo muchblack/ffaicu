@@ -55,6 +55,7 @@ class Character(Base):
     host = Column(String(128), default="")                       # [26]
     password_recovery = Column(String(64), default="")           # 密碼恢復用語
     protected = Column(Integer, default=0)                       # 管理員保護標記
+    last_zone = Column(String(32), default="")                   # 上次狩獵區域
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 

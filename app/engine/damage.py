@@ -34,9 +34,8 @@ def calculate_base_damage(combatant: Combatant, mode: BattleMode) -> int:
         # Perl: $dmg1 = $chara[18] * (int(rand(5)) + 1)  → level × rand(1~5)
         return combatant.level * random.randint(1, 5)
     else:
-        # PvP: weapon_attack × rand(1~3)
-        multiplier = random.randint(1, 3)
-        return combatant.weapon_attack * multiplier
+        # PvP: Perl wbattle.pl L5-6: $dmg = $chara[18] * (int(rand(3)) + 1) → level × rand(1~3)
+        return combatant.level * random.randint(1, 3)
 
 
 def calculate_job_bonus(combatant: Combatant) -> int:

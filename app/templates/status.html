@@ -21,8 +21,11 @@
           <div class="progress-bar"><div class="progress-fill progress-hp" style="width:{{ (char.current_hp / char.max_hp * 100)|round }}%"></div></div>
         </div>
         <div>
-          <div class="flex justify-between text-xs font-bold mb-1"><span>EXP</span><span>{{ char.exp }}</span></div>
-          <div class="progress-bar"><div class="progress-fill progress-exp" style="width:65%"></div></div>
+          {% set exp_needed = char.level * lv_up %}
+          {% set exp_pct = (char.exp / exp_needed * 100)|round if exp_needed > 0 else 0 %}
+          {% set exp_pct = [exp_pct, 100]|min %}
+          <div class="flex justify-between text-xs font-bold mb-1"><span>EXP</span><span>{{ char.exp }} / {{ exp_needed }}</span></div>
+          <div class="progress-bar"><div class="progress-fill progress-exp" style="width:{{ exp_pct }}%"></div></div>
         </div>
       </div>
       <!-- Currency -->
@@ -146,7 +149,7 @@
     <form action="/view/battle/monster" method="post" style="display:inline" class="flex items-center gap-2">
       <select name="zone" class="rpg-select">
         {% for z in hunt_zones %}
-        <option value="{{ z }}">{{ zone_labels[z] }}</option>
+        <option value="{{ z }}" {% if z == last_zone %}selected{% endif %}>{{ zone_labels[z] }}</option>
         {% endfor %}
       </select>
       <button class="rpg-btn rpg-btn-rich" type="submit">&#9876; 狩獵魔物</button>
