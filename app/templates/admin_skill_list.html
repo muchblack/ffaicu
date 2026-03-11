@@ -1,0 +1,80 @@
+{% extends "base_rpg.html" %}
+{% block title %}{{ cat_label }} - 管理模式{% endblock %}
+{% block content %}
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">auto_awesome</span> 技能管理</h1>
+  <div class="flex flex-wrap gap-2 mt-4">
+    {% for c, label in categories.items() %}
+    <a href="/view/admin/skills/list?p={{ password }}&cat={{ c }}"
+       class="rpg-btn {% if c == cat %}rpg-btn-rich{% endif %}">{{ label }} ({{ counts[c] }})</a>
+    {% endfor %}
+  </div>
+</header>
+
+<section class="fantasy-border mb-6">
+  <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+    <h2 class="section-title mb-0">{{ cat_label }}</h2>
+    <form method="get" action="/view/admin/skills/edit" class="flex items-center gap-2">
+      <input type="hidden" name="p" value="{{ password }}">
+      <input type="hidden" name="cat" value="{{ cat }}">
+      <input type="hidden" name="is_new" value="1">
+      <input type="number" name="id" placeholder="新技能 ID" required class="rpg-input" style="width:120px;">
+      <button type="submit" class="rpg-btn rpg-btn-rich">新增</button>
+    </form>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="rpg-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          {% if is_dual %}
+          <th>必殺技</th>
+          <th>後技</th>
+          {% else %}
+          <th>觸發</th>
+          <th>效果摘要</th>
+          {% endif %}
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in skills %}
+      <tr>
+        <td class="font-bold">{{ s.id }}</td>
+        {% if is_dual %}
+        <td class="text-sm">
+          {% if s.has_hissatu %}<span class="msg-success">有</span> — {{ s.hissatu_desc }}{% else %}<span style="color:var(--text-muted);">-</span>{% endif %}
+        </td>
+        <td class="text-sm">
+          {% if s.has_atowaza %}<span class="msg-success">有</span> — {{ s.atowaza_desc }}{% else %}<span style="color:var(--text-muted);">-</span>{% endif %}
+        </td>
+        {% else %}
+        <td>{{ s.trigger_type }}</td>
+        <td class="text-sm" style="color:var(--text-muted);max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ s.effects_desc }}</td>
+        {% endif %}
+        <td style="white-space:nowrap;">
+          <a href="/view/admin/skills/edit?p={{ password }}&cat={{ cat }}&id={{ s.id }}" class="rpg-btn" style="padding:0.25rem 0.5rem;font-size:0.75rem;">編輯</a>
+          {% if s.is_null %}
+          <span class="text-xs" style="color:var(--text-muted);">(null)</span>
+          {% else %}
+          <form method="post" action="/view/admin/skills/delete" style="display:inline;" onsubmit="return confirm('確定刪除技能 #{{ s.id }}？');">
+            <input type="hidden" name="password" value="{{ password }}">
+            <input type="hidden" name="cat" value="{{ cat }}">
+            <input type="hidden" name="skill_id" value="{{ s.id }}">
+            <button type="submit" class="rpg-btn rpg-btn-danger" style="padding:0.25rem 0.5rem;font-size:0.75rem;">刪除</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="flex gap-3">
+  <a href="/view/admin/skills?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回必殺技一覽</a>
+  <a href="/view/admin?p={{ password }}" class="rpg-btn"><span class="material-symbols-outlined">home</span> 管理首頁</a>
+</div>
+{% endblock %}

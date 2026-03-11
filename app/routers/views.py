@@ -23,6 +23,7 @@ from app.models.zone_config import ZoneConfig
 from app.models.online_player import OnlinePlayer
 from app.models.warehouse import WarehouseItem
 from app.services import auth_service, battle_service, character_service, ranking_service, shop_service
+from app.services import skill_file_service
 
 router = APIRouter(prefix="/view", tags=["頁面"])
 templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
@@ -978,6 +979,203 @@ def view_admin_skills(request: Request, p: str = Query(default="")):
     })
 
 
+# === 技能 JSON 管理 ===
+
+def _describe_phase(phase_data: dict | None) -> str:
+    """從 phase 取得描述文字。"""
+    if not phase_data:
+        return ""
+    msgs = [e.get("message", "") for e in phase_data.get("effects", []) if e.get("message")]
+    return " / ".join(msgs) if msgs else "（效果定義）"
+
+
+@router.get("/admin/skills/list", response_class=HTMLResponse)
+def view_admin_skill_list(request: Request, p: str = Query(default=""), cat: str = Query(default="character")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    if cat not in skill_file_service.SKILL_FILES:
+        cat = "character"
+
+    data = skill_file_service.load_skill_file(cat)
+    is_dual = cat in skill_file_service.DUAL_PHASE_CATEGORIES
+
+    skills = []
+    for sid in sorted(data.keys(), key=lambda x: int(x)):
+        s = data[sid]
+        entry = {"id": sid, "is_null": s is None}
+        if is_dual:
+            hissatu = s.get("hissatu") if s else None
+            atowaza = s.get("atowaza") if s else None
+            entry["has_hissatu"] = hissatu is not None
+            entry["hissatu_desc"] = _describe_phase(hissatu)
+            entry["has_atowaza"] = atowaza is not None
+            entry["atowaza_desc"] = _describe_phase(atowaza)
+        else:
+            if s:
+                entry["trigger_type"] = s.get("trigger", {}).get("type", "?")
+                effect_parts = []
+                for e in s.get("effects", []):
+                    etype = e.get("type", "?")
+                    msg = e.get("message", "")
+                    effect_parts.append(f"{etype}: {msg}" if msg else etype)
+                entry["effects_desc"] = " / ".join(effect_parts)
+            else:
+                entry["trigger_type"] = "-"
+                entry["effects_desc"] = "-"
+        skills.append(entry)
+
+    counts = {}
+    for c in skill_file_service.SKILL_FILES:
+        d = skill_file_service.load_skill_file(c)
+        counts[c] = len(d)
+
+    return templates.TemplateResponse("admin_skill_list.html", {
+        "request": request, "password": p, "cat": cat,
+        "cat_label": skill_file_service.CATEGORY_LABELS[cat],
+        "categories": skill_file_service.CATEGORY_LABELS,
+        "is_dual": is_dual, "skills": skills, "counts": counts,
+    })
+
+
+@router.get("/admin/skills/edit", response_class=HTMLResponse)
+def view_admin_skill_edit(
+    request: Request,
+    p: str = Query(default=""),
+    cat: str = Query(default="character"),
+    id: str = Query(default="0"),
+    is_new: str = Query(default="0"),
+):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    if cat not in skill_file_service.SKILL_FILES:
+        cat = "character"
+
+    is_new_flag = is_new == "1"
+    skill_data = None if is_new_flag else skill_file_service.get_skill(cat, id)
+    is_dual = cat in skill_file_service.DUAL_PHASE_CATEGORIES
+
+    return templates.TemplateResponse("admin_skill_edit.html", {
+        "request": request, "password": p, "cat": cat,
+        "cat_label": skill_file_service.CATEGORY_LABELS[cat],
+        "skill_id": id, "is_new": is_new_flag, "is_dual": is_dual,
+        "skill_data": skill_data, "errors": [],
+    })
+
+
+@router.post("/admin/skills/save", response_class=HTMLResponse)
+def view_admin_skill_save(
+    request: Request,
+    password: str = Form(...),
+    cat: str = Form(...),
+    skill_id: str = Form(...),
+    is_new: str = Form(default="0"),
+    # 扁平格式欄位
+    set_null: str = Form(default=""),
+    trigger_type: str = Form(default="always"),
+    threshold: int = Form(default=80),
+    chance: float = Form(default=0.5),
+    effects: str = Form(default="[]"),
+    # 角色技能雙階段
+    hissatu_null: str = Form(default=""),
+    hissatu_trigger_type: str = Form(default="skill_rate_check"),
+    hissatu_threshold: int = Form(default=80),
+    hissatu_chance: float = Form(default=0.5),
+    hissatu_effects: str = Form(default="[]"),
+    atowaza_null: str = Form(default=""),
+    atowaza_trigger_type: str = Form(default="skill_rate_check"),
+    atowaza_threshold: int = Form(default=80),
+    atowaza_chance: float = Form(default=0.5),
+    atowaza_effects: str = Form(default="[]"),
+):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+
+    is_dual = cat in skill_file_service.DUAL_PHASE_CATEGORIES
+    errors: list[str] = []
+    skill_data = None
+
+    def _build_trigger(ttype: str, th: int, ch: float) -> dict:
+        trigger: dict = {"type": ttype}
+        if ttype == "skill_rate_check":
+            trigger["threshold"] = th
+        elif ttype == "random":
+            trigger["chance"] = ch
+        return trigger
+
+    def _parse_effects_json(raw: str, label: str) -> list[dict] | None:
+        try:
+            parsed = json.loads(raw)
+            if not isinstance(parsed, list):
+                errors.append(f"{label}: Effects 應為 JSON 陣列")
+                return None
+            return parsed
+        except json.JSONDecodeError as e:
+            errors.append(f"{label}: JSON 語法錯誤 — {e}")
+            return None
+
+    if is_dual:
+        skill_data = {}
+        for phase, null_val, tt, th, ch, eff_raw in [
+            ("hissatu", hissatu_null, hissatu_trigger_type, hissatu_threshold, hissatu_chance, hissatu_effects),
+            ("atowaza", atowaza_null, atowaza_trigger_type, atowaza_threshold, atowaza_chance, atowaza_effects),
+        ]:
+            if null_val:
+                skill_data[phase] = None
+            else:
+                eff_list = _parse_effects_json(eff_raw, phase)
+                if eff_list is not None:
+                    skill_data[phase] = {
+                        "trigger": _build_trigger(tt, th, ch),
+                        "effects": eff_list,
+                    }
+                else:
+                    skill_data[phase] = None
+    else:
+        if set_null:
+            skill_data = None
+        else:
+            eff_list = _parse_effects_json(effects, "effects")
+            if eff_list is not None:
+                skill_data = {
+                    "trigger": _build_trigger(trigger_type, threshold, chance),
+                    "effects": eff_list,
+                }
+
+    # 驗證
+    if not errors:
+        validation_errors = skill_file_service.validate_skill(cat, skill_data)
+        errors.extend(validation_errors)
+
+    if errors:
+        return templates.TemplateResponse("admin_skill_edit.html", {
+            "request": request, "password": password, "cat": cat,
+            "cat_label": skill_file_service.CATEGORY_LABELS.get(cat, cat),
+            "skill_id": skill_id, "is_new": is_new == "1", "is_dual": is_dual,
+            "skill_data": skill_data, "errors": errors,
+        })
+
+    skill_file_service.save_skill(cat, skill_id, skill_data)
+    return RedirectResponse(
+        f"/view/admin/skills/list?p={password}&cat={cat}",
+        status_code=303,
+    )
+
+
+@router.post("/admin/skills/delete")
+def view_admin_skill_delete(
+    password: str = Form(...),
+    cat: str = Form(...),
+    skill_id: str = Form(...),
+):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    skill_file_service.delete_skill(cat, skill_id)
+    return RedirectResponse(
+        f"/view/admin/skills/list?p={password}&cat={cat}",
+        status_code=303,
+    )
+
+
 # === 刪除所有記錄 ===
 
 @router.get("/admin/delete-all", response_class=HTMLResponse)
@@ -1033,9 +1231,14 @@ def view_admin_item_edit(request: Request, db: Session = Depends(get_db),
         if not item:
             return RedirectResponse(f"/view/admin/items?p={p}&tab={tab}")
 
+    extra = {}
+    if tab == "accessory":
+        extra["accessory_skill_names"] = _ACCESSORY_SKILL_NAMES
+
     return templates.TemplateResponse("admin_item_edit.html", {
         "request": request, "password": p, "tab": tab, "is_new": is_new,
         "item": item, "type_label": _ITEM_TYPE_LABELS.get(tab, "道具"),
+        **extra,
     })
 
 

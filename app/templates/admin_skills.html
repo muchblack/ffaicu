@@ -4,6 +4,12 @@
 <header class="fantasy-border mb-6">
   <h1 class="section-title text-3xl"><span class="material-symbols-outlined">auto_awesome</span> 必殺技（戰術）一覽</h1>
   <p class="rpg-hint">共 {{ tactics|length }} 個戰術</p>
+  <div class="flex flex-wrap gap-2 mt-4">
+    <a href="/view/admin/skills/list?p={{ password }}&cat=character" class="rpg-btn rpg-btn-rich">管理角色技能</a>
+    <a href="/view/admin/skills/list?p={{ password }}&cat=accessory" class="rpg-btn rpg-btn-rich">管理飾品技能</a>
+    <a href="/view/admin/skills/list?p={{ password }}&cat=monster" class="rpg-btn rpg-btn-rich">管理魔物技能</a>
+    <a href="/view/admin/skills/list?p={{ password }}&cat=champion" class="rpg-btn rpg-btn-rich">管理冠軍飾品技能</a>
+  </div>
 </header>
 
 <section class="fantasy-border mb-6" style="overflow-x:auto;">

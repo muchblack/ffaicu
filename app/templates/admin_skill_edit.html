@@ -1,0 +1,187 @@
+{% extends "base_rpg.html" %}
+{% block title %}{{ "新增" if is_new else "編輯" }}技能 #{{ skill_id }} - {{ cat_label }}{% endblock %}
+{% block content %}
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">edit</span> {{ "新增" if is_new else "編輯" }}{{ cat_label }} #{{ skill_id }}</h1>
+</header>
+
+{% if errors %}
+<div class="fantasy-border mb-6" style="border-color:rgba(239,68,68,0.5);">
+  <h3 class="msg-error font-bold mb-2">驗證失敗</h3>
+  <ul style="list-style:disc;padding-left:1.5rem;">
+    {% for e in errors %}
+    <li class="msg-error text-sm">{{ e }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<form method="post" action="/view/admin/skills/save" class="space-y-6" style="max-width:800px;">
+  <input type="hidden" name="password" value="{{ password }}">
+  <input type="hidden" name="cat" value="{{ cat }}">
+  <input type="hidden" name="skill_id" value="{{ skill_id }}">
+  <input type="hidden" name="is_new" value="{{ '1' if is_new else '0' }}">
+
+  {% if is_dual %}
+  {# === 角色技能：雙階段 === #}
+  {% for phase in ['hissatu', 'atowaza'] %}
+  <section class="fantasy-border">
+    <h2 class="section-title mb-4">
+      <span class="material-symbols-outlined text-sm" style="opacity:0.7;">{{ 'swords' if phase == 'hissatu' else 'shield' }}</span>
+      {{ '必殺技 (hissatu)' if phase == 'hissatu' else '後技 (atowaza)' }}
+    </h2>
+
+    <div class="mb-3">
+      <label class="flex items-center gap-2">
+        <input type="checkbox" name="{{ phase }}_null" value="1"
+               {% if (is_new and not skill_data) or (skill_data and skill_data[phase] is none) %}checked{% endif %}
+               onchange="togglePhase('{{ phase }}', this.checked)">
+        <span class="text-sm">設為 null（無此階段）</span>
+      </label>
+    </div>
+
+    <div id="{{ phase }}_fields" {% if (is_new and not skill_data) or (skill_data and skill_data[phase] is none) %}style="display:none;opacity:0.3;"{% endif %}>
+      {# Trigger #}
+      <div class="mb-3">
+        <label class="text-xs text-gold font-bold">觸發類型</label>
+        {% set phase_trigger = skill_data[phase].trigger.type if skill_data and skill_data[phase] and skill_data[phase].trigger else 'skill_rate_check' %}
+        <select name="{{ phase }}_trigger_type" class="rpg-select w-full" onchange="toggleTriggerParams('{{ phase }}', this.value)">
+          <option value="always" {% if phase_trigger == 'always' %}selected{% endif %}>always（每回合）</option>
+          <option value="skill_rate_check" {% if phase_trigger == 'skill_rate_check' %}selected{% endif %}>skill_rate_check（技能發動率）</option>
+          <option value="random" {% if phase_trigger == 'random' %}selected{% endif %}>random（隨機觸發）</option>
+          <option value="monster_skill_rate" {% if phase_trigger == 'monster_skill_rate' %}selected{% endif %}>monster_skill_rate（魔物50%）</option>
+        </select>
+      </div>
+
+      <div id="{{ phase }}_threshold_field" class="mb-3" {% if phase_trigger != 'skill_rate_check' %}style="display:none;"{% endif %}>
+        <label class="text-xs text-gold font-bold">Threshold</label>
+        {% set phase_threshold = skill_data[phase].trigger.threshold if skill_data and skill_data[phase] and skill_data[phase].trigger else 80 %}
+        <input type="number" name="{{ phase }}_threshold" value="{{ phase_threshold }}" class="rpg-input" style="width:120px;">
+      </div>
+
+      <div id="{{ phase }}_chance_field" class="mb-3" {% if phase_trigger != 'random' %}style="display:none;"{% endif %}>
+        <label class="text-xs text-gold font-bold">Chance (0~1)</label>
+        {% set phase_chance = skill_data[phase].trigger.chance if skill_data and skill_data[phase] and skill_data[phase].trigger else 0.5 %}
+        <input type="number" name="{{ phase }}_chance" value="{{ phase_chance }}" step="0.01" min="0" max="1" class="rpg-input" style="width:120px;">
+      </div>
+
+      {# Effects JSON #}
+      <div class="mb-3">
+        <label class="text-xs text-gold font-bold">Effects (JSON 陣列)</label>
+        {% set phase_effects = skill_data[phase].effects if skill_data and skill_data[phase] and skill_data[phase].effects else [] %}
+        <textarea name="{{ phase }}_effects" rows="12" class="rpg-input w-full" style="font-family:monospace;font-size:0.8rem;resize:vertical;">{{ phase_effects | tojson(indent=2) }}</textarea>
+      </div>
+    </div>
+  </section>
+  {% endfor %}
+
+  {% else %}
+  {# === 扁平格式：trigger + effects === #}
+  <section class="fantasy-border">
+    <div class="mb-3">
+      <label class="flex items-center gap-2">
+        <input type="checkbox" name="set_null" value="1"
+               {% if skill_data is none %}checked{% endif %}
+               onchange="toggleFlat(this.checked)">
+        <span class="text-sm">設為 null（無效果）</span>
+      </label>
+    </div>
+
+    <div id="flat_fields" {% if skill_data is none %}style="display:none;opacity:0.3;"{% endif %}>
+      {# Trigger #}
+      <div class="mb-3">
+        <label class="text-xs text-gold font-bold">觸發類型</label>
+        {% set flat_trigger = skill_data.trigger.type if skill_data and skill_data.trigger else 'always' %}
+        <select name="trigger_type" class="rpg-select w-full" onchange="toggleTriggerParams('flat', this.value)">
+          <option value="always" {% if flat_trigger == 'always' %}selected{% endif %}>always（每回合）</option>
+          <option value="skill_rate_check" {% if flat_trigger == 'skill_rate_check' %}selected{% endif %}>skill_rate_check（技能發動率）</option>
+          <option value="random" {% if flat_trigger == 'random' %}selected{% endif %}>random（隨機觸發）</option>
+          <option value="monster_skill_rate" {% if flat_trigger == 'monster_skill_rate' %}selected{% endif %}>monster_skill_rate（魔物50%）</option>
+        </select>
+      </div>
+
+      <div id="flat_threshold_field" class="mb-3" {% if flat_trigger != 'skill_rate_check' %}style="display:none;"{% endif %}>
+        <label class="text-xs text-gold font-bold">Threshold</label>
+        {% set flat_threshold = skill_data.trigger.threshold if skill_data and skill_data.trigger else 80 %}
+        <input type="number" name="threshold" value="{{ flat_threshold }}" class="rpg-input" style="width:120px;">
+      </div>
+
+      <div id="flat_chance_field" class="mb-3" {% if flat_trigger != 'random' %}style="display:none;"{% endif %}>
+        <label class="text-xs text-gold font-bold">Chance (0~1)</label>
+        {% set flat_chance = skill_data.trigger.chance if skill_data and skill_data.trigger else 0.5 %}
+        <input type="number" name="chance" value="{{ flat_chance }}" step="0.01" min="0" max="1" class="rpg-input" style="width:120px;">
+      </div>
+
+      {# Effects JSON #}
+      <div class="mb-3">
+        <label class="text-xs text-gold font-bold">Effects (JSON 陣列)</label>
+        {% set flat_effects = skill_data.effects if skill_data and skill_data.effects else [] %}
+        <textarea name="effects" rows="12" class="rpg-input w-full" style="font-family:monospace;font-size:0.8rem;resize:vertical;">{{ flat_effects | tojson(indent=2) }}</textarea>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# Effect 類型速查表 #}
+  <details class="fantasy-border">
+    <summary class="section-title cursor-pointer" style="cursor:pointer;">
+      <span class="material-symbols-outlined text-sm" style="opacity:0.7;">help</span> Effect 類型速查表
+    </summary>
+    <div class="mt-3" style="font-size:0.75rem;color:var(--text-muted);columns:2;column-gap:2rem;">
+      <p><b>add_damage</b> — formula, message</p>
+      <p><b>set_damage</b> — formula, message</p>
+      <p><b>multiply_damage</b> — multiplier, message</p>
+      <p><b>heal_attacker</b> — formula, message</p>
+      <p><b>reduce_attacker_damage</b> — multiplier</p>
+      <p><b>bypass_evasion</b></p>
+      <p><b>buff_attack</b> — multiplier</p>
+      <p><b>buff_defense</b> — multiplier</p>
+      <p><b>multi_hit</b> — hits_formula, formula(opt), message</p>
+      <p><b>instakill</b> — inner_chance, fail_message, message</p>
+      <p><b>conditional</b> — inner_chance, success{}, failure{}</p>
+      <p><b>evasion_boost</b></p>
+      <p><b>nullify_enemy_damage</b></p>
+      <p><b>damage_reflect</b> — message</p>
+      <p><b>self_damage</b> — formula, message</p>
+      <p><b>ignore_defense</b></p>
+      <p><b>full_heal</b> — message</p>
+      <p><b>battle_escape</b> — message</p>
+      <p><b>steal_gold</b> — formula, message</p>
+      <p><b>tarot_draw</b> — cards[], message</p>
+      <p><b>copy_enemy</b> — message</p>
+      <p><b>heal_enemy</b> — formula, message</p>
+      <p><b>damage_to_enemy_self</b></p>
+    </div>
+    <div class="mt-3" style="font-size:0.75rem;color:var(--text-muted);">
+      <p><b>公式變數</b>: str, mag, fai, vit, dex, spd, cha, karma, job_level, level, max_hp, current_hp, weapon_attack, armor_defense, all_stats, seven_stats, damage_range</p>
+      <p><b>函數</b>: rand(N) → 0~N-1 隨機整數</p>
+    </div>
+  </details>
+
+  <div class="flex gap-3">
+    <button type="submit" class="rpg-btn rpg-btn-rich">{{ "新增" if is_new else "儲存" }}</button>
+    <a href="/view/admin/skills/list?p={{ password }}&cat={{ cat }}" class="rpg-btn">取消</a>
+  </div>
+</form>
+
+<script>
+function togglePhase(phase, isNull) {
+  const fields = document.getElementById(phase + '_fields');
+  fields.style.display = isNull ? 'none' : '';
+  fields.style.opacity = isNull ? '0.3' : '1';
+}
+
+function toggleFlat(isNull) {
+  const fields = document.getElementById('flat_fields');
+  fields.style.display = isNull ? 'none' : '';
+  fields.style.opacity = isNull ? '0.3' : '1';
+}
+
+function toggleTriggerParams(prefix, triggerType) {
+  const thField = document.getElementById(prefix + '_threshold_field');
+  const chField = document.getElementById(prefix + '_chance_field');
+  if (thField) thField.style.display = (triggerType === 'skill_rate_check') ? '' : 'none';
+  if (chField) chField.style.display = (triggerType === 'random') ? '' : 'none';
+}
+</script>
+{% endblock %}

@@ -28,7 +28,13 @@
         <tr><td>迴避補正</td><td><input type="number" name="evasion_bonus" value="{{ item.evasion_bonus if not is_new else 0 }}" required class="rpg-input"></td></tr>
 
         {% elif tab == 'accessory' %}
-        <tr><td>技能 ID</td><td><input type="number" name="skill_id" value="{{ item.skill_id if not is_new else 0 }}" required class="rpg-input"></td></tr>
+        <tr><td>技能</td><td>
+          <select name="skill_id" class="rpg-select w-full">
+            {% for sid, sname in accessory_skill_names.items()|sort(attribute='0') %}
+            <option value="{{ sid }}" {% if (not is_new and item.skill_id == sid) or (is_new and sid == 0) %}selected{% endif %}>{{ sid }}: {{ sname }}</option>
+            {% endfor %}
+          </select>
+        </td></tr>
         <tr><td>STR 補正</td><td><input type="number" name="str_bonus" value="{{ item.str_bonus if not is_new else 0 }}" class="rpg-input"></td></tr>
         <tr><td>MAG 補正</td><td><input type="number" name="mag_bonus" value="{{ item.mag_bonus if not is_new else 0 }}" class="rpg-input"></td></tr>
         <tr><td>FAI 補正</td><td><input type="number" name="fai_bonus" value="{{ item.fai_bonus if not is_new else 0 }}" class="rpg-input"></td></tr>
