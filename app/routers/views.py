@@ -641,23 +641,15 @@ def view_tactic(request: Request, db: Session = Depends(get_db), ffa_token: str 
     user = _get_user(db, ffa_token)
     if not user:
         return RedirectResponse("/view/home")
-    tactics = _load_tactics()
-    job = user.job_class
-    # 精通的職業也可用其戰技
     from app.models.job_mastery import JobMastery
     masteries = {m.job_class: m.mastery_level for m in db.query(JobMastery).filter(JobMastery.character_id == user.id).all()}
-    mastered_jobs = {j for j, lv in masteries.items() if lv >= 60}
-    # 篩選：普通戰鬥(0) + 目前職業的戰技 + 已精通職業的戰技
-    tac_list = []
-    for k, v in tactics.items():
-        tid = int(k)
-        tac_jobs = set(v.get("job_classes", []))
-        is_available = (tid == 0) or (job in tac_jobs) or (tac_jobs & mastered_jobs)
-        if not is_available:
-            continue
-        if v.get("mastery_required") and job not in mastered_jobs and not (tac_jobs & mastered_jobs):
-            continue
-        tac_list.append({"id": tid, "name": v["name"], "description": v["description"]})
+    masteries[user.job_class] = user.job_level
+    allowed_ids = character_service.get_available_tactic_ids(user, masteries)
+    tactics = _load_tactics()
+    tac_list = [
+        {"id": int(k), "name": v["name"], "description": v["description"]}
+        for k, v in tactics.items() if int(k) in allowed_ids
+    ]
     current = tactics.get(str(user.tactic_id), {"name": "普通戰鬥", "description": "普通地戰鬥。"})
     return templates.TemplateResponse("tactic.html", {
         "request": request,

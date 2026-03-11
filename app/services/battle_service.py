@@ -50,7 +50,7 @@ def _char_to_combatant(char: Character, equip: CharacterEquipment | None) -> Com
             dex=eq.acs_dex, spd=eq.acs_spd, cha=eq.acs_cha, karma=eq.acs_karma,
             accuracy=eq.acs_accuracy, evasion=eq.acs_evasion, critical=eq.acs_critical,
         ),
-        skill_id=char.skill_id,
+        tactic_id=char.tactic_id,
         battle_cry=char.battle_cry,
         image_id=char.image_id,
         gold=int(char.gold),
@@ -80,7 +80,7 @@ def _champion_to_combatant(champ: Champion) -> Combatant:
             critical=snap.get("acs_critical", 0),
             evasion=snap.get("acs_evasion", 0),
         ),
-        skill_id=snap.get("skill_id", 0),
+        tactic_id=snap.get("tactic_id", snap.get("skill_id", 0)),
         battle_cry=snap.get("battle_cry", ""),
         gold=snap.get("gold", 0),
     )
@@ -103,7 +103,7 @@ def _monster_to_combatant(mon: Monster) -> Combatant:
         armor_defense=0,
         armor_evasion=mon.evasion,
         accessory=AccessoryBonuses(critical=mon.critical_rate),
-        skill_id=0,
+        tactic_id=0,
         gold=0,
         is_monster=True,
         damage_range=mon.damage_range,
@@ -120,7 +120,7 @@ def _make_champion_snapshot(char: Character, equip: CharacterEquipment | None) -
         "weapon_attack": eq.weapon_attack, "weapon_accuracy": eq.weapon_accuracy,
         "armor_defense": eq.armor_defense, "armor_evasion": eq.armor_evasion,
         "acs_skill_id": eq.accessory_skill_id, "acs_critical": eq.acs_critical,
-        "acs_evasion": eq.acs_evasion, "skill_id": char.skill_id,
+        "acs_evasion": eq.acs_evasion, "tactic_id": char.tactic_id,
         "battle_cry": char.battle_cry, "gold": int(char.gold),
     }, ensure_ascii=False)
 

@@ -123,7 +123,37 @@ def change_job(db: Session, char: Character, target_job: int) -> dict:
     }
 
 
+def _load_tactics() -> dict:
+    path = Path(__file__).parent.parent.parent / "data" / "tactics.json"
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_available_tactic_ids(char: Character, masteries: dict[int, int]) -> set[int]:
+    """回傳角色可使用的戰技 ID 集合。"""
+    tactics = _load_tactics()
+    mastered_jobs = {j for j, lv in masteries.items() if lv >= 60}
+    available = set()
+    for k, v in tactics.items():
+        tid = int(k)
+        tac_jobs = set(v.get("job_classes", []))
+        if not ((tid == 0) or (char.job_class in tac_jobs) or (tac_jobs & mastered_jobs)):
+            continue
+        if v.get("mastery_required") and char.job_class not in mastered_jobs and not (tac_jobs & mastered_jobs):
+            continue
+        available.add(tid)
+    return available
+
+
 def change_tactic(db: Session, char: Character, tactic_id: int) -> dict:
+    masteries = {
+        m.job_class: m.mastery_level
+        for m in db.query(JobMastery).filter(JobMastery.character_id == char.id).all()
+    }
+    masteries[char.job_class] = char.job_level
+    allowed = get_available_tactic_ids(char, masteries)
+    if tactic_id not in allowed:
+        return {"error": "無法使用此戰技"}
     char.tactic_id = tactic_id
     db.commit()
     return {"message": "已變更戰術", "tactic_id": tactic_id}

@@ -39,7 +39,6 @@ class CharacterStatus(BaseModel):
     battle_cry: str
     available_battles: int
     tactic_id: int
-    skill_id: int
     title_rank: int
 
     model_config = {"from_attributes": True}

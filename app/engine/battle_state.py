@@ -67,7 +67,7 @@ class Combatant:
     armor_defense: int
     armor_evasion: int
     accessory: AccessoryBonuses
-    skill_id: int
+    tactic_id: int
     battle_cry: str = ""
     image_id: int = 0
     gold: int = 0  # 暴擊率計算用

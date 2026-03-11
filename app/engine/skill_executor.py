@@ -139,9 +139,12 @@ def _apply_effect(effect: dict, state: RoundState, combatant: Combatant, is_atta
             state.defender_armor_defense = int(state.defender_armor_defense * multiplier)
 
     elif effect_type == "multi_hit":
-        hits = evaluate(effect.get("hits_formula", "1"), variables)
-        base = evaluate(effect.get("formula", "0"), variables)
-        total = base * max(1, hits)
+        hits = max(1, evaluate(effect.get("hits_formula", "1"), variables))
+        variables["hits"] = hits
+        if "formula" in effect:
+            total = evaluate(effect["formula"], variables)
+        else:
+            total = (variables.get("damage_range", 0)) * hits
         if is_attacker:
             state.attacker_dmg = total
         else:
@@ -266,7 +269,7 @@ def _apply_effect(effect: dict, state: RoundState, combatant: Combatant, is_atta
             accessory_name="",
             amount=state.attacker_hp_heal if is_attacker else state.defender_hp_heal,
         )
-        state.log_lines.append(formatted)
+        state.log_lines.append(f"【{combatant.name}】{formatted}")
 
 
 def execute_character_skill(
@@ -277,7 +280,7 @@ def execute_character_skill(
 ) -> None:
     """執行角色技能。"""
     skills = _load_skill_file("character_skills.json")
-    skill_def = skills.get(str(combatant.skill_id))
+    skill_def = skills.get(str(combatant.tactic_id))
     if not skill_def:
         return
     phase_def = skill_def.get(phase)

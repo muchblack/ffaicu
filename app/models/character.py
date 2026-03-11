@@ -43,9 +43,8 @@ class Character(Base):
     last_battle_time = Column(BigInteger, default=0)             # [27]
     boss_counter = Column(Integer, default=0)                    # [28]
 
-    # 戰術與技能
-    tactic_id = Column(Integer, default=0)                       # [29]
-    skill_id = Column(Integer, default=0)                        # [30]
+    # 戰技（原 Perl chara[30]：戰術選擇 = 戰鬥技能）
+    tactic_id = Column(Integer, default=0)                       # [30]
 
     # 進度
     title_rank = Column(Integer, default=0)                      # [32]

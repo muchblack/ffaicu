@@ -67,7 +67,6 @@ def get_status(
             "win_count": current_user.win_count,
             "available_battles": current_user.available_battles,
             "tactic_id": current_user.tactic_id,
-            "skill_id": current_user.skill_id,
             "title_rank": current_user.title_rank,
         },
         "equipment": {

@@ -29,7 +29,7 @@ def _make_combatant(
         armor_defense=armor_defense,
         armor_evasion=0,
         accessory=AccessoryBonuses(),
-        skill_id=0,
+        tactic_id=0,
         gold=10000,
         **kwargs,
     )
