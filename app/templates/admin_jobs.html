@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}職業一覽 - 管理模式{% endblock %}
+{% block content %}
+<h1>職業一覽</h1>
+<p>共 {{ jobs|length }} 個職業</p>
+
+<table>
+<tr>
+  <th>ID</th><th>名稱</th><th>倍率</th>
+  <th>成長(STR/MAG/FAI/VIT/DEX/SPD/CHA/業)</th>
+  <th>轉職需求</th><th>前置精通</th><th>操作</th>
+</tr>
+{% for j in jobs %}
+<tr>
+  <td>{{ j.id }}</td>
+  <td>{{ j.name }}</td>
+  <td>x{{ j.multiplier }}</td>
+  <td>{{ j.levelup_ranges|join('/') }}</td>
+  <td style="font-size:11px;">{% for k,v in j.stat_requirements.items() %}{{ k }}:{{ v }} {% endfor %}</td>
+  <td style="font-size:11px;">{% if j.prerequisite_masteries %}{% for k,v in j.prerequisite_masteries.items() %}職{{ k }}:Lv{{ v }} {% endfor %}{% else %}-{% endif %}</td>
+  <td><a href="/view/admin/jobs/edit?p={{ password }}&job_id={{ j.id }}" class="btn">編輯</a></td>
+</tr>
+{% endfor %}
+</table>
+
+<div style="margin-top:12px;">
+  <a href="/view/admin/jobs/add?p={{ password }}" class="btn">新增職業</a>
+  <a href="/view/admin?p={{ password }}" class="btn">返回管理首頁</a>
+</div>
+{% endblock %}

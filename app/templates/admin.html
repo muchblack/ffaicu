@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}管理模式 - FF ADVENTURE{% endblock %}
+{% block content %}
+<h1>管理模式</h1>
+
+{% if not authed %}
+{# 登入表單 #}
+<form method="post" action="/view/admin">
+  <label>管理密碼：</label>
+  <input type="password" name="password" size="20">
+  <button type="submit" class="btn">登入</button>
+</form>
+{% else %}
+
+{# 操作選單 #}
+<p>※一旦<b>刪除</b>就無法復原，請務必先<b>備份</b>再執行。</p>
+
+<h2>角色管理</h2>
+<div style="margin-bottom:12px;">
+  <a href="/view/admin/characters?p={{ password }}" class="btn">角色一覽</a>
+</div>
+<form method="get" action="/view/admin/search" style="margin-bottom:12px;">
+  <input type="hidden" name="p" value="{{ password }}">
+  <input type="text" name="q" size="20" placeholder="輸入 ID 或名稱">
+  <button type="submit" class="btn">搜尋角色</button>
+</form>
+<form method="post" action="/view/admin/delete-inactive" style="margin-bottom:12px;">
+  <input type="hidden" name="password" value="{{ password }}">
+  <button type="submit" class="btn btn-danger">刪除超過{{ limit_days }}天未戰鬥的角色</button>
+  <span style="color:#999;">（受保護角色不受影響）</span>
+</form>
+
+<h2>職業與技能</h2>
+<div style="margin-bottom:12px;">
+  <a href="/view/admin/jobs?p={{ password }}" class="btn">職業一覽 / 編輯</a>
+  <a href="/view/admin/jobs/add?p={{ password }}" class="btn">新增職業</a>
+  <a href="/view/admin/skills?p={{ password }}" class="btn">必殺技一覽</a>
+</div>
+
+<h2>道具</h2>
+<div style="margin-bottom:12px;">
+  <a href="/view/admin/items?p={{ password }}&tab=weapon" class="btn">武器一覽</a>
+  <a href="/view/admin/items?p={{ password }}&tab=armor" class="btn">防具一覽</a>
+  <a href="/view/admin/items?p={{ password }}&tab=accessory" class="btn">飾品一覽</a>
+</div>
+
+<h2>危險操作</h2>
+<div style="margin-bottom:12px;">
+  <a href="/view/admin/delete-all?p={{ password }}" class="btn btn-danger">刪除所有角色記錄</a>
+</div>
+
+<h2>資料總覽</h2>
+<table>
+<tr><th>項目</th><th>數量</th></tr>
+<tr><td>角色總數</td><td>{{ total_characters }}</td></tr>
+<tr><td>武器種類</td><td>{{ total_weapons }}</td></tr>
+<tr><td>防具種類</td><td>{{ total_armors }}</td></tr>
+<tr><td>飾品種類</td><td>{{ total_accessories }}</td></tr>
+</table>
+
+<p style="margin-top:20px;"><a href="/view/home" class="btn">返回首頁</a></p>
+{% endif %}
+{% endblock %}

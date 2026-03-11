@@ -181,21 +181,63 @@ def view_battle_select(request: Request, db: Session = Depends(get_db), ffa_toke
 
 
 # === 商店 ===
+_ACCESSORY_SKILL_NAMES = {
+    0: "-", 1: "HP小回復", 2: "HP中回復", 3: "HP大回復",
+    4: "減傷12.5%", 5: "減傷25%", 6: "減傷50%",
+    7: "攻擊+50%", 8: "攻擊x2", 9: "攻擊x3",
+    10: "靈氣", 11: "乙太療癒", 12: "神聖", 13: "隕石",
+    14: "乙太極光", 15: "次元傳送", 16: "減傷12.5%",
+    17: "攻擊+50%", 18: "減傷25%", 19: "-",
+    20: "減傷50%+攻擊x3", 21: "大十字", 22: "反彈",
+    23: "完全回復", 24: "封印解放",
+}
+
+
+def _get_accessory_skill_names() -> dict[int, str]:
+    return _ACCESSORY_SKILL_NAMES
+
+
 def _shop_view(request: Request, db: Session, user: Character, shop_type: str):
     equip = user.equipment
+    job = user.job_class
     if shop_type == "weapon":
-        items_raw = db.query(WeaponCatalog).order_by(WeaponCatalog.price).all()
+        items_raw = (db.query(WeaponCatalog)
+                     .filter(WeaponCatalog.shop_tier == job)
+                     .order_by(WeaponCatalog.price).all())
         items = [{"id": w.id, "name": w.name, "stat_value": w.attack, "price": w.price} for w in items_raw]
         current = {"name": equip.weapon_name, "stat_label": "攻擊力", "stat_value": equip.weapon_attack} if equip and equip.weapon_name != "徒手" else None
         return "武器店", "攻擊力", items, current
     elif shop_type == "armor":
-        items_raw = db.query(ArmorCatalog).order_by(ArmorCatalog.price).all()
+        items_raw = (db.query(ArmorCatalog)
+                     .filter(ArmorCatalog.shop_tier == job)
+                     .order_by(ArmorCatalog.price).all())
         items = [{"id": a.id, "name": a.name, "stat_value": a.defense, "price": a.price} for a in items_raw]
         current = {"name": equip.armor_name, "stat_label": "防禦力", "stat_value": equip.armor_defense} if equip and equip.armor_name != "布衣" else None
         return "防具店", "防禦力", items, current
     else:
-        items_raw = db.query(AccessoryCatalog).order_by(AccessoryCatalog.price).all()
-        items = [{"id": a.id, "name": a.name, "stat_value": a.description or "-", "price": a.price} for a in items_raw]
+        items_raw = (db.query(AccessoryCatalog)
+                     .filter(AccessoryCatalog.shop_tier == job)
+                     .order_by(AccessoryCatalog.price).all())
+        skill_names = _get_accessory_skill_names()
+        items = []
+        for a in items_raw:
+            bonuses = []
+            for stat, label in [("str_bonus", "STR"), ("mag_bonus", "MAG"), ("fai_bonus", "FAI"),
+                                ("vit_bonus", "VIT"), ("dex_bonus", "DEX"), ("spd_bonus", "SPD"),
+                                ("cha_bonus", "CHA"), ("karma_bonus", "業")]:
+                v = getattr(a, stat, 0)
+                if v:
+                    bonuses.append(f"{label}+{v}")
+            for stat, label in [("accuracy_bonus", "命中"), ("evasion_bonus", "迴避"), ("critical_bonus", "暴擊")]:
+                v = getattr(a, stat, 0)
+                if v:
+                    bonuses.append(f"{label}+{v}")
+            items.append({
+                "id": a.id, "name": a.name, "price": a.price,
+                "bonuses": "　".join(bonuses) if bonuses else "-",
+                "skill_name": skill_names.get(a.skill_id, "-"),
+                "description": a.description or "",
+            })
         current = {"name": equip.accessory_name, "stat_label": "效果", "stat_value": "-"} if equip and equip.accessory_name != "無" else None
         return "飾品店", "效果", items, current
 
@@ -548,3 +590,531 @@ def view_tactic_change(request: Request, db: Session = Depends(get_db), ffa_toke
     from app.services.character_service import change_tactic
     change_tactic(db, user, tactic_id)
     return RedirectResponse("/view/tactic", status_code=303)
+
+
+# === 管理後台 ===
+ADMIN_PASSWORD = "1111"  # TODO: 移至環境變數
+
+
+def _check_admin_pw(password: str) -> bool:
+    return password == ADMIN_PASSWORD
+
+
+def _admin_ctx(request: Request, password: str, db: Session) -> dict:
+    """管理首頁共用 context。"""
+    return {
+        "request": request,
+        "authed": True,
+        "password": password,
+        "limit_days": settings.limit_days,
+        "total_characters": db.query(Character).count(),
+        "total_weapons": db.query(WeaponCatalog).count(),
+        "total_armors": db.query(ArmorCatalog).count(),
+        "total_accessories": db.query(AccessoryCatalog).count(),
+    }
+
+
+@router.get("/admin", response_class=HTMLResponse)
+def view_admin(request: Request, db: Session = Depends(get_db), p: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return templates.TemplateResponse("admin.html", {"request": request, "authed": False})
+    return templates.TemplateResponse("admin.html", _admin_ctx(request, p, db))
+
+
+@router.post("/admin", response_class=HTMLResponse)
+def view_admin_login(request: Request, db: Session = Depends(get_db), password: str = Form(default="")):
+    if not _check_admin_pw(password):
+        return templates.TemplateResponse("admin.html", {
+            "request": request, "authed": False,
+            "flash_message": "密碼錯誤", "flash_type": "error",
+        })
+    return templates.TemplateResponse("admin.html", _admin_ctx(request, password, db))
+
+
+@router.get("/admin/characters", response_class=HTMLResponse)
+def view_admin_characters(request: Request, db: Session = Depends(get_db), p: str = Query(default=""), sort: str = Query(default="level")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    now = int(time.time())
+
+    if sort == "battles":
+        chars = db.query(Character).order_by(Character.battle_count.desc()).all()
+    elif sort == "last":
+        chars = db.query(Character).order_by(Character.last_battle_time.desc()).all()
+    else:
+        chars = db.query(Character).order_by(Character.level.desc()).all()
+
+    char_list = []
+    for c in chars:
+        last_bt = int(c.last_battle_time) if c.last_battle_time else 0
+        if last_bt > 0:
+            deadline = last_bt + settings.limit_days * 86400
+            days_left = (deadline - now) // 86400
+        else:
+            days_left = None
+        job_def = jobs.get(str(c.job_class), {})
+        char_list.append({
+            "id": c.id, "name": c.name, "level": c.level,
+            "job_name": job_def.get("name", "???"),
+            "battle_count": c.battle_count, "days_left": days_left,
+            "protected": c.protected,
+        })
+
+    return templates.TemplateResponse("admin_characters.html", {
+        "request": request, "password": p, "characters": char_list,
+    })
+
+
+@router.get("/admin/search", response_class=HTMLResponse)
+def view_admin_search(request: Request, db: Session = Depends(get_db), p: str = Query(default=""), q: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    char = db.query(Character).filter((Character.id == q) | (Character.name == q)).first()
+    if not char:
+        return templates.TemplateResponse("admin.html", {
+            **_admin_ctx(request, p, db),
+            "flash_message": f"找不到角色: {q}", "flash_type": "error",
+        })
+    jobs = _load_jobs()
+    job_def = jobs.get(str(char.job_class), {})
+    return templates.TemplateResponse("admin_detail.html", {
+        "request": request, "password": p,
+        "char": {
+            "id": char.id, "name": char.name, "level": char.level,
+            "job_name": job_def.get("name", "???"), "job_level": char.job_level,
+            "current_hp": char.current_hp, "max_hp": char.max_hp,
+            "exp": char.exp, "gold": int(char.gold), "bank": int(char.bank_savings),
+            "str_": char.str_, "mag": char.mag, "fai": char.fai, "vit": char.vit,
+            "dex": char.dex, "spd": char.spd, "cha": char.cha, "karma": char.karma,
+            "battle_count": char.battle_count, "win_count": char.win_count,
+            "protected": char.protected,
+        },
+    })
+
+
+@router.post("/admin/protect", response_class=HTMLResponse)
+def view_admin_protect(request: Request, db: Session = Depends(get_db), password: str = Form(), character_id: str = Form()):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    char = db.query(Character).filter(Character.id == character_id).first()
+    if char:
+        char.protected = 1
+        db.commit()
+    return RedirectResponse(f"/view/admin/characters?p={password}", status_code=303)
+
+
+@router.post("/admin/delete", response_class=HTMLResponse)
+def view_admin_delete(request: Request, db: Session = Depends(get_db), password: str = Form(), character_id: str = Form()):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    char = db.query(Character).filter(Character.id == character_id, Character.protected == 0).first()
+    if char:
+        db.delete(char)
+        db.commit()
+    return RedirectResponse(f"/view/admin/characters?p={password}", status_code=303)
+
+
+@router.post("/admin/delete-inactive", response_class=HTMLResponse)
+def view_admin_delete_inactive(request: Request, db: Session = Depends(get_db), password: str = Form()):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    cutoff = int(time.time()) - settings.limit_days * 86400
+    deleted = db.query(Character).filter(
+        Character.last_battle_time < cutoff, Character.protected == 0,
+    ).delete()
+    db.commit()
+    return templates.TemplateResponse("admin.html", {
+        **_admin_ctx(request, password, db),
+        "flash_message": f"已刪除 {deleted} 個不活躍角色", "flash_type": "success",
+    })
+
+
+# === 職業管理 ===
+
+def _load_jobs_path() -> Path:
+    return Path(__file__).parent.parent.parent / "data" / "jobs.json"
+
+
+def _save_jobs(jobs: dict) -> None:
+    import json as _json
+    path = _load_jobs_path()
+    with open(path, "w", encoding="utf-8") as f:
+        _json.dump(jobs, f, ensure_ascii=False, indent=2)
+    # 清除引擎快取
+    from app.engine.level_up import _load_jobs as _engine_load
+    import app.engine.level_up as _lu
+    _lu._jobs_cache = None
+
+
+@router.get("/admin/jobs", response_class=HTMLResponse)
+def view_admin_jobs(request: Request, p: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    job_list = []
+    for jid in sorted(jobs.keys(), key=lambda x: int(x)):
+        j = jobs[jid]
+        job_list.append({
+            "id": jid, "name": j["name"], "multiplier": j.get("multiplier", 1),
+            "levelup_ranges": j.get("levelup_ranges", []),
+            "stat_requirements": j.get("stat_requirements", {}),
+            "prerequisite_masteries": j.get("prerequisite_masteries", {}),
+        })
+    return templates.TemplateResponse("admin_jobs.html", {
+        "request": request, "password": p, "jobs": job_list,
+    })
+
+
+@router.get("/admin/jobs/edit", response_class=HTMLResponse)
+def view_admin_job_edit(request: Request, p: str = Query(default=""), job_id: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    if job_id not in jobs:
+        return RedirectResponse(f"/view/admin/jobs?p={p}")
+    j = jobs[job_id]
+    return templates.TemplateResponse("admin_job_edit.html", {
+        "request": request, "password": p, "is_new": False,
+        "job": {"id": job_id, **j},
+    })
+
+
+@router.post("/admin/jobs/edit", response_class=HTMLResponse)
+def view_admin_job_save(request: Request, password: str = Form(), job_id: str = Form(),
+                        name: str = Form(), multiplier: int = Form(),
+                        lr_0: int = Form(), lr_1: int = Form(), lr_2: int = Form(),
+                        lr_3: int = Form(), lr_4: int = Form(), lr_5: int = Form(),
+                        lr_6: int = Form(), lr_7: int = Form(),
+                        attack_stats: str = Form(), stat_requirements: str = Form(),
+                        prerequisite_masteries: str = Form(default="")):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    if job_id not in jobs:
+        return RedirectResponse(f"/view/admin/jobs?p={password}")
+
+    jobs[job_id]["name"] = name
+    jobs[job_id]["multiplier"] = multiplier
+    jobs[job_id]["levelup_ranges"] = [lr_0, lr_1, lr_2, lr_3, lr_4, lr_5, lr_6, lr_7]
+    jobs[job_id]["attack_stats"] = _parse_attack_stats(attack_stats)
+    jobs[job_id]["stat_requirements"] = _parse_kv_int(stat_requirements)
+    jobs[job_id]["prerequisite_masteries"] = _parse_kv_int(prerequisite_masteries)
+    _save_jobs(jobs)
+    return RedirectResponse(f"/view/admin/jobs?p={password}", status_code=303)
+
+
+@router.get("/admin/jobs/add", response_class=HTMLResponse)
+def view_admin_job_add(request: Request, p: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    next_id = max((int(k) for k in jobs), default=-1) + 1
+    return templates.TemplateResponse("admin_job_edit.html", {
+        "request": request, "password": p, "is_new": True,
+        "job": {}, "next_id": next_id,
+    })
+
+
+@router.post("/admin/jobs/add", response_class=HTMLResponse)
+def view_admin_job_add_save(request: Request, password: str = Form(), job_id: int = Form(),
+                            name: str = Form(), multiplier: int = Form(),
+                            lr_0: int = Form(), lr_1: int = Form(), lr_2: int = Form(),
+                            lr_3: int = Form(), lr_4: int = Form(), lr_5: int = Form(),
+                            lr_6: int = Form(), lr_7: int = Form(),
+                            attack_stats: str = Form(), stat_requirements: str = Form(),
+                            prerequisite_masteries: str = Form(default="")):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+    jobs = _load_jobs()
+    jid = str(job_id)
+    jobs[jid] = {
+        "name": name,
+        "attack_stats": _parse_attack_stats(attack_stats),
+        "multiplier": multiplier,
+        "levelup_ranges": [lr_0, lr_1, lr_2, lr_3, lr_4, lr_5, lr_6, lr_7],
+        "stat_requirements": _parse_kv_int(stat_requirements),
+        "prerequisite_masteries": _parse_kv_int(prerequisite_masteries),
+    }
+    _save_jobs(jobs)
+    return RedirectResponse(f"/view/admin/jobs?p={password}", status_code=303)
+
+
+def _parse_attack_stats(text: str) -> list:
+    result = []
+    for line in text.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split(",", 1)
+        if len(parts) == 2:
+            result.append([parts[0].strip(), parts[1].strip()])
+    return result or [["rand", "str"]]
+
+
+def _parse_kv_int(text: str) -> dict:
+    result = {}
+    for line in text.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split(":", 1)
+        if len(parts) == 2:
+            try:
+                result[parts[0].strip()] = int(parts[1].strip())
+            except ValueError:
+                pass
+    return result
+
+
+# === 道具一覽 ===
+
+@router.get("/admin/items", response_class=HTMLResponse)
+def view_admin_items(request: Request, db: Session = Depends(get_db), p: str = Query(default=""), tab: str = Query(default="weapon")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+
+    weapon_count = db.query(WeaponCatalog).count()
+    armor_count = db.query(ArmorCatalog).count()
+    accessory_count = db.query(AccessoryCatalog).count()
+
+    items = []
+    if tab == "weapon":
+        items = db.query(WeaponCatalog).order_by(WeaponCatalog.id).all()
+    elif tab == "armor":
+        items = db.query(ArmorCatalog).order_by(ArmorCatalog.id).all()
+    elif tab == "accessory":
+        items = db.query(AccessoryCatalog).order_by(AccessoryCatalog.id).all()
+
+    return templates.TemplateResponse("admin_items.html", {
+        "request": request, "password": p, "tab": tab, "items": items,
+        "weapon_count": weapon_count, "armor_count": armor_count, "accessory_count": accessory_count,
+    })
+
+
+# === 必殺技一覽 ===
+
+@router.get("/admin/skills", response_class=HTMLResponse)
+def view_admin_skills(request: Request, p: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+
+    jobs = _load_jobs()
+    data_dir = Path(__file__).parent.parent.parent / "data"
+
+    # 戰術
+    tactics_path = data_dir / "tactics.json"
+    tactics_raw = {}
+    if tactics_path.exists():
+        with open(tactics_path, encoding="utf-8") as f:
+            tactics_raw = json.load(f)
+
+    tactics = []
+    for tid in sorted(tactics_raw.keys(), key=lambda x: int(x)):
+        t = tactics_raw[tid]
+        job_names = [jobs.get(str(jc), {}).get("name", f"職{jc}") for jc in t.get("job_classes", [])]
+        tactics.append({
+            "id": tid, "name": t.get("name", ""), "description": t.get("description", ""),
+            "mastery_required": t.get("mastery_required", False), "job_names": job_names,
+        })
+
+    # 角色技能
+    char_skills_path = data_dir / "skills" / "character_skills.json"
+    char_skills_raw = {}
+    if char_skills_path.exists():
+        with open(char_skills_path, encoding="utf-8") as f:
+            char_skills_raw = json.load(f)
+
+    char_skills = []
+    for sid in sorted(char_skills_raw.keys(), key=lambda x: int(x)):
+        s = char_skills_raw[sid]
+        if s is None:
+            continue
+        hissatu = s.get("hissatu")
+        atowaza = s.get("atowaza")
+        hissatu_desc = ""
+        if hissatu and hissatu.get("effects"):
+            msgs = [e.get("message", "") for e in hissatu["effects"] if e.get("message")]
+            hissatu_desc = " / ".join(msgs) if msgs else "（效果定義）"
+        char_skills.append({
+            "id": sid, "job_name": jobs.get(sid, {}).get("name", f"職{sid}"),
+            "has_hissatu": hissatu is not None, "hissatu_desc": hissatu_desc,
+            "has_atowaza": atowaza is not None,
+        })
+
+    # 飾品技能
+    acs_skills_path = data_dir / "skills" / "accessory_skills.json"
+    acs_skills_raw = {}
+    if acs_skills_path.exists():
+        with open(acs_skills_path, encoding="utf-8") as f:
+            acs_skills_raw = json.load(f)
+
+    acs_skills = []
+    for aid in sorted(acs_skills_raw.keys(), key=lambda x: int(x)):
+        s = acs_skills_raw[aid]
+        if s is None:
+            continue
+        trigger = s.get("trigger", {}).get("type", "?")
+        effects = []
+        for e in s.get("effects", []):
+            etype = e.get("type", "?")
+            msg = e.get("message", "")
+            effects.append(f"{etype}: {msg}" if msg else etype)
+        acs_skills.append({
+            "id": aid, "trigger": trigger, "effects": " / ".join(effects),
+        })
+
+    return templates.TemplateResponse("admin_skills.html", {
+        "request": request, "password": p,
+        "tactics": tactics, "char_skills": char_skills, "acs_skills": acs_skills,
+    })
+
+
+# === 刪除所有記錄 ===
+
+@router.get("/admin/delete-all", response_class=HTMLResponse)
+def view_admin_delete_all(request: Request, db: Session = Depends(get_db), p: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+    return templates.TemplateResponse("admin_delete_all.html", {
+        "request": request, "password": p, "confirmed": False,
+        "total_characters": db.query(Character).count(),
+    })
+
+
+@router.post("/admin/delete-all", response_class=HTMLResponse)
+def view_admin_delete_all_confirm(request: Request, db: Session = Depends(get_db),
+                                  password: str = Form(), confirm: str = Form(default=""),
+                                  confirm_password: str = Form(default="")):
+    if not _check_admin_pw(password) or confirm != "1" or confirm_password != ADMIN_PASSWORD:
+        return templates.TemplateResponse("admin_delete_all.html", {
+            "request": request, "password": password, "confirmed": False,
+            "total_characters": db.query(Character).count(),
+            "flash_message": "密碼錯誤或未確認", "flash_type": "error",
+        })
+    deleted = db.query(Character).delete()
+    db.commit()
+    return templates.TemplateResponse("admin_delete_all.html", {
+        "request": request, "password": password, "confirmed": True,
+        "deleted_count": deleted,
+    })
+
+
+# === 道具編輯 ===
+
+_ITEM_TYPE_LABELS = {"weapon": "武器", "armor": "防具", "accessory": "飾品"}
+
+
+@router.get("/admin/items/edit", response_class=HTMLResponse)
+def view_admin_item_edit(request: Request, db: Session = Depends(get_db),
+                         p: str = Query(default=""), tab: str = Query(default="weapon"),
+                         item_id: str = Query(default="")):
+    if not _check_admin_pw(p):
+        return RedirectResponse("/view/admin")
+
+    is_new = item_id == "new"
+    item = None
+    if not is_new:
+        iid = int(item_id)
+        if tab == "weapon":
+            item = db.query(WeaponCatalog).get(iid)
+        elif tab == "armor":
+            item = db.query(ArmorCatalog).get(iid)
+        elif tab == "accessory":
+            item = db.query(AccessoryCatalog).get(iid)
+        if not item:
+            return RedirectResponse(f"/view/admin/items?p={p}&tab={tab}")
+
+    return templates.TemplateResponse("admin_item_edit.html", {
+        "request": request, "password": p, "tab": tab, "is_new": is_new,
+        "item": item, "type_label": _ITEM_TYPE_LABELS.get(tab, "道具"),
+    })
+
+
+@router.post("/admin/items/edit", response_class=HTMLResponse)
+def view_admin_item_save(request: Request, db: Session = Depends(get_db),
+                         password: str = Form(), tab: str = Form(), is_new: str = Form(),
+                         item_id: int = Form(), name: str = Form(),
+                         price: int = Form(default=0), shop_tier: int = Form(default=0),
+                         # 武器
+                         attack: int = Form(default=0), accuracy_bonus: int = Form(default=0),
+                         # 防具
+                         defense: int = Form(default=0), evasion_bonus: int = Form(default=0),
+                         # 飾品
+                         skill_id: int = Form(default=0),
+                         str_bonus: int = Form(default=0), mag_bonus: int = Form(default=0),
+                         fai_bonus: int = Form(default=0), vit_bonus: int = Form(default=0),
+                         dex_bonus: int = Form(default=0), spd_bonus: int = Form(default=0),
+                         cha_bonus: int = Form(default=0), karma_bonus: int = Form(default=0),
+                         critical_bonus: int = Form(default=0),
+                         description: str = Form(default="")):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+
+    if tab == "weapon":
+        item = db.query(WeaponCatalog).get(item_id) if is_new == "0" else None
+        if not item:
+            item = WeaponCatalog(id=item_id)
+            db.add(item)
+        item.name = name
+        item.attack = attack
+        item.price = price
+        item.accuracy_bonus = accuracy_bonus
+        item.shop_tier = shop_tier
+
+    elif tab == "armor":
+        item = db.query(ArmorCatalog).get(item_id) if is_new == "0" else None
+        if not item:
+            item = ArmorCatalog(id=item_id)
+            db.add(item)
+        item.name = name
+        item.defense = defense
+        item.price = price
+        item.evasion_bonus = evasion_bonus
+        item.shop_tier = shop_tier
+
+    elif tab == "accessory":
+        item = db.query(AccessoryCatalog).get(item_id) if is_new == "0" else None
+        if not item:
+            item = AccessoryCatalog(id=item_id)
+            db.add(item)
+        item.name = name
+        item.price = price
+        item.skill_id = skill_id
+        item.str_bonus = str_bonus
+        item.mag_bonus = mag_bonus
+        item.fai_bonus = fai_bonus
+        item.vit_bonus = vit_bonus
+        item.dex_bonus = dex_bonus
+        item.spd_bonus = spd_bonus
+        item.cha_bonus = cha_bonus
+        item.karma_bonus = karma_bonus
+        item.accuracy_bonus = accuracy_bonus
+        item.evasion_bonus = evasion_bonus
+        item.critical_bonus = critical_bonus
+        item.description = description
+        item.shop_tier = shop_tier
+
+    db.commit()
+    return RedirectResponse(f"/view/admin/items?p={password}&tab={tab}", status_code=303)
+
+
+@router.post("/admin/items/delete", response_class=HTMLResponse)
+def view_admin_item_delete(request: Request, db: Session = Depends(get_db),
+                           password: str = Form(), tab: str = Form(), item_id: int = Form()):
+    if not _check_admin_pw(password):
+        return RedirectResponse("/view/admin")
+
+    if tab == "weapon":
+        item = db.query(WeaponCatalog).get(item_id)
+    elif tab == "armor":
+        item = db.query(ArmorCatalog).get(item_id)
+    elif tab == "accessory":
+        item = db.query(AccessoryCatalog).get(item_id)
+    else:
+        item = None
+
+    if item:
+        db.delete(item)
+        db.commit()
+    return RedirectResponse(f"/view/admin/items?p={password}&tab={tab}", status_code=303)

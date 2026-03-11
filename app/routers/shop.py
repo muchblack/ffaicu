@@ -24,7 +24,9 @@ class BuyRequest(BaseModel):
 # --- 武器商店 ---
 @router.get("/weapon")
 def list_weapons(db: Session = Depends(get_db), current_user: Character = Depends(get_current_user)):
-    items = db.query(WeaponCatalog).order_by(WeaponCatalog.price).all()
+    items = (db.query(WeaponCatalog)
+             .filter(WeaponCatalog.shop_tier == current_user.job_class)
+             .order_by(WeaponCatalog.price).all())
     return [{"id": w.id, "name": w.name, "attack": w.attack, "price": w.price} for w in items]
 
 
@@ -41,7 +43,9 @@ def weapon_sell(db: Session = Depends(get_db), current_user: Character = Depends
 # --- 防具商店 ---
 @router.get("/armor")
 def list_armors(db: Session = Depends(get_db), current_user: Character = Depends(get_current_user)):
-    items = db.query(ArmorCatalog).order_by(ArmorCatalog.price).all()
+    items = (db.query(ArmorCatalog)
+             .filter(ArmorCatalog.shop_tier == current_user.job_class)
+             .order_by(ArmorCatalog.price).all())
     return [{"id": a.id, "name": a.name, "defense": a.defense, "price": a.price} for a in items]
 
 
@@ -58,7 +62,9 @@ def armor_sell(db: Session = Depends(get_db), current_user: Character = Depends(
 # --- 飾品商店 ---
 @router.get("/accessory")
 def list_accessories(db: Session = Depends(get_db), current_user: Character = Depends(get_current_user)):
-    items = db.query(AccessoryCatalog).order_by(AccessoryCatalog.price).all()
+    items = (db.query(AccessoryCatalog)
+             .filter(AccessoryCatalog.shop_tier == current_user.job_class)
+             .order_by(AccessoryCatalog.price).all())
     return [
         {"id": a.id, "name": a.name, "price": a.price, "description": a.description}
         for a in items

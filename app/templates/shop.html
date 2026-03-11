@@ -13,6 +13,25 @@
 {% endif %}
 
 <h2>商品列表</h2>
+{% if shop_type == "accessory" %}
+<table>
+<tr><th>名稱</th><th>能力加成</th><th>戰鬥技能</th><th>價格</th><th></th></tr>
+{% for item in items %}
+<tr>
+<td>{{ item.name }}{% if item.description %}<br><small>{{ item.description }}</small>{% endif %}</td>
+<td><small>{{ item.bonuses }}</small></td>
+<td>{{ item.skill_name }}</td>
+<td class="gold">{{ "{:,}".format(item.price) }}G</td>
+<td>
+<form action="/view/shop/{{ shop_type }}/buy" method="post" style="display:inline">
+<input type="hidden" name="item_id" value="{{ item.id }}">
+<button class="btn" type="submit" {% if gold < item.price %}disabled{% endif %}>購買</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
 <table>
 <tr><th>名稱</th><th>{{ stat_label }}</th><th>價格</th><th></th></tr>
 {% for item in items %}
@@ -29,5 +48,6 @@
 </tr>
 {% endfor %}
 </table>
+{% endif %}
 <a href="/view/status" class="btn">← 返回</a>
 {% endblock %}

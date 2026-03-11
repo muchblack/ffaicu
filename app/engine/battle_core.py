@@ -125,11 +125,16 @@ class BattleEngine:
             rounds.append(state)
 
             # 10. 勝負判定
+            if state.battle_escaped:
+                break
             if d_hp <= 0 or a_hp <= 0:
                 break
 
         # 判定結果
-        if d_hp <= 0 and a_hp <= 0:
+        last = rounds[-1] if rounds else None
+        if last and last.battle_escaped:
+            outcome = "draw"
+        elif d_hp <= 0 and a_hp <= 0:
             outcome = "draw"
         elif d_hp <= 0:
             outcome = "win"

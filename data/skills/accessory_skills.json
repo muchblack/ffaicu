@@ -5,5 +5,156 @@
     "effects": [
       { "type": "heal_attacker", "formula": "karma * rand(10)", "message": "飾品綻放光芒！！{name} 的HP恢復了♪" }
     ]
+  },
+  "2": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "heal_attacker", "formula": "karma * rand(50)", "message": "飾品釋放了療癒之力！！{name} 的HP恢復了♪" }
+    ]
+  },
+  "3": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "heal_attacker", "formula": "karma * rand(200)", "message": "飾品發出強烈的神光！！{name} 的傷口完全癒合了♪" }
+    ]
+  },
+  "4": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.875, "message": "飾品的結界減輕了傷害！" }
+    ]
+  },
+  "5": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.75, "message": "飾品的結界大幅減輕了傷害！" }
+    ]
+  },
+  "6": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.5, "message": "飾品發揮了極強的防禦作用！" }
+    ]
+  },
+  "7": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 1.5, "message": "飾品激發了戰鬥力！" }
+    ]
+  },
+  "8": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 2.0, "message": "飾品讓攻擊力倍增！" }
+    ]
+  },
+  "9": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 3.0, "message": "飾品釋放了狂暴的力量！" }
+    ]
+  },
+  "10": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "buff_attack", "multiplier": 2.0, "message": "飾品產生了靈氣！！武器的力量提升了！" }
+    ]
+  },
+  "11": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "heal_attacker", "formula": "cha * rand(karma)", "message": "乙太療癒！！{name} 恢復了生命力！" }
+    ]
+  },
+  "12": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "add_damage", "formula": "cha * rand(80)", "message": "神聖！！飾品降下了聖光！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "13": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "add_damage", "formula": "spd * rand(80)", "message": "隕石！！飾品招喚了天星！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "14": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "add_damage", "formula": "(spd + cha) * rand(100)", "message": "乙太極光！！七彩的光芒爆發了！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "15": {
+    "trigger": { "type": "random", "chance": 0.1 },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.33,
+        "success": { "effects": [{ "type": "instakill" }], "message": "次元傳送！！敵人被消失在次元裂縫中！" }
+      }
+    ]
+  },
+  "16": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.875, "message": "飾品的守護力量生效了！" }
+    ]
+  },
+  "17": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 1.5, "message": "飾品強化了攻擊！" }
+    ]
+  },
+  "18": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.75, "message": "飾品的防禦屏障發揮作用！" }
+    ]
+  },
+  "19": null,
+  "20": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.5, "message": "飾品釋放了終極的攻守力量！" },
+      { "type": "multiply_damage", "multiplier": 3.0 }
+    ]
+  },
+  "21": {
+    "trigger": { "type": "random", "chance": 0.5 },
+    "effects": [
+      { "type": "add_damage", "formula": "(spd + cha) * rand(500)", "message": "大十字！！飾品釋放了震撼的衝擊！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "22": {
+    "trigger": { "type": "random", "chance": 0.1 },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.5,
+        "success": { "effects": [{ "type": "damage_reflect" }], "message": "飾品在關鍵時刻產生了鏡面反射！" }
+      }
+    ]
+  },
+  "23": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.5,
+        "success": { "effects": [{ "type": "full_heal" }], "message": "飾品注入了重生的力量！！" }
+      }
+    ]
+  },
+  "24": {
+    "trigger": { "type": "random", "chance": 0.25 },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 10.0, "message": "封印解放！！釋放了禁忌的破壞力！" },
+      { "type": "bypass_evasion" }
+    ]
   }
 }

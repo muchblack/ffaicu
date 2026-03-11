@@ -91,6 +91,8 @@ class RoundState:
     attacker_armor_defense: int = 0
     defender_armor_defense: int = 0
     sealed: bool = False
+    battle_escaped: bool = False
+    gold_stolen: int = 0
     log_lines: list[str] = field(default_factory=list)
 
 

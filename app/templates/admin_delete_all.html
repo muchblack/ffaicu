@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}刪除所有記錄 - 管理模式{% endblock %}
+{% block content %}
+<h1 style="color:#f44336;">刪除所有角色記錄</h1>
+
+{% if confirmed %}
+<p class="msg-success">已刪除 {{ deleted_count }} 個角色的所有資料。</p>
+<a href="/view/admin?p={{ password }}" class="btn">返回管理首頁</a>
+{% else %}
+<div style="background:#3a1111;border:2px solid #f44336;padding:16px;margin:12px 0;">
+  <p style="color:#f44336;font-size:16px;"><b>警告：此操作不可逆！</b></p>
+  <p>將刪除遊戲內所有角色資料（含裝備、職業精通、倉庫、訊息等）。</p>
+  <p>目前共有 <b style="color:#ffd54f;">{{ total_characters }}</b> 個角色。</p>
+  <p>受保護角色也將被刪除。</p>
+</div>
+
+<form method="post" action="/view/admin/delete-all">
+  <input type="hidden" name="password" value="{{ password }}">
+  <input type="hidden" name="confirm" value="1">
+  <p>請輸入管理密碼以確認：</p>
+  <input type="password" name="confirm_password" size="20">
+  <button type="submit" class="btn btn-danger">確認刪除所有記錄</button>
+</form>
+<div style="margin-top:12px;">
+  <a href="/view/admin?p={{ password }}" class="btn">取消，返回管理首頁</a>
+</div>
+{% endif %}
+{% endblock %}

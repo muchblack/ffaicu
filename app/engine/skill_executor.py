@@ -26,7 +26,7 @@ def _load_skill_file(filename: str) -> dict:
 
 def _build_variables(combatant: Combatant, state: RoundState, is_attacker: bool) -> dict[str, int]:
     """建立公式可用的變數映射。"""
-    return {
+    v = {
         "str": combatant.stats.str_,
         "mag": combatant.stats.mag,
         "fai": combatant.stats.fai,
@@ -37,10 +37,21 @@ def _build_variables(combatant: Combatant, state: RoundState, is_attacker: bool)
         "karma": combatant.stats.karma,
         "job_level": combatant.job_level,
         "level": combatant.level,
+        "max_hp": combatant.max_hp,
+        "current_hp": combatant.current_hp,
         "weapon_attack": combatant.weapon_attack,
         "armor_defense": combatant.armor_defense,
         "damage_range": state.attacker_dmg if is_attacker else state.defender_dmg,
     }
+    v["all_stats"] = (
+        v["str"] + v["mag"] + v["fai"] + v["vit"]
+        + v["dex"] + v["spd"] + v["cha"] + v["karma"] + v["job_level"]
+    )
+    v["seven_stats"] = (
+        v["str"] + v["mag"] + v["fai"] + v["vit"]
+        + v["dex"] + v["spd"] + v["cha"]
+    )
+    return v
 
 
 def _check_trigger(trigger: dict, combatant: Combatant, state: RoundState) -> bool:
@@ -161,6 +172,93 @@ def _apply_effect(effect: dict, state: RoundState, combatant: Combatant, is_atta
             if failure:
                 _apply_effect(failure, state, combatant, is_attacker)
         return
+
+    elif effect_type == "evasion_boost":
+        if is_attacker:
+            state.attacker_evaded = True
+        else:
+            state.defender_evaded = True
+
+    elif effect_type == "nullify_enemy_damage":
+        if is_attacker:
+            state.defender_dmg = 0
+        else:
+            state.attacker_dmg = 0
+
+    elif effect_type == "damage_reflect":
+        if is_attacker:
+            state.attacker_dmg += state.defender_dmg
+            state.defender_dmg = 0
+        else:
+            state.defender_dmg += state.attacker_dmg
+            state.attacker_dmg = 0
+
+    elif effect_type == "self_damage":
+        amount = evaluate(effect["formula"], variables)
+        if is_attacker:
+            state.attacker_hp_heal -= amount
+        else:
+            state.defender_hp_heal -= amount
+
+    elif effect_type == "ignore_defense":
+        if is_attacker:
+            state.defender_armor_defense = 0
+        else:
+            state.attacker_armor_defense = 0
+
+    elif effect_type == "full_heal":
+        if is_attacker:
+            state.attacker_hp_heal = combatant.max_hp
+            state.attacker_dmg = 0
+        else:
+            state.defender_hp_heal = combatant.max_hp
+            state.defender_dmg = 0
+
+    elif effect_type == "battle_escape":
+        state.battle_escaped = True
+        if is_attacker:
+            state.attacker_dmg = 0
+        else:
+            state.defender_dmg = 0
+
+    elif effect_type == "steal_gold":
+        amount = evaluate(effect["formula"], variables)
+        state.gold_stolen += amount
+
+    elif effect_type == "tarot_draw":
+        cards = effect.get("cards", [])
+        if cards:
+            card = random.choice(cards)
+            card_name = card.get("name", "")
+            state.log_lines.append(f"{card_name}！！！！")
+            for sub_effect in card.get("effects", []):
+                _apply_effect(sub_effect, state, combatant, is_attacker)
+        return
+
+    elif effect_type == "copy_enemy":
+        if is_attacker:
+            state.attacker_dmg = state.defender_dmg
+            state.attacker_evaded = state.defender_evaded
+            state.attacker_hp_heal = state.defender_hp_heal
+        else:
+            state.defender_dmg = state.attacker_dmg
+            state.defender_evaded = state.attacker_evaded
+            state.defender_hp_heal = state.attacker_hp_heal
+
+    elif effect_type == "heal_enemy":
+        amount = evaluate(effect["formula"], variables)
+        if is_attacker:
+            state.defender_hp_heal += amount
+        else:
+            state.attacker_hp_heal += amount
+
+    elif effect_type == "damage_to_enemy_self":
+        if is_attacker:
+            state.defender_dmg = state.attacker_hp_heal if hasattr(state, '_temp_hp') else combatant.current_hp
+            state.attacker_dmg = 0
+        else:
+            state.attacker_dmg = state.defender_hp_heal if hasattr(state, '_temp_hp') else combatant.current_hp
+            state.defender_dmg = 0
 
     if message:
         formatted = message.format(

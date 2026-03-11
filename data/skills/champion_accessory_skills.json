@@ -1,3 +1,152 @@
 {
-  "0": null
+  "0": null,
+  "1": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "heal_attacker", "formula": "job_level * rand(10)", "message": "魔飾釋放了能量！！HP恢復了♪" }
+    ]
+  },
+  "2": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "heal_attacker", "formula": "job_level * rand(50)", "message": "魔飾發出了黑光！！HP恢復了♪" }
+    ]
+  },
+  "3": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "heal_attacker", "formula": "job_level * rand(200)", "message": "魔飾發出強大的震動！！HP完全恢復了♪" }
+    ]
+  },
+  "4": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.875, "message": "魔飾的防禦屏障減輕了傷害！" }
+    ]
+  },
+  "5": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.75, "message": "魔飾的守護層大幅減輕了傷害！" }
+    ]
+  },
+  "6": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.5, "message": "魔飾展現了驚人的防禦力！" }
+    ]
+  },
+  "7": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 1.5, "message": "魔飾激發了魔性！" }
+    ]
+  },
+  "8": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 2.0, "message": "魔飾讓攻擊力倍增！" }
+    ]
+  },
+  "9": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 3.0, "message": "魔飾釋放了狂暴的力量！" }
+    ]
+  },
+  "10": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "buff_attack", "multiplier": 2.0, "message": "魔飾產生了強大的靈壓！！" }
+    ]
+  },
+  "11": {
+    "trigger": { "type": "random", "chance": 0.0666 },
+    "effects": [
+      { "type": "heal_attacker", "formula": "mag * rand(job_level)", "message": "乙太療癒！！恢復了生命力！" }
+    ]
+  },
+  "12": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "add_damage", "formula": "mag * rand(80)", "message": "神聖爆發！！魔飾降下了衝擊！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "13": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "add_damage", "formula": "str * rand(80)", "message": "大地咆哮！！魔飾引發了震動！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "14": {
+    "trigger": { "type": "random", "chance": 0.2 },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + mag) * rand(100)", "message": "終極極光！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "15": {
+    "trigger": { "type": "random", "chance": 0.1 },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.33,
+        "success": { "effects": [{ "type": "instakill" }], "message": "魔物次元傳送！！" }
+      }
+    ]
+  },
+  "16": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.875, "message": "魔飾的加護生效了！" }
+    ]
+  },
+  "17": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 1.5, "message": "魔飾強化了打擊！" }
+    ]
+  },
+  "18": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.5, "message": "魔飾釋放了守護之力！" },
+      { "type": "multiply_damage", "multiplier": 2.0 }
+    ]
+  },
+  "19": null,
+  "20": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.5, "message": "魔飾展現了絕對的領域！" },
+      { "type": "multiply_damage", "multiplier": 3.0 }
+    ]
+  },
+  "21": {
+    "trigger": { "type": "random", "chance": 0.5 },
+    "effects": [
+      { "type": "add_damage", "formula": "(spd + cha) * rand(500)", "message": "魔飾釋放了巨大的衝擊波！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "22": {
+    "trigger": { "type": "random", "chance": 0.0333 },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.5,
+        "success": { "effects": [{ "type": "damage_reflect" }], "message": "魔飾產生了偏折效果！" }
+      }
+    ]
+  },
+  "23": null,
+  "24": {
+    "trigger": { "type": "random", "chance": 0.25 },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 10.0, "message": "魔力解放！！十倍的力量爆發！" },
+      { "type": "bypass_evasion" }
+    ]
+  }
 }

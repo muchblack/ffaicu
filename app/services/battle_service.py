@@ -147,7 +147,7 @@ def _apply_battle_rewards(
         new_lv, new_exp, new_stats, new_hp = check_level_up(
             char.level, int(char.exp), char.job_class,
             {"str": char.str_, "mag": char.mag, "fai": char.fai, "vit": char.vit,
-             "dex": char.dex, "spd": char.spd, "cha": char.cha},
+             "dex": char.dex, "spd": char.spd, "cha": char.cha, "karma": char.karma},
             char.max_hp,
         )
         level_ups = new_lv - char.level
@@ -161,6 +161,7 @@ def _apply_battle_rewards(
         char.dex = new_stats["dex"]
         char.spd = new_stats["spd"]
         char.cha = new_stats["cha"]
+        char.karma = new_stats["karma"]
 
         # 職業經驗
         char.job_level = min(char.job_level + 1, 60)

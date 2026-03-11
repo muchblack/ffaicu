@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ char.name }} - 角色詳細{% endblock %}
+{% block content %}
+<h1>{{ char.name }} 的詳細資料</h1>
+
+<table>
+<tr><th>項目</th><th>數值</th></tr>
+<tr><td>ID</td><td>{{ char.id }}</td></tr>
+<tr><td>等級</td><td>{{ char.level }}</td></tr>
+<tr><td>職業</td><td>{{ char.job_name }}（Lv.{{ char.job_level }}）</td></tr>
+<tr><td>HP</td><td>{{ char.current_hp }} / {{ char.max_hp }}</td></tr>
+<tr><td>EXP</td><td>{{ char.exp }}</td></tr>
+<tr><td>Gold</td><td class="gold">{{ char.gold }}</td></tr>
+<tr><td>銀行</td><td class="gold">{{ char.bank }}</td></tr>
+</table>
+
+<h2>能力值</h2>
+<table>
+<tr><th>STR</th><th>MAG</th><th>FAI</th><th>VIT</th><th>DEX</th><th>SPD</th><th>CHA</th><th>業(Karma)</th></tr>
+<tr>
+  <td>{{ char.str_ }}</td><td>{{ char.mag }}</td><td>{{ char.fai }}</td><td>{{ char.vit }}</td>
+  <td>{{ char.dex }}</td><td>{{ char.spd }}</td><td>{{ char.cha }}</td><td>{{ char.karma }}</td>
+</tr>
+</table>
+
+<h2>戰績</h2>
+<table>
+<tr><th>戰鬥次數</th><th>勝利次數</th><th>勝率</th><th>保護狀態</th></tr>
+<tr>
+  <td>{{ char.battle_count }}</td>
+  <td>{{ char.win_count }}</td>
+  <td>{% if char.battle_count > 0 %}{{ "%.1f"|format(char.win_count / char.battle_count * 100) }}%{% else %}-{% endif %}</td>
+  <td>{% if char.protected %}<span class="msg-success">已保護</span>{% else %}未保護{% endif %}</td>
+</tr>
+</table>
+
+<div style="margin-top:12px;">
+  {% if not char.protected %}
+  <form method="post" action="/view/admin/protect" style="display:inline;">
+    <input type="hidden" name="password" value="{{ password }}">
+    <input type="hidden" name="character_id" value="{{ char.id }}">
+    <button type="submit" class="btn">設為保護</button>
+  </form>
+  <form method="post" action="/view/admin/delete" style="display:inline;" onsubmit="return confirm('確定刪除 {{ char.name }}？');">
+    <input type="hidden" name="password" value="{{ password }}">
+    <input type="hidden" name="character_id" value="{{ char.id }}">
+    <button type="submit" class="btn btn-danger">刪除</button>
+  </form>
+  {% endif %}
+  <a href="/view/admin/characters?p={{ password }}" class="btn">角色一覽</a>
+  <a href="/view/admin?p={{ password }}" class="btn">返回管理首頁</a>
+</div>
+{% endblock %}

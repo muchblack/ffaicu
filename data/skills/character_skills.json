@@ -9,21 +9,848 @@
     },
     "atowaza": null
   },
-  "5": {
+  "2": {
     "hissatu": {
       "trigger": { "type": "skill_rate_check", "threshold": 120 },
       "effects": [
-        { "type": "set_damage", "formula": "(mag + job_level) * rand(10) * (rand(15) + 1)", "message": "黑魔法隕石！！！" },
+        { "type": "multi_hit", "hits_formula": "rand(7) + 1", "formula": "(str + job_level) * rand(10) * hits", "message": "必殺技 超究武神覇斬！！！" },
         { "type": "bypass_evasion" }
       ]
     },
     "atowaza": null
   },
+  "3": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(50)", "message": "黑魔法 火焰！！！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "4": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(100)", "message": "黑魔法 核爆！！！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "5": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "multi_hit", "hits_formula": "rand(15) + 1", "formula": "(mag + job_level) * rand(10) * hits", "message": "黑魔法 隕石！！！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "6": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "reduce_attacker_damage", "multiplier": 0.1, "message": "白魔法 乾坤罩！！敵人的傷害被大幅減輕了！" }
+      ]
+    }
+  },
+  "7": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "0", "message": "白魔法 強療術！！" },
+        { "type": "heal_attacker", "formula": "(fai + job_level) + rand(karma)", "message": "{name} 的HP恢復了！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "8": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "(fai + job_level) * rand(80)", "message": "白魔法 神聖！！！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "9": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        {
+          "type": "conditional",
+          "inner_chance": 0.75,
+          "success": {
+            "effects": [
+              { "type": "nullify_enemy_damage", "message": "嚇一跳！！{name} 巧妙地避開了攻擊！" },
+              { "type": "bypass_evasion" }
+            ]
+          },
+          "failure": { "message": "但是沒有成功..." }
+        }
+      ]
+    }
+  },
   "10": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "steal_gold", "formula": "rand(1000) + 1", "message": "使用了 偷金錢！！成功從敵人身上摸到了錢！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "11": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "(dex + job_level) * rand(50)", "message": "生命放逐！！" },
+        { "type": "heal_attacker", "formula": "((dex + job_level) * rand(50)) / 5", "message": "吸取了敵人的生命力！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "12": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "set_damage", "formula": "0", "message": "時空魔法 加速！！" },
+        { "type": "evasion_boost", "message": "{name} 的速度提升到了極限！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "13": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        {
+          "type": "conditional",
+          "inner_chance": 0.75,
+          "success": {
+            "effects": [
+              { "type": "nullify_enemy_damage", "message": "時空魔法 停止！！敵人的動作靜止了！" },
+              { "type": "bypass_evasion" }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "14": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "battle_escape", "message": "時空魔法 傳送！！戰鬥被強制結束了！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "15": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(80)", "message": "赤魔法 龍捲風！！！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "16": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "ignore_defense" },
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(40)", "message": "赤魔法 熔岩！！！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "17": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        {
+          "type": "conditional",
+          "inner_chance": 0.75,
+          "success": {
+            "effects": [
+              { "type": "evasion_boost" },
+              { "type": "nullify_enemy_damage", "message": "赤魔法 防壁！！反射了敵人的攻擊！" }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "18": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "set_damage", "formula": "0", "message": "吟遊詩人 回復之歌 ♪" },
+        { "type": "heal_attacker", "formula": "(cha + job_level) + rand(karma)", "message": "優美的歌聲恢復了傷勢！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "19": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "evasion_boost" },
+        { "type": "multiply_damage", "multiplier": 2, "message": "吟遊詩人 奮勇之歌 ♪ 鬥志燃燒起來了！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "20": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "buff_attack", "multiplier": 2, "message": "吟遊詩人 祝福之歌 ♪ 武器與防具都被強化了！" },
+        { "type": "buff_defense", "multiplier": 2 }
+      ]
+    },
+    "atowaza": null
+  },
+  "21": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(100)", "message": "召喚 伊弗利特！！地獄之火燃燒殆盡！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "22": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        {
+          "type": "conditional",
+          "inner_chance": 0.33,
+          "success": {
+            "effects": [
+              { "type": "set_damage", "formula": "max_hp / 3", "message": "召喚 迪亞波羅斯！！暗黑的重力壓制！" }
+            ]
+          },
+          "failure": { "message": "召喚失敗了..." }
+        }
+      ]
+    },
+    "atowaza": null
+  },
+  "23": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        {
+          "type": "conditional",
+          "inner_chance": 0.75,
+          "success": {
+            "effects": [
+              { "type": "damage_reflect", "message": "召喚 卡邦乖！！紅寶石之光反射了攻擊！" }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "24": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "evasion_boost", "message": "跳躍！！暫時離開了戰場！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "25": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "evasion_boost" },
+        { "type": "bypass_evasion" },
+        { "type": "add_damage", "formula": "(str + job_level) * rand(60)", "message": "高空風！！從天而降的重擊！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "26": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "evasion_boost" },
+        { "type": "bypass_evasion" },
+        { "type": "add_damage", "formula": "(str + dex + job_level) * rand(160)", "message": "旋空飛龍滅殺槍！！華麗的反擊！" }
+      ]
+    }
+  },
+  "27": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(160)", "message": "黑魔法 彗星！！巨大的星體砸落！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "28": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(300)", "message": "神聖魔法 聖戰！！最終審判的時刻！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "29": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 150 },
+      "effects": [
+        { "type": "full_heal", "message": "偉大的福音！！所有的傷口都癒合了！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "30": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "always" },
+      "effects": [
+        { "type": "reduce_attacker_damage", "multiplier": 0.1, "message": "防禦！！將傷害降到了最低！" }
+      ]
+    }
+  },
+  "31": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "buff_attack", "multiplier": 2, "message": "古代魔法 鬥氣！！力量爆發了！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "32": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + fai + job_level) * rand(180)", "message": "神聖斬擊！！神聖的光芒！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "33": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "nullify_enemy_damage", "message": "真劍白刃取！！接住了敵人的刀刃！" }
+      ]
+    }
+  },
+  "34": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + dex + spd + job_level) * rand(80)", "message": "秘劍 燕返！！看不見的快刀！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "35": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "instakill", "inner_chance": 0.2, "fail_message": "斬鐵劍 被架開了！", "message": "斬鐵劍！！將敵人一分為二！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "36": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + dex + spd + job_level) * rand(80)", "message": "氣彈！！爆發的鬥氣！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "37": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "multi_hit", "hits_formula": "rand(7) + 1", "message": "格鬥 亂舞！！如暴風雨般的打擊！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "38": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "all_stats * rand(80)", "message": "最終天堂！！爆發出最強的光芒！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "39": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "evasion_boost", "message": "忍術 影縫之術！！封鎖了敵人的動作！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "40": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "multi_hit", "hits_formula": "rand(7) + 1", "message": "忍術 分身之術！！從四面八方攻擊！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "41": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "all_stats * rand(20)", "message": "奧義 森羅萬象！！自然之力的加護！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "42": {
+    "hissatu": {
+      "trigger": { "type": "always" },
+      "effects": [
+        { "type": "add_damage", "formula": "str * rand(100)", "message": "暗黑劍！！釋放禁斷的力量！" },
+        { "type": "self_damage", "formula": "current_hp / 10", "message": "暗黑的副作用傷害了自己！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "43": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + job_level) * rand(20)", "message": "暗黑魔法 吸取！！" },
+        { "type": "heal_attacker", "formula": "((mag + job_level) * rand(20))", "message": "奪取了敌人的生命力！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "44": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "(mag + job_level) * rand(360)", "message": "暗黑 幻影！！恐怖的幻覺！" },
+        { "type": "heal_attacker", "formula": "((mag + job_level) * rand(360)) / 10", "message": "從幻覺中汲取了力量！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "45": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + mag + job_level) * rand(50)", "message": "火焰劍！！燃燒的刀刃！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "46": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + fai + job_level) * rand(80)", "message": "神聖劍！！神聖的制裁！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "47": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + mag + fai + job_level) * rand(160)", "message": "究極劍！！三位一體的力量！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "48": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "multiply_damage", "multiplier": 2, "message": "狙擊 瞄準目標！！提升了精確度！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "49": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "multi_hit", "hits_formula": "rand(7) + 1", "message": "狙擊 亂射！！箭如雨下！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "50": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "instakill", "inner_chance": 0.33, "fail_message": "差一點就射中了要害！", "message": "狙擊 瞄準要害！！貫穿了一切！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "51": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(200)", "message": "召喚 利維坦！！大海嘯淹沒一切！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "52": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(200)", "message": "召喚 巴哈姆特！！百萬核爆破壞力！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "53": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "multi_hit", "hits_formula": "rand(11) + 1", "formula": "(mag + fai + job_level) * rand(100) * hits", "message": "召喚 圓桌騎士！！連續不斷的猛攻！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "54": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(160)", "message": "禁斷魔法 究極！！毀滅性的魔力！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "55": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "instakill", "inner_chance": 0.33, "message": "時空魔法 放逐！！將敵人送入次元裂縫！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "56": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(360)", "message": "青魔法 衝擊波脈衝！！大氣在震動！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "57": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + job_level) * rand(160)", "message": "愛之分裂！！充滿愛的重擊！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "58": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "(str + job_level) * rand(320)", "message": "爆破領域！！燃燒的戰意！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "59": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "multi_hit", "hits_formula": "rand(15) + 1", "formula": "(str + dex) * rand(80) * hits", "message": "終極之心！！最後的賭注！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "60": {
     "hissatu": {
       "trigger": { "type": "skill_rate_check", "threshold": 100 },
       "effects": [
-        { "type": "add_damage", "formula": "(fai + job_level) * rand(30)", "message": "白魔法神聖！！！" }
+        {
+          "type": "tarot_draw",
+          "cards": [
+            { "effects": [{ "type": "add_damage", "formula": "(mag + fai) * rand(80)" }, { "type": "bypass_evasion" }], "message": "THE MAGICIAN" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + dex) * rand(80)" }, { "type": "bypass_evasion" }], "message": "THE CHARIOT" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + vit) * rand(80)" }, { "type": "bypass_evasion" }], "message": "STRENGTH" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_attacker", "formula": "(mag + fai) * rand(180)" }], "message": "THE HIGH PRIESTESS" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + mag + fai) * rand(80)" }, { "type": "bypass_evasion" }], "message": "THE HIEROPHANT" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + mag + fai) * rand(120)" }, { "type": "bypass_evasion" }], "message": "THE EMPRESS" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + mag + fai) * rand(180)" }, { "type": "bypass_evasion" }], "message": "THE EMPEROR" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_attacker", "formula": "vit * rand(80)" }], "message": "THE LOVERS" },
+            { "effects": [{ "type": "add_damage", "formula": "cha * rand(80)" }, { "type": "bypass_evasion" }], "message": "THE HERMIT" },
+            { "effects": [{ "type": "set_damage", "formula": "seven_stats * rand(80)" }, { "type": "bypass_evasion" }], "message": "WHEEL of FORTUNE" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + fai) * rand(180)" }, { "type": "bypass_evasion" }], "message": "JUSTICE" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }], "message": "THE HANGEDMAN (落空)" },
+            { "effects": [{ "type": "instakill", "inner_chance": 1.0 }, { "type": "bypass_evasion" }], "message": "DEATH" },
+            { "effects": [{ "type": "set_damage", "formula": "seven_stats * rand(80)" }, { "type": "bypass_evasion" }], "message": "TEMPERANCE" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "self_damage", "formula": "current_hp" }], "message": "THE DEVIL (自殺)" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_enemy", "formula": "seven_stats * rand(180)" }], "message": "THE TOWER" },
+            { "effects": [{ "type": "add_damage", "formula": "(fai + cha) * rand(80)" }], "message": "THE STAR" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_attacker", "formula": "(mag + fai) * rand(80)" }], "message": "THE MOON" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + dex) * rand(999)" }, { "type": "bypass_evasion" }], "message": "THE SUN" },
+            { "effects": [{ "type": "add_damage", "formula": "(mag + fai) * rand(999)" }, { "type": "bypass_evasion" }], "message": "THE JUDGEMENT" },
+            { "effects": [{ "type": "set_damage", "formula": "seven_stats * rand(80)" }, { "type": "bypass_evasion" }], "message": "THE WORLD" },
+            { "effects": [{ "type": "set_damage", "formula": "1" }], "message": "THE FOOL" }
+          ],
+          "message": "使用了 塔羅牌！！命運的選擇是..."
+        }
+      ]
+    },
+    "atowaza": null
+  },
+  "61": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 100 },
+      "effects": [
+        {
+          "type": "tarot_draw",
+          "cards": [
+            { "effects": [{ "type": "add_damage", "formula": "(mag + fai) * rand(160)" }, { "type": "bypass_evasion" }], "message": "THE MAGICIAN (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + dex) * rand(160)" }, { "type": "bypass_evasion" }], "message": "THE CHARIOT (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + vit) * rand(160)" }, { "type": "bypass_evasion" }], "message": "STRENGTH (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_attacker", "formula": "(mag + fai) * rand(360)" }], "message": "THE HIGH PRIESTESS (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + mag + fai) * rand(160)" }, { "type": "bypass_evasion" }], "message": "THE HIEROPHANT (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + mag + fai) * rand(240)" }, { "type": "bypass_evasion" }], "message": "THE EMPRESS (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + mag + fai) * rand(360)" }, { "type": "bypass_evasion" }], "message": "THE EMPEROR (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_attacker", "formula": "vit * rand(160)" }], "message": "THE LOVERS (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "cha * rand(160)" }, { "type": "bypass_evasion" }], "message": "THE HERMIT (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "seven_stats * rand(160)" }, { "type": "bypass_evasion" }], "message": "WHEEL of FORTUNE (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + fai) * rand(360)" }, { "type": "bypass_evasion" }], "message": "JUSTICE (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }], "message": "THE HANGEDMAN (改-落空)" },
+            { "effects": [{ "type": "instakill", "inner_chance": 1.0 }, { "type": "bypass_evasion" }], "message": "DEATH (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "seven_stats * rand(160)" }, { "type": "bypass_evasion" }], "message": "TEMPERANCE (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "self_damage", "formula": "current_hp" }], "message": "THE DEVIL (改-自殺)" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_enemy", "formula": "seven_stats * rand(360)" }], "message": "THE TOWER (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(fai + cha) * rand(160)" }], "message": "THE STAR (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "0" }, { "type": "heal_attacker", "formula": "(mag + fai) * rand(160)" }], "message": "THE MOON (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(str + dex) * rand(1998)" }, { "type": "bypass_evasion" }], "message": "THE SUN (改)" },
+            { "effects": [{ "type": "add_damage", "formula": "(mag + fai) * rand(1998)" }, { "type": "bypass_evasion" }], "message": "THE JUDGEMENT (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "seven_stats * rand(160)" }, { "type": "bypass_evasion" }], "message": "THE WORLD (改)" },
+            { "effects": [{ "type": "set_damage", "formula": "2" }], "message": "THE FOOL (改)" }
+          ],
+          "message": "使用了 塔羅牌改！！強大的命運正在降臨..."
+        }
+      ]
+    },
+    "atowaza": null
+  },
+  "62": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(400)", "message": "星塵命運！！星光在閃耀！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "63": {
+    "hissatu": null,
+    "atowaza": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "copy_enemy", "message": "模仿！！完美地複製了敵人的姿態！" }
+      ]
+    }
+  },
+  "64": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 80 },
+      "effects": [
+        { "type": "multi_hit", "hits_formula": "rand(15) + 2", "formula": "(mag + job_level) * rand(20) * hits", "message": "古代魔法 W隕石！！密集的流星群！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "65": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "add_damage", "formula": "500 + (mag + fai) * rand(100)", "message": "禁斷魔法 究極連鎖！！魔力在產生共鳴！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "66": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(800)", "message": "最強魔法 天啟！！世界將迎來終焉！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "67": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(400)", "message": "趁著黑暗襲擊！！在陰影中降下制裁！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "68": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(1000)", "message": "真獄剎！！地獄的深淵在招喚！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "69": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "0" },
+        { "type": "heal_attacker", "formula": "(fai + vit + job_level) + rand(karma)", "message": "光降臨！！溫暖的光芒包圍了全身！" }
+      ]
+    },
+    "atowaza": null
+  },
+  "70": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(1000)", "message": "歐米茄神聖！！終極的機械制裁！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "71": { "hissatu": null, "atowaza": null },
+  "72": { "hissatu": null, "atowaza": null },
+  "73": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(500)", "message": "神極劍！！神靈的力量！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "74": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(1500)", "message": "神極劍 奧義羅剎！！修羅之舞！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "75": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(500)", "message": "聖終極之心！！聖潔的光輝！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "76": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(1200)", "message": "閃電塵暴！！狂風與雷鳴！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "77": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(800)", "message": "亞邦斬擊！！傳說中的劍技！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "78": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 180 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(1800)", "message": "超極大爆裂！！毀天滅地的威力！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "79": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 120 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(1200)", "message": "榮耀之光！！戰場上的救贖！" },
+        { "type": "bypass_evasion" }
+      ]
+    },
+    "atowaza": null
+  },
+  "80": {
+    "hissatu": {
+      "trigger": { "type": "skill_rate_check", "threshold": 150 },
+      "effects": [
+        { "type": "set_damage", "formula": "all_stats * rand(2400)", "message": "神魔法 終極破壞者！！抹除一切的存在！" },
+        { "type": "bypass_evasion" }
       ]
     },
     "atowaza": null

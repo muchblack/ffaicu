@@ -3,7 +3,568 @@
   "1": {
     "trigger": { "type": "monster_skill_rate" },
     "effects": [
-      { "type": "reduce_attacker_damage", "multiplier": 0.1, "message": "防禦魔法護盾！！！" }
+      { "type": "add_damage", "formula": "(str + job_level) * rand(50)", "message": "怪力打擊！！" }
+    ]
+  },
+  "2": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(7) + 1", "formula": "(str + job_level) * rand(10) * hits", "message": "連續猛攻！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "3": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + job_level) * rand(50)", "message": "魔物火焰！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "4": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + job_level) * rand(100)", "message": "魔力爆炸！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "5": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(15) + 1", "formula": "(mag + job_level) * rand(10) * hits", "message": "隕石雨！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "6": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.1, "message": "防護屏障！！" }
+    ]
+  },
+  "7": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "0" },
+      { "type": "heal_attacker", "formula": "(fai + job_level) + rand(karma)", "message": "自我再生！！" }
+    ]
+  },
+  "8": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(fai + job_level) * rand(80)", "message": "邪惡神聖！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "9": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.75,
+        "success": {
+          "effects": [
+            { "type": "nullify_enemy_damage", "message": "幻影步！！" },
+            { "type": "bypass_evasion" }
+          ]
+        }
+      }
+    ]
+  },
+  "10": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "steal_gold", "formula": "rand(1000) + 1", "message": "搶奪金錢！！" }
+    ]
+  },
+  "11": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(dex + job_level) * rand(50)", "message": "吸魂術！！" },
+      { "type": "heal_attacker", "formula": "((dex + job_level) * rand(50)) / 5" }
+    ]
+  },
+  "12": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "0" },
+      { "type": "evasion_boost", "message": "超高速移動！！" }
+    ]
+  },
+  "13": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.75,
+        "success": {
+          "effects": [
+            { "type": "nullify_enemy_damage", "message": "時間停止！！" },
+            { "type": "bypass_evasion" }
+          ]
+        }
+      }
+    ]
+  },
+  "14": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "battle_escape", "message": "遁走術！！魔物逃走了！" }
+    ]
+  },
+  "15": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + job_level) * rand(80)", "message": "大龍捲！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "16": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "ignore_defense" },
+      { "type": "set_damage", "formula": "(mag + job_level) * rand(40)", "message": "熔岩噴發！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "17": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.75,
+        "success": {
+          "effects": [
+            { "type": "evasion_boost" },
+            { "type": "nullify_enemy_damage", "message": "反射魔障！！" }
+          ]
+        }
+      }
+    ]
+  },
+  "18": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "0" },
+      { "type": "heal_attacker", "formula": "(cha + job_level) + rand(karma)", "message": "安魂曲！！" }
+    ]
+  },
+  "19": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "evasion_boost" },
+      { "type": "multiply_damage", "multiplier": 2, "message": "戰吼！！" }
+    ]
+  },
+  "20": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "buff_attack", "multiplier": 2, "message": "強化咆哮！！" },
+      { "type": "buff_defense", "multiplier": 2 }
+    ]
+  },
+  "21": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + job_level) * rand(100)", "message": "烈焰衝擊！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "22": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.33,
+        "success": {
+          "effects": [
+            { "type": "set_damage", "formula": "max_hp / 3", "message": "暗黑引力！！" }
+          ]
+        }
+      }
+    ]
+  },
+  "23": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      {
+        "type": "conditional",
+        "inner_chance": 0.75,
+        "success": {
+          "effects": [
+            { "type": "damage_reflect", "message": "光學迷彩！！反射了攻擊！" }
+          ]
+        }
+      }
+    ]
+  },
+  "24": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "evasion_boost", "message": "飛天！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "25": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "evasion_boost" },
+      { "type": "bypass_evasion" },
+      { "type": "add_damage", "formula": "(str + job_level) * rand(60)", "message": "高空俯衝！！" }
+    ]
+  },
+  "26": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "evasion_boost" },
+      { "type": "bypass_evasion" },
+      { "type": "add_damage", "formula": "(str + dex + job_level) * rand(160)", "message": "飛龍滅殺擊！！" }
+    ]
+  },
+  "27": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + job_level) * rand(160)", "message": "暗黑彗星！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "28": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(300)", "message": "末日審判！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "29": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "full_heal", "message": "聖母頌！！HP完全恢復了！" }
+    ]
+  },
+  "30": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "reduce_attacker_damage", "multiplier": 0.1, "message": "堅固防禦！！" }
+    ]
+  },
+  "31": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "buff_attack", "multiplier": 2, "message": "鬥氣爆發！！" }
+    ]
+  },
+  "32": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + fai + job_level) * rand(180)", "message": "神聖裂痕！！" }
+    ]
+  },
+  "33": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "nullify_enemy_damage", "message": "空手入白刃！！" }
+    ]
+  },
+  "34": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + dex + spd + job_level) * rand(80)", "message": "真空斬！！" }
+    ]
+  },
+  "35": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "instakill", "inner_chance": 0.2, "message": "死神之鐮！！" }
+    ]
+  },
+  "36": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + dex + spd + job_level) * rand(80)", "message": "波動彈！！" }
+    ]
+  },
+  "37": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(7) + 1", "message": "野性亂舞！！" }
+    ]
+  },
+  "38": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "all_stats * rand(80)", "message": "最終毀滅！！" }
+    ]
+  },
+  "39": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "evasion_boost", "message": "影子模仿！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "40": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(7) + 1", "message": "殘像擊！！" }
+    ]
+  },
+  "41": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "all_stats * rand(20)", "message": "森羅萬象！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "42": {
+    "trigger": { "type": "always" },
+    "effects": [
+      { "type": "add_damage", "formula": "str * rand(100)", "message": "暗黑衝擊！！" },
+      { "type": "self_damage", "formula": "current_hp / 10" }
+    ]
+  },
+  "43": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + job_level) * rand(20)", "message": "靈魂吸取！！" },
+      { "type": "heal_attacker", "formula": "((mag + job_level) * rand(20))" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "44": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(mag + job_level) * rand(360)", "message": "幽靈幻影！！" },
+      { "type": "heal_attacker", "formula": "((mag + job_level) * rand(360)) / 10" }
+    ]
+  },
+  "45": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + mag + job_level) * rand(50)", "message": "魔焰劍！！" }
+    ]
+  },
+  "46": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + fai + job_level) * rand(80)", "message": "神罰！！" }
+    ]
+  },
+  "47": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + mag + fai + job_level) * rand(160)", "message": "三界制裁！！" }
+    ]
+  },
+  "48": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multiply_damage", "multiplier": 2, "message": "精確追蹤！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "49": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(7) + 1", "message": "狂亂狙擊！！" }
+    ]
+  },
+  "50": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "instakill", "inner_chance": 0.33, "message": "致死打擊！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "51": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(200)", "message": "波濤怒吼！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "52": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(200)", "message": "龍王吐息！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "53": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(11) + 1", "formula": "(mag + fai + job_level) * rand(100) * hits", "message": "王者之軍！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "54": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "(mag + fai + job_level) * rand(160)", "message": "深淵禁咒！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "55": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "instakill", "inner_chance": 0.33, "message": "時空吞噬！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "56": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(360)", "message": "強磁脈衝！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "57": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + job_level) * rand(160)", "message": "混亂打擊！！" }
+    ]
+  },
+  "58": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "(str + job_level) * rand(320)", "message": "震爆氣流！！" }
+    ]
+  },
+  "59": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(15) + 1", "formula": "(str + dex) * rand(80) * hits", "message": "魔物之心！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "60": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "all_stats * rand(200)", "message": "命運賭注！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "61": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "all_stats * rand(400)", "message": "強化的命運！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "62": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(400)", "message": "星雲崩壞！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "63": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "copy_enemy", "message": "完美模仿！！" }
+    ]
+  },
+  "64": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "multi_hit", "hits_formula": "rand(15) + 2", "formula": "(mag + job_level) * rand(20) * hits", "message": "雙重隕石！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "65": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "add_damage", "formula": "500 + (mag + fai) * rand(100)", "message": "魔力連鎖！！" }
+    ]
+  },
+  "66": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(800)", "message": "終焉時刻！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "67": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(400)", "message": "影之突襲！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "68": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(1000)", "message": "阿修羅地獄！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "69": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "0" },
+      { "type": "heal_attacker", "formula": "(fai + vit + job_level) + rand(karma)", "message": "神蹟再生！！" }
+    ]
+  },
+  "70": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(1000)", "message": "歐米茄射線！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "71": null,
+  "72": null,
+  "73": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(500)", "message": "邪神劍！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "74": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(1500)", "message": "羅剎門！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "75": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(500)", "message": "異形之心！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "76": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(1200)", "message": "虛空風暴！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "77": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(800)", "message": "亞邦破壞！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "78": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(1800)", "message": "混沌大爆烈！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "79": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(1200)", "message": "暗黑之光！！" },
+      { "type": "bypass_evasion" }
+    ]
+  },
+  "80": {
+    "trigger": { "type": "monster_skill_rate" },
+    "effects": [
+      { "type": "set_damage", "formula": "all_stats * rand(2400)", "message": "終極虛無！！" },
+      { "type": "bypass_evasion" }
     ]
   }
 }

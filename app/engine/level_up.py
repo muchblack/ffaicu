@@ -19,8 +19,8 @@ def check_level_up(
     """檢查並執行升級。回傳 (new_level, new_exp, new_stats, new_max_hp)。"""
     jobs = _load_jobs()
     job_def = jobs.get(str(job_class), {})
-    levelup_ranges = job_def.get("levelup_ranges", [2, 2, 2, 2, 2, 2, 2])
-    stat_names = ["str", "mag", "fai", "vit", "dex", "spd", "cha"]
+    levelup_ranges = job_def.get("levelup_ranges", [2, 2, 2, 2, 2, 2, 2, 1])
+    stat_names = ["str", "mag", "fai", "vit", "dex", "spd", "cha", "karma"]
 
     new_level = level
     new_exp = exp

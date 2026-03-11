@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}必殺技一覽 - 管理模式{% endblock %}
+{% block content %}
+<h1>必殺技（戰術）一覽</h1>
+<p>共 {{ tactics|length }} 個戰術</p>
+
+<table>
+<tr><th>ID</th><th>名稱</th><th>說明</th><th>需精通</th><th>適用職業</th></tr>
+{% for t in tactics %}
+<tr>
+  <td>{{ t.id }}</td>
+  <td>{{ t.name }}</td>
+  <td style="font-size:12px;">{{ t.description }}</td>
+  <td>{% if t.mastery_required %}<span class="msg-warn">是</span>{% else %}-{% endif %}</td>
+  <td style="font-size:11px;">{% if t.job_names|length > 8 %}{{ t.job_names[:8]|join(', ') }}...{% else %}{{ t.job_names|join(', ') }}{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h2 style="margin-top:20px;">角色技能（JSON 定義）</h2>
+<p>共 {{ char_skills|length }} 個技能定義</p>
+<table>
+<tr><th>技能ID (職業)</th><th>必殺技</th><th>後技</th></tr>
+{% for s in char_skills %}
+<tr>
+  <td>{{ s.id }} ({{ s.job_name }})</td>
+  <td style="font-size:12px;">{% if s.has_hissatu %}<span class="msg-success">有</span> — {{ s.hissatu_desc }}{% else %}-{% endif %}</td>
+  <td style="font-size:12px;">{% if s.has_atowaza %}<span class="msg-success">有</span>{% else %}-{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h2 style="margin-top:20px;">飾品技能</h2>
+<p>共 {{ acs_skills|length }} 個飾品技能</p>
+<table>
+<tr><th>ID</th><th>觸發</th><th>效果</th></tr>
+{% for s in acs_skills %}
+<tr>
+  <td>{{ s.id }}</td>
+  <td>{{ s.trigger }}</td>
+  <td style="font-size:12px;">{{ s.effects }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<div style="margin-top:12px;">
+  <a href="/view/admin?p={{ password }}" class="btn">返回管理首頁</a>
+</div>
+{% endblock %}
