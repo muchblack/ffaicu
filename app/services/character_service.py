@@ -19,25 +19,6 @@ def _load_jobs() -> dict:
         return json.load(f)
 
 
-def allocate_stat(db: Session, char: Character, stat_name: str) -> dict:
-    valid = {"str", "mag", "fai", "vit", "dex", "spd", "cha"}
-    if stat_name not in valid:
-        return {"error": f"無效的能力值: {stat_name}"}
-
-    # karma 作為可分配點數
-    if char.karma <= 0:
-        return {"error": "沒有可分配的點數"}
-
-    attr = "str_" if stat_name == "str" else stat_name
-    current = getattr(char, attr)
-    if current >= settings.chara_max_stat:
-        return {"error": "能力值已達上限"}
-
-    setattr(char, attr, current + 1)
-    char.karma -= 1
-    db.commit()
-    return {"message": f"{stat_name}提升了1點", stat_name: current + 1, "karma": char.karma}
-
 
 def _check_job_available(
     char: Character, target_job: int, job_data: dict, masteries: dict[int, int],
