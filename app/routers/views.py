@@ -111,6 +111,9 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
     if not user:
         return RedirectResponse("/view/home")
 
+    # 每日重置剩餘戰鬥次數
+    battle_service._reset_daily_battles(user)
+
     # 更新線上狀態
     now = int(time.time())
     online = db.query(OnlinePlayer).filter(OnlinePlayer.character_id == user.id).first()
@@ -187,6 +190,58 @@ def view_battle_select(request: Request, db: Session = Depends(get_db), ffa_toke
         return RedirectResponse("/view/home")
     result = battle_service.fight_pvp(db, user, opponent_id)
     return templates.TemplateResponse("battle_result.html", {"request": request, "result": result})
+
+
+# === 修改密碼 ===
+
+@router.get("/change-password", response_class=HTMLResponse)
+def view_change_password(request: Request, db: Session = Depends(get_db), ffa_token: str = Cookie(default=None)):
+    user = _get_user(db, ffa_token)
+    if not user:
+        return RedirectResponse("/view/home")
+    return templates.TemplateResponse("change_password.html", {
+        "request": request, "error": None, "success": None,
+    })
+
+
+@router.post("/change-password", response_class=HTMLResponse)
+def view_change_password_post(
+    request: Request,
+    db: Session = Depends(get_db),
+    ffa_token: str = Cookie(default=None),
+    current_password: str = Form(...),
+    recovery_word: str = Form(...),
+    new_password: str = Form(...),
+    confirm_password: str = Form(...),
+):
+    from app.services.auth_service import hash_password, verify_password
+
+    user = _get_user(db, ffa_token)
+    if not user:
+        return RedirectResponse("/view/home")
+
+    if not verify_password(current_password, user.password_hash):
+        return templates.TemplateResponse("change_password.html", {
+            "request": request, "error": "目前密碼錯誤", "success": None,
+        })
+    if recovery_word != user.password_recovery:
+        return templates.TemplateResponse("change_password.html", {
+            "request": request, "error": "密語錯誤", "success": None,
+        })
+    if new_password != confirm_password:
+        return templates.TemplateResponse("change_password.html", {
+            "request": request, "error": "新密碼不一致", "success": None,
+        })
+    if len(new_password) < 4:
+        return templates.TemplateResponse("change_password.html", {
+            "request": request, "error": "新密碼至少 4 個字元", "success": None,
+        })
+
+    user.password_hash = hash_password(new_password)
+    db.commit()
+    return templates.TemplateResponse("change_password.html", {
+        "request": request, "error": None, "success": "密碼已變更成功！",
+    })
 
 
 # === 商店 ===

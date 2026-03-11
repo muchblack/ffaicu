@@ -39,6 +39,7 @@ class Character(Base):
     win_count = Column(Integer, default=0)                       # [22]
     battle_cry = Column(String(128), default="")                 # [23]
     available_battles = Column(Integer, default=9999)            # [25]
+    last_battle_reset = Column(String(10), default="")           # YYYY-MM-DD 上次重置日期
     last_battle_time = Column(BigInteger, default=0)             # [27]
     boss_counter = Column(Integer, default=0)                    # [28]
 

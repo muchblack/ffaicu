@@ -219,6 +219,15 @@ def check_cooldown(char: Character, cooldown: int) -> int:
     return max(0, cooldown - (int(time.time()) - int(char.last_battle_time)))
 
 
+def _reset_daily_battles(char: Character) -> None:
+    """若跨日則重置剩餘戰鬥次數。"""
+    from datetime import date
+    today = date.today().isoformat()
+    if char.last_battle_reset != today:
+        char.available_battles = settings.sentou_limit
+        char.last_battle_reset = today
+
+
 def fight_champion(db: Session, char: Character) -> dict:
     remaining = check_cooldown(char, settings.b_time)
     if remaining > 0:
@@ -260,6 +269,8 @@ def fight_champion(db: Session, char: Character) -> dict:
 
 
 def fight_monster(db: Session, char: Character, zone: str) -> dict:
+    _reset_daily_battles(char)
+
     remaining = check_cooldown(char, settings.m_time)
     if remaining > 0:
         return {"error": f"請再等{remaining}秒"}
