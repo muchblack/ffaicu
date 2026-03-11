@@ -106,21 +106,19 @@ class BattleEngine:
             a_hp = min(a_hp, attacker.max_hp)
             d_hp = min(d_hp, defender.max_hp)
 
-            # 10. 戰鬥紀錄（每回合固定輸出）
-            state.log_lines.append(
+            # 10. 戰鬥紀錄（回合標題 → 傷害結算 → 技能發動）
+            skill_lines = state.log_lines
+            state.log_lines = [
                 f"第{i}回合 [{attacker.name} HP:{max(0,a_hp)}/{attacker.max_hp}]"
-                f" vs [{defender.name} HP:{max(0,d_hp)}/{defender.max_hp}]"
-            )
-            state.log_lines.append(
-                f"對{defender.name}造成了 {state.attacker_dmg} 點傷害。"
-            )
-            state.log_lines.append(
-                f"{defender.name}對{attacker.name}造成了 {state.defender_dmg} 點傷害。"
-            )
+                f" vs [{defender.name} HP:{max(0,d_hp)}/{defender.max_hp}]",
+                f"對{defender.name}造成了 {state.attacker_dmg} 點傷害。",
+                f"{defender.name}對{attacker.name}造成了 {state.defender_dmg} 點傷害。",
+            ]
             if state.attacker_hp_heal > 0:
                 state.log_lines.append(f"{attacker.name}回復了 {state.attacker_hp_heal} HP。")
             if state.defender_hp_heal > 0:
                 state.log_lines.append(f"{defender.name}回復了 {state.defender_hp_heal} HP。")
+            state.log_lines.extend(skill_lines)
 
             rounds.append(state)
 

@@ -221,8 +221,10 @@ def _apply_effect(effect: dict, state: RoundState, combatant: Combatant, is_atta
         state.battle_escaped = True
         if is_attacker:
             state.attacker_dmg = 0
+            state.defender_dmg = 0
         else:
             state.defender_dmg = 0
+            state.attacker_dmg = 0
 
     elif effect_type == "steal_gold":
         amount = evaluate(effect["formula"], variables)
