@@ -260,6 +260,8 @@ def fight_champion(db: Session, char: Character) -> dict:
         champ.win_streak = 1
         champ.bounty = 0
         champ.snapshot_json = _make_champion_snapshot(char, char.equipment)
+        # Perl battle.cgi L152: $chara[28] = $boss — 打敗冠軍取得武道會參賽資格
+        char.tenka_counter = settings.boss
         db.commit()
         resp["became_champion"] = True
     else:

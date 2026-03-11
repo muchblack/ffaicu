@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     sentou_limit: int = 9999     # 每日可戰鬥次數上限
     yado_dai: int = 10           # 旅店費用係數（費用 = level * yado_dai）
 
+    # 武道會（原 tenka.cgi）
+    tenka_su: int = 3            # 武道會參賽人數
+    kiso_exp: int = 30           # 武道會經驗值乘數（對手等級 × 此值）
+    syoukin: int = 500           # 武道會賞金係數
+    boss: int = 10               # 武道會計數器初始值（打敗冠軍後設定此值）
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 

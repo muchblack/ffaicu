@@ -41,7 +41,8 @@ class Character(Base):
     available_battles = Column(Integer, default=9999)            # [25]
     last_battle_reset = Column(String(10), default="")           # YYYY-MM-DD 上次重置日期
     last_battle_time = Column(BigInteger, default=0)             # [27]
-    boss_counter = Column(Integer, default=0)                    # [28]
+    boss_counter = Column(Integer, default=0)                    # [28] Boss 勝利計數
+    tenka_counter = Column(Integer, default=0)                   # 武道會進度（0=未參賽, boss=可參賽, 遞減至制覇）
 
     # 戰技（原 Perl chara[30]：戰術選擇 = 戰鬥技能）
     tactic_id = Column(Integer, default=0)                       # [30]

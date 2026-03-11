@@ -1,0 +1,96 @@
+{% extends "base_rpg.html" %}
+{% block title %}天下第一武道會 - FF ADVENTURE{% endblock %}
+{% block content %}
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">swords</span> 天下第一武道會</h1>
+</header>
+
+{% if status == "not_eligible" %}
+<section class="fantasy-border mb-6">
+  <p class="rpg-hint"><span class="material-symbols-outlined">block</span> 一度、冠軍に挑戦してから参加してください。</p>
+  <p class="text-xs mt-2" style="color:var(--text-muted);">先挑戰冠軍取得參賽資格後，方可參加武道會。</p>
+</section>
+
+{% elif status == "conquered" %}
+<section class="fantasy-border mb-6" style="border-color:rgba(250,204,21,0.4);">
+  <p style="color:var(--gold);font-size:1.3em;font-weight:bold;">
+    <span class="material-symbols-outlined">emoji_events</span> 恭喜制覇武道會！
+  </p>
+  <p class="text-xs mt-2" style="color:var(--text-muted);">再次挑戰冠軍後可重新參賽。</p>
+</section>
+
+{% elif status == "in_progress" %}
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">group</span> 參賽者一覽</h2>
+  <table class="rpg-table">
+    <thead>
+      <tr><th>排名</th><th>名稱</th><th>等級</th><th>狀態</th></tr>
+    </thead>
+    <tbody>
+      {% for p in participants %}
+      <tr{% if p.is_current %} style="color:var(--gold);font-weight:bold;"{% endif %}>
+        <td>{{ p.rank }}</td>
+        <td>{{ p.name }}</td>
+        <td>Lv.{{ p.level }}</td>
+        <td>
+          {% if p.fight_status == "current" %}
+            <span class="material-symbols-outlined text-sm">star</span> 現在對手
+          {% elif p.fight_status == "defeated" %}
+            <span style="color:#4ade80;">已擊敗</span>
+          {% else %}
+            <span style="color:var(--text-muted);">待機中</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">swords</span> 挑戰</h2>
+  <p class="mb-3">
+    進度：第 <b style="color:var(--gold);">{{ fight_number }}</b> / {{ total_fights }} 戰
+    {% if current_opponent %}
+    — 對手：<b style="color:var(--gold);">{{ current_opponent.name }}</b>（Lv.{{ current_opponent.level }}）
+    {% endif %}
+  </p>
+  {% if cooldown > 0 %}
+    <p class="rpg-hint">
+      <span class="material-symbols-outlined">hourglass_top</span>
+      冷卻中，請等待 <b>{{ cooldown }}</b> 秒
+    </p>
+  {% elif current_opponent %}
+    <form method="post" action="/view/tournament/fight">
+      <button type="submit" class="rpg-btn rpg-btn-rich">
+        <span class="material-symbols-outlined">swords</span> 挑戰 {{ current_opponent.name }}！
+      </button>
+    </form>
+  {% else %}
+    <p class="rpg-hint">對手不足，無法進行武道會。</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if history %}
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">emoji_events</span> 歷代制覇者</h2>
+  <table class="rpg-table">
+    <thead>
+      <tr><th>#</th><th>制覇者</th><th>時間</th></tr>
+    </thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.id }}</td>
+        <td style="color:var(--gold);font-weight:bold;">{{ h.winner_name }}</td>
+        <td class="text-xs">{{ h.created_at_fmt }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回狀態</a>
+{% endblock %}

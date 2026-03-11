@@ -1,0 +1,56 @@
+{% extends "base_rpg.html" %}
+{% block title %}武道會戰鬥結果{% endblock %}
+{% block content %}
+<header class="fantasy-border mb-6">
+  <h1 class="section-title text-3xl"><span class="material-symbols-outlined">swords</span> 武道會 — 第{{ result.fight_number }} / {{ result.total_fights }}戰</h1>
+</header>
+
+<!-- Outcome Banner -->
+<div class="outcome-banner mb-6 {% if result.outcome == 'win' %}outcome-win{% else %}outcome-lose{% endif %}">
+  {% if result.outcome == "win" %}&#9733; 勝利！！！ &#9733;
+  {% else %}&#10007; 敗北… &#10007;{% endif %}
+</div>
+
+<p class="text-center mb-4 text-lg">vs <b>{{ result.opponent_name }}</b>（Lv.{{ result.opponent_level }}）</p>
+
+{% if result.conquered %}
+<div class="fantasy-border mb-6" style="border-color:rgba(250,204,21,0.5);text-align:center;">
+  <p style="color:var(--gold);font-size:1.5em;font-weight:bold;">
+    &#9733;&#9733;&#9733; 武道會制覇！！！ &#9733;&#9733;&#9733;
+  </p>
+</div>
+{% endif %}
+
+<!-- Stats -->
+<section class="fantasy-border mb-6">
+  <table class="rpg-table">
+    <tr><th>剩餘HP</th><td>{{ result.attacker_hp }}</td></tr>
+    <tr><th>獲得EXP</th><td>{{ result.exp_gained }}</td></tr>
+    {% if result.outcome == "win" %}
+    <tr><th>獲得Gold</th><td class="text-gold font-bold">{{ "{:,}".format(result.gold_gained) }}G</td></tr>
+    {% else %}
+    <tr><th>失去Gold</th><td class="msg-error font-bold">金幣減半</td></tr>
+    <tr><th>進度</th><td class="msg-error">重置，需從頭再來</td></tr>
+    {% endif %}
+    {% if result.level_ups and result.level_ups > 0 %}
+    <tr><th>升級！</th><td class="msg-success font-bold">提升了{{ result.level_ups }}級！</td></tr>
+    {% endif %}
+  </table>
+</section>
+
+{% if result.battle_log %}
+<section class="fantasy-border mb-6">
+  <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">description</span> 戰鬥紀錄</h2>
+  <div class="battle-log">
+    {% for line in result.battle_log %}
+    <div>{{ line }}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div class="flex gap-3">
+  <a href="/view/tournament" class="rpg-btn rpg-btn-rich"><span class="material-symbols-outlined">swords</span> 回到武道會</a>
+  <a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回狀態頁</a>
+</div>
+{% endblock %}
