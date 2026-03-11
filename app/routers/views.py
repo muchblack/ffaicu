@@ -149,6 +149,8 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
         status_msg = "HP 已經是滿的了"
         status_msg_type = "info"
 
+    title_name = _TITLE_NAMES[min(user.title_rank, len(_TITLE_NAMES) - 1)]
+
     return templates.TemplateResponse("status.html", {
         "request": request, "char": user, "equip": user.equipment,
         "job_name": job_name, "champion": champion, "cooldown": cooldown,
@@ -156,6 +158,7 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
         "hunt_zones": hunt_zones, "zone_labels": _ZONE_LABELS,
         "lv_up": settings.lv_up, "last_zone": user.last_zone or "",
         "status_msg": status_msg, "status_msg_type": status_msg_type,
+        "title_name": title_name,
     })
 
 
@@ -429,7 +432,7 @@ def view_job(request: Request, db: Session = Depends(get_db), ffa_token: str = C
         return RedirectResponse("/view/home")
     jobs = _load_jobs()
     from app.models.job_mastery import JobMastery
-    from app.services.character_service import _check_job_available
+    from app.services.character_service import _check_job_available, get_job_requirements
     masteries = {m.job_class: m.mastery_level for m in db.query(JobMastery).filter(JobMastery.character_id == user.id).all()}
     masteries[user.job_class] = user.job_level
     job_list = []
@@ -437,10 +440,12 @@ def view_job(request: Request, db: Session = Depends(get_db), ffa_token: str = C
         jid = int(k)
         m = masteries.get(jid, 0)
         err = _check_job_available(user, jid, v, masteries) if jid != user.job_class else None
+        reqs = get_job_requirements(user, v, masteries) if jid != user.job_class else []
         job_list.append({
             "id": jid, "name": v["name"], "mastery": m, "mastered": m >= 60,
             "available": err is None and jid != user.job_class,
             "locked_reason": err,
+            "requirements": reqs,
         })
     current_name = jobs.get(str(user.job_class), {}).get("name", "不明")
     return templates.TemplateResponse("job_change.html", {
@@ -1444,6 +1449,8 @@ _ZONE_LABELS = {
     "boss3": "傳說之地 Lv3 — 蓋亞之力",
 }
 _ZONE_ORDER = ["low", "normal", "high", "special", "genei", "isekai", "boss0", "boss1", "boss2", "boss3"]
+
+_TITLE_NAMES = battle_service._TITLE_NAMES
 
 
 @router.get("/admin/monsters", response_class=HTMLResponse)

@@ -23,6 +23,8 @@ from app.models.character import Character
 from app.models.equipment import CharacterEquipment
 from app.models.monster import Monster
 
+_TITLE_NAMES = ["新手", "冒險者", "熟練者", "勇者", "傳說的霸者"]
+
 
 def _char_to_combatant(char: Character, equip: CharacterEquipment | None) -> Combatant:
     eq = equip or CharacterEquipment()
@@ -332,6 +334,7 @@ def fight_boss(db: Session, char: Character, boss_tier: int) -> dict:
         if char.boss_counter >= 10 and char.title_rank <= boss_tier:
             char.title_rank = boss_tier + 1
             resp["title_rank_up"] = True
+            resp["new_title"] = _TITLE_NAMES[min(char.title_rank, len(_TITLE_NAMES) - 1)]
         db.commit()
 
     resp["monster_name"] = mon.name

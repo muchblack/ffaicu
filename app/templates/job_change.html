@@ -44,20 +44,33 @@
 
 <section class="fantasy-border mb-6">
   <h2 class="section-title"><span class="material-symbols-outlined text-sm" style="opacity:0.7">lock</span> 尚未開放的職業</h2>
-  <table class="rpg-table">
-    <thead><tr><th>職業</th><th>熟練度</th><th>條件</th></tr></thead>
-    <tbody>
-    {% for job in jobs %}
-    {% if not job.available and job.id != current_job %}
-    <tr>
-      <td>{{ job.name }}</td>
-      <td>{{ job.mastery }}/60</td>
-      <td class="msg-warn">{{ job.locked_reason }}</td>
-    </tr>
+  {% for job in jobs %}
+  {% if not job.available and job.id != current_job %}
+  <div class="glass-card p-4 mb-3">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="font-bold text-lg">{{ job.name }}</span>
+      <span class="badge">熟練度 {{ job.mastery }}/60</span>
+    </div>
+    {% if job.requirements %}
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:0.5rem;">
+      {% for req in job.requirements %}
+      <div class="flex items-center gap-2 text-sm" style="padding:0.25rem 0.5rem; border-radius:0.25rem; background:rgba(255,255,255,0.03);">
+        {% if req.met %}
+        <span style="color:#4ade80;">&#10004;</span>
+        <span>{{ req.label }}</span>
+        <span class="font-mono" style="color:#4ade80;">{{ req.current }}/{{ req.required }}</span>
+        {% else %}
+        <span style="color:#f87171;">&#10008;</span>
+        <span>{{ req.label }}</span>
+        <span class="font-mono" style="color:#f87171;">{{ req.current }}/{{ req.required }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
     {% endif %}
-    {% endfor %}
-    </tbody>
-  </table>
+  </div>
+  {% endif %}
+  {% endfor %}
 </section>
 
 <a href="/view/status" class="rpg-btn"><span class="material-symbols-outlined">arrow_back</span> 返回</a>

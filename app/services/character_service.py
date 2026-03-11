@@ -41,6 +41,40 @@ def _check_job_available(
     return None
 
 
+def get_job_requirements(
+    char: Character, job_data: dict, masteries: dict[int, int],
+) -> list[dict]:
+    """回傳完整轉職條件列表，每項含 label / required / current / met。"""
+    _STAT_LABELS = {"str": "STR", "mag": "MAG", "fai": "FAI", "vit": "VIT",
+                    "dex": "DEX", "spd": "SPD", "cha": "CHA", "karma": "業"}
+    stat_map = {"str": char.str_, "mag": char.mag, "fai": char.fai, "vit": char.vit,
+                "dex": char.dex, "spd": char.spd, "cha": char.cha, "karma": char.karma}
+    jobs = _load_jobs()
+    result = []
+
+    for stat, required in job_data.get("stat_requirements", {}).items():
+        current = stat_map.get(stat, 0)
+        result.append({
+            "label": _STAT_LABELS.get(stat, stat.upper()),
+            "required": required,
+            "current": current,
+            "met": current >= required,
+        })
+
+    for job_id_str, req_level in job_data.get("prerequisite_masteries", {}).items():
+        job_id = int(job_id_str)
+        current = masteries.get(job_id, 0)
+        prereq_name = jobs.get(str(job_id), {}).get("name", f"職業{job_id}")
+        result.append({
+            "label": f"{prereq_name} 熟練度",
+            "required": req_level,
+            "current": current,
+            "met": current >= req_level,
+        })
+
+    return result
+
+
 def change_job(db: Session, char: Character, target_job: int) -> dict:
     if target_job < 0 or target_job > 30:
         return {"error": "無效的職業"}

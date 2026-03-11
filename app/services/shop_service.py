@@ -8,6 +8,7 @@ from app.config import settings
 from app.models.character import Character
 from app.models.equipment import CharacterEquipment
 from app.models.item_catalog import AccessoryCatalog, ArmorCatalog, WeaponCatalog
+from app.models.warehouse import WarehouseItem
 
 
 def _deduct_gold(char: Character, price: int) -> str | None:
@@ -28,47 +29,89 @@ def buy_weapon(db: Session, char: Character, weapon_id: int) -> dict:
     weapon = db.query(WeaponCatalog).filter(WeaponCatalog.id == weapon_id).first()
     if not weapon:
         return {"error": "找不到武器"}
+
+    equip = char.equipment or CharacterEquipment(character_id=char.id)
+
+    # 舊裝備存倉庫
+    if equip.weapon_name and equip.weapon_name != "徒手":
+        wh_count = db.query(WarehouseItem).filter(
+            WarehouseItem.character_id == char.id,
+            WarehouseItem.item_type == "weapon",
+        ).count()
+        if wh_count >= settings.item_max:
+            return {"error": "武器倉庫已滿，請先清理倉庫"}
+        old_cat = db.query(WeaponCatalog).filter(WeaponCatalog.name == equip.weapon_name).first()
+        if old_cat:
+            db.add(WarehouseItem(character_id=char.id, item_type="weapon", catalog_id=old_cat.id))
+
     err = _deduct_gold(char, weapon.price)
     if err:
         return {"error": err}
 
-    equip = char.equipment or CharacterEquipment(character_id=char.id)
     equip.weapon_name = weapon.name
     equip.weapon_attack = weapon.attack
     equip.weapon_accuracy = weapon.accuracy_bonus
     if not char.equipment:
         db.add(equip)
     db.commit()
-    return {"message": f"已購買{weapon.name}", "gold": int(char.gold)}
+    return {"message": f"已購買{weapon.name}（舊裝備已存入倉庫）", "gold": int(char.gold)}
 
 
 def buy_armor(db: Session, char: Character, armor_id: int) -> dict:
     armor = db.query(ArmorCatalog).filter(ArmorCatalog.id == armor_id).first()
     if not armor:
         return {"error": "找不到防具"}
+
+    equip = char.equipment or CharacterEquipment(character_id=char.id)
+
+    # 舊裝備存倉庫
+    if equip.armor_name and equip.armor_name != "布衣":
+        wh_count = db.query(WarehouseItem).filter(
+            WarehouseItem.character_id == char.id,
+            WarehouseItem.item_type == "armor",
+        ).count()
+        if wh_count >= settings.def_max:
+            return {"error": "防具倉庫已滿，請先清理倉庫"}
+        old_cat = db.query(ArmorCatalog).filter(ArmorCatalog.name == equip.armor_name).first()
+        if old_cat:
+            db.add(WarehouseItem(character_id=char.id, item_type="armor", catalog_id=old_cat.id))
+
     err = _deduct_gold(char, armor.price)
     if err:
         return {"error": err}
 
-    equip = char.equipment or CharacterEquipment(character_id=char.id)
     equip.armor_name = armor.name
     equip.armor_defense = armor.defense
     equip.armor_evasion = armor.evasion_bonus
     if not char.equipment:
         db.add(equip)
     db.commit()
-    return {"message": f"已購買{armor.name}", "gold": int(char.gold)}
+    return {"message": f"已購買{armor.name}（舊裝備已存入倉庫）", "gold": int(char.gold)}
 
 
 def buy_accessory(db: Session, char: Character, acs_id: int) -> dict:
     acs = db.query(AccessoryCatalog).filter(AccessoryCatalog.id == acs_id).first()
     if not acs:
         return {"error": "找不到飾品"}
+
+    equip = char.equipment or CharacterEquipment(character_id=char.id)
+
+    # 舊裝備存倉庫
+    if equip.accessory_name and equip.accessory_name != "無":
+        wh_count = db.query(WarehouseItem).filter(
+            WarehouseItem.character_id == char.id,
+            WarehouseItem.item_type == "accessory",
+        ).count()
+        if wh_count >= settings.acs_max:
+            return {"error": "飾品倉庫已滿，請先清理倉庫"}
+        old_cat = db.query(AccessoryCatalog).filter(AccessoryCatalog.name == equip.accessory_name).first()
+        if old_cat:
+            db.add(WarehouseItem(character_id=char.id, item_type="accessory", catalog_id=old_cat.id))
+
     err = _deduct_gold(char, acs.price)
     if err:
         return {"error": err}
 
-    equip = char.equipment or CharacterEquipment(character_id=char.id)
     equip.accessory_name = acs.name
     equip.accessory_skill_id = acs.skill_id
     equip.acs_str = acs.str_bonus
@@ -85,7 +128,7 @@ def buy_accessory(db: Session, char: Character, acs_id: int) -> dict:
     if not char.equipment:
         db.add(equip)
     db.commit()
-    return {"message": f"已購買{acs.name}", "gold": int(char.gold)}
+    return {"message": f"已購買{acs.name}（舊裝備已存入倉庫）", "gold": int(char.gold)}
 
 
 def sell_weapon(db: Session, char: Character) -> dict:
