@@ -131,7 +131,8 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
     jobs = _load_jobs()
     job_name = jobs.get(str(user.job_class), {}).get("name", "不明")
     champion = db.query(Champion).first()
-    cooldown = battle_service.check_cooldown(user, settings.b_time)
+    cooldown = max(battle_service.check_cooldown(user, settings.b_time),
+                    battle_service.check_cooldown(user, settings.m_time))
 
     # 從 DB 查有魔物且已開放的區域，按 _ZONE_ORDER 排序
     zones_with_monsters = {z for z, in db.query(Monster.zone).distinct()}
