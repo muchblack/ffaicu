@@ -11,10 +11,15 @@
 <header class="fantasy-border mb-6">
   <div class="flex flex-col gap-4">
     <div class="flex items-center gap-4 flex-wrap">
-      <h1 class="text-3xl font-bold text-gold-shine" style="text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);">{{ char.name }} 的狀態</h1>
-      <div class="flex gap-2">
-        <span class="badge"><span class="text-gold font-bold">LV</span> <span class="font-mono">{{ char.level }}</span></span>
-        <span class="badge"><span class="text-gold font-bold">職業</span> {{ job_name }} (Lv{{ char.job_level }})</span>
+      <div class="avatar-placeholder" data-image-id="{{ char.image_id }}" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(168,85,247,0.2));border:2px solid var(--rpg-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span class="material-symbols-outlined" style="font-size:28px;color:var(--text-muted);">person</span>
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold text-gold-shine" style="text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);">{{ char.name }} 的狀態</h1>
+        <div class="flex gap-2 mt-1">
+          <span class="badge"><span class="text-gold font-bold">LV</span> <span class="font-mono">{{ char.level }}</span></span>
+          <span class="badge"><span class="text-gold font-bold">職業</span> {{ job_name }} (Lv{{ char.job_level }})</span>
+        </div>
       </div>
     </div>
 
@@ -131,7 +136,12 @@
       <div class="glass-card equip-card equip-accessory">
         <p class="text-gold text-xs font-bold mb-1">飾品</p>
         <p class="font-bold">{{ equip.accessory_name }}</p>
-        <p class="text-xs" style="color:var(--text-muted);">裝備中</p>
+        {% if accessory_bonuses %}
+        <p class="text-xs" style="color:var(--text-muted);">{{ accessory_bonuses }}</p>
+        {% endif %}
+        {% if accessory_skill_name and accessory_skill_name != '-' %}
+        <p class="text-xs" style="color:#a78bfa;">技能：{{ accessory_skill_name }}</p>
+        {% endif %}
       </div>
       {% else %}
       <div class="glass-card p-4"><p style="color:var(--text-muted);">無裝備</p></div>

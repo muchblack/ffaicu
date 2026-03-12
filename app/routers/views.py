@@ -151,14 +151,35 @@ def view_status(request: Request, db: Session = Depends(get_db), ffa_token: str 
 
     title_name = _TITLE_NAMES[min(user.title_rank, len(_TITLE_NAMES) - 1)]
 
+    # 飾品加成 & 技能名稱
+    equip = user.equipment
+    accessory_bonuses = ""
+    accessory_skill_name = ""
+    if equip and equip.accessory_name and equip.accessory_name != "無":
+        parts = []
+        for attr, label in [("acs_str", "STR"), ("acs_mag", "MAG"), ("acs_fai", "FAI"),
+                            ("acs_vit", "VIT"), ("acs_dex", "DEX"), ("acs_spd", "SPD"),
+                            ("acs_cha", "CHA"), ("acs_karma", "業")]:
+            v = getattr(equip, attr, 0)
+            if v:
+                parts.append(f"{label}+{v}")
+        for attr, label in [("acs_accuracy", "命中"), ("acs_evasion", "迴避"), ("acs_critical", "暴擊")]:
+            v = getattr(equip, attr, 0)
+            if v:
+                parts.append(f"{label}+{v}")
+        accessory_bonuses = "　".join(parts)
+        accessory_skill_name = _ACCESSORY_SKILL_NAMES.get(equip.accessory_skill_id, "-")
+
     return templates.TemplateResponse("status.html", {
-        "request": request, "char": user, "equip": user.equipment,
+        "request": request, "char": user, "equip": equip,
         "job_name": job_name, "champion": champion, "cooldown": cooldown,
         "inn_cost": user.level * settings.yado_dai,
         "hunt_zones": hunt_zones, "zone_labels": _ZONE_LABELS,
         "lv_up": settings.lv_up, "last_zone": user.last_zone or "",
         "status_msg": status_msg, "status_msg_type": status_msg_type,
         "title_name": title_name,
+        "accessory_bonuses": accessory_bonuses,
+        "accessory_skill_name": accessory_skill_name,
     })
 
 
