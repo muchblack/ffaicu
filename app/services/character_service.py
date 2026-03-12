@@ -122,7 +122,7 @@ def change_job(db: Session, char: Character, target_job: int) -> dict:
     target_mastery_level = new_mastery.mastery_level if new_mastery else 0
 
     # 轉職懲罰：精通 < 20 時能力值 -10%（Perl: stats -= stats/10）
-    if target_mastery_level < 20:
+    if settings.job_change_penalty and target_mastery_level < 20:
         # Perl 順序：先扣 STR~CHA，再用已扣過的 STR 算 karma 扣除
         char.str_ = int(char.str_) - int(char.str_ // 10)
         char.mag = int(char.mag) - int(char.mag // 10)

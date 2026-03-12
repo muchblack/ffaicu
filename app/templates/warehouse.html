@@ -38,15 +38,16 @@
     <h2 class="section-title text-sm"><span class="material-symbols-outlined text-sm" style="opacity:0.7; color:#ef4444;">swords</span> 武器倉庫</h2>
     {% if weapons %}
     <table class="rpg-table">
-      <thead><tr><th>名稱</th><th>攻擊</th><th>價格</th><th></th></tr></thead>
+      <thead><tr><th>名稱</th><th>攻擊</th><th>賣價</th><th></th></tr></thead>
       <tbody>
       {% for item in weapons %}
       <tr>
         <td class="font-bold">{{ item.name }}</td>
         <td>{{ item.attack }}</td>
-        <td class="text-gold">{{ "{:,}".format(item.price) }}G</td>
+        <td class="text-gold">{{ "{:,}".format(item.sell_price) }}G</td>
         <td style="white-space:nowrap;">
           <form action="/view/warehouse/equip" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">裝備</button></form>
+          <form action="/view/warehouse/sell" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">賣出</button></form>
           <form action="/view/warehouse/discard" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn rpg-btn-danger" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">丟棄</button></form>
         </td>
       </tr>
@@ -63,15 +64,16 @@
     <h2 class="section-title text-sm"><span class="material-symbols-outlined text-sm" style="opacity:0.7; color:#3b82f6;">shield</span> 防具倉庫</h2>
     {% if armors %}
     <table class="rpg-table">
-      <thead><tr><th>名稱</th><th>防禦</th><th>價格</th><th></th></tr></thead>
+      <thead><tr><th>名稱</th><th>防禦</th><th>賣價</th><th></th></tr></thead>
       <tbody>
       {% for item in armors %}
       <tr>
         <td class="font-bold">{{ item.name }}</td>
         <td>{{ item.defense }}</td>
-        <td class="text-gold">{{ "{:,}".format(item.price) }}G</td>
+        <td class="text-gold">{{ "{:,}".format(item.sell_price) }}G</td>
         <td style="white-space:nowrap;">
           <form action="/view/warehouse/equip" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">裝備</button></form>
+          <form action="/view/warehouse/sell" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">賣出</button></form>
           <form action="/view/warehouse/discard" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn rpg-btn-danger" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">丟棄</button></form>
         </td>
       </tr>
@@ -88,15 +90,16 @@
     <h2 class="section-title text-sm"><span class="material-symbols-outlined text-sm" style="opacity:0.7; color:#eab308;">diamond</span> 飾品倉庫</h2>
     {% if accessories %}
     <table class="rpg-table">
-      <thead><tr><th>名稱</th><th>說明</th><th>價格</th><th></th></tr></thead>
+      <thead><tr><th>名稱</th><th>說明</th><th>賣價</th><th></th></tr></thead>
       <tbody>
       {% for item in accessories %}
       <tr>
         <td class="font-bold">{{ item.name }}</td>
         <td class="text-sm" style="color:var(--text-muted);">{{ item.description }}</td>
-        <td class="text-gold">{{ "{:,}".format(item.price) }}G</td>
+        <td class="text-gold">{{ "{:,}".format(item.sell_price) }}G</td>
         <td style="white-space:nowrap;">
           <form action="/view/warehouse/equip" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">裝備</button></form>
+          <form action="/view/warehouse/sell" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">賣出</button></form>
           <form action="/view/warehouse/discard" method="post" style="display:inline"><input type="hidden" name="warehouse_item_id" value="{{ item.wh_id }}"><button class="rpg-btn rpg-btn-danger" type="submit" style="padding:0.25rem 0.5rem; font-size:0.75rem;">丟棄</button></form>
         </td>
       </tr>

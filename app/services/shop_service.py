@@ -11,6 +11,16 @@ from app.models.item_catalog import AccessoryCatalog, ArmorCatalog, WeaponCatalo
 from app.models.warehouse import WarehouseItem
 
 
+def calc_sell_price(item_type: str, catalog) -> int:
+    """統一計算道具賣出價格。weapon/armor/accessory 各有不同公式。"""
+    if item_type == "weapon":
+        return catalog.attack * 5
+    elif item_type == "armor":
+        return catalog.defense * 5
+    else:  # accessory
+        return max((catalog.str_bonus + catalog.mag_bonus + catalog.fai_bonus + catalog.vit_bonus) * 10, 100)
+
+
 def _deduct_gold(char: Character, price: int) -> str | None:
     """從持有金扣款，不足時自動從銀行補差額。成功回傳 None，失敗回傳錯誤訊息。"""
     total = char.gold + char.bank_savings

@@ -8,7 +8,9 @@
     <span class="font-bold text-lg">{{ current_job_name }}</span>
     <span class="badge">Lv{{ current_job_level }}</span>
   </div>
+  {% if job_change_penalty %}
   <p class="rpg-hint mt-2">※ 轉職後，能力值會下降10%。但若轉職目標職業的職業等級為20以上，則不會下降。</p>
+  {% endif %}
 </header>
 
 <section class="fantasy-border mb-6">

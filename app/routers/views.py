@@ -451,6 +451,7 @@ def view_job(request: Request, db: Session = Depends(get_db), ffa_token: str = C
     return templates.TemplateResponse("job_change.html", {
         "request": request, "jobs": job_list, "current_job": user.job_class,
         "current_job_name": current_name, "current_job_level": user.job_level,
+        "job_change_penalty": settings.job_change_penalty,
     })
 
 
@@ -533,19 +534,20 @@ def _warehouse_items(db: Session, user: Character):
     """查詢倉庫物品並聯結目錄資料。"""
     wh_items = db.query(WarehouseItem).filter(WarehouseItem.character_id == user.id).order_by(WarehouseItem.item_type, WarehouseItem.slot_index).all()
     weapons, armors, accessories = [], [], []
+    from app.services.shop_service import calc_sell_price
     for w in wh_items:
         if w.item_type == "weapon":
             cat = db.query(WeaponCatalog).filter(WeaponCatalog.id == w.catalog_id).first()
             if cat:
-                weapons.append({"wh_id": w.id, "name": cat.name, "attack": cat.attack, "price": cat.price})
+                weapons.append({"wh_id": w.id, "name": cat.name, "attack": cat.attack, "sell_price": calc_sell_price("weapon", cat)})
         elif w.item_type == "armor":
             cat = db.query(ArmorCatalog).filter(ArmorCatalog.id == w.catalog_id).first()
             if cat:
-                armors.append({"wh_id": w.id, "name": cat.name, "defense": cat.defense, "price": cat.price})
+                armors.append({"wh_id": w.id, "name": cat.name, "defense": cat.defense, "sell_price": calc_sell_price("armor", cat)})
         elif w.item_type == "accessory":
             cat = db.query(AccessoryCatalog).filter(AccessoryCatalog.id == w.catalog_id).first()
             if cat:
-                accessories.append({"wh_id": w.id, "name": cat.name, "description": cat.description or "-", "price": cat.price})
+                accessories.append({"wh_id": w.id, "name": cat.name, "description": cat.description or "-", "sell_price": calc_sell_price("accessory", cat)})
     return weapons, armors, accessories
 
 
@@ -662,6 +664,31 @@ def view_warehouse_discard(request: Request, db: Session = Depends(get_db), ffa_
     if wh:
         db.delete(wh)
         db.commit()
+    return RedirectResponse("/view/warehouse", status_code=303)
+
+
+@router.post("/warehouse/sell")
+def view_warehouse_sell(request: Request, db: Session = Depends(get_db), ffa_token: str = Cookie(default=None), warehouse_item_id: int = Form()):
+    user = _get_user(db, ffa_token)
+    if not user:
+        return RedirectResponse("/view/home")
+    wh = db.query(WarehouseItem).filter(WarehouseItem.id == warehouse_item_id, WarehouseItem.character_id == user.id).first()
+    if not wh:
+        return RedirectResponse("/view/warehouse", status_code=303)
+    # 查目錄算賣價
+    from app.services.shop_service import calc_sell_price
+    cat = None
+    if wh.item_type == "weapon":
+        cat = db.query(WeaponCatalog).filter(WeaponCatalog.id == wh.catalog_id).first()
+    elif wh.item_type == "armor":
+        cat = db.query(ArmorCatalog).filter(ArmorCatalog.id == wh.catalog_id).first()
+    elif wh.item_type == "accessory":
+        cat = db.query(AccessoryCatalog).filter(AccessoryCatalog.id == wh.catalog_id).first()
+    if cat:
+        refund = calc_sell_price(wh.item_type, cat)
+        user.gold = min(user.gold + refund, settings.gold_max)
+    db.delete(wh)
+    db.commit()
     return RedirectResponse("/view/warehouse", status_code=303)
 
 

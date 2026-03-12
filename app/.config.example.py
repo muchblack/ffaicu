@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     exp_multiplier: float = 1.0  # 經驗值倍數（戰鬥獎勵）
     gold_multiplier: float = 1.0 # 金錢倍數（戰鬥獎勵）
     job_level_per_win: float = 1.0  # 戰鬥勝利時職業熟練度增加量（0=不增加）
+    job_change_penalty: bool = True  # 轉職時精通<20是否扣屬性值
 
     # 武道會（原 tenka.cgi）
     tenka_su: int = 3            # 武道會參賽人數
